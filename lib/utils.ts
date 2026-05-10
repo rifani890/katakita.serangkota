@@ -112,7 +112,7 @@ export function getPrimaryRole(
 }
 
 export function normalizeOfficialRole(role: string | undefined): string {
-  const normalized = (role || "").trim().toLowerCase();
+  const normalized = (role || "").trim().replace(/^['"]+|['"]+$/g, "").trim().toLowerCase();
   const compact = normalized.replace(/\s+/g, "");
   if (!normalized) return "Pejabat Lainnya";
   if (compact.includes("wakilwalikota")) {
@@ -185,10 +185,15 @@ export function getOfficialMapping(
   officialMapping: OfficialMapping
 ): OfficialMapping[string] | null {
   if (!rawName) return null;
-  if (officialMapping[rawName]) return officialMapping[rawName];
-  const lowerRaw = rawName.toLowerCase();
+
+  const cleanName = rawName.trim().replace(/^['"]+|['"]+$/g, "");
+
+  if (officialMapping[cleanName]) return officialMapping[cleanName];
+
+  const lowerClean = cleanName.toLowerCase();
   for (const [key, val] of Object.entries(officialMapping)) {
-    if (key.toLowerCase() === lowerRaw) return val;
+    const cleanKey = key.trim().replace(/^['"]+|['"]+$/g, "").toLowerCase();
+    if (cleanKey === lowerClean) return val;
   }
   return null;
 }
