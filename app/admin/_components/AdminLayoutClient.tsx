@@ -37,6 +37,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const handleLogout = async () => {
     if (confirm("Apakah Anda yakin ingin keluar (logout) dari sistem ini?")) {
       await logout();
+      router.replace("/");
     }
   };
 
@@ -129,11 +130,10 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                   key={href}
                   href={href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
-                    isActive
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive
                       ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-bold"
                       : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                  }`}
+                    }`}
                 >
                   <Icon size={18} className="w-5 text-center flex-shrink-0" />
                   <span className="text-left flex-1">{label}</span>

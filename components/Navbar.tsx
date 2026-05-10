@@ -32,7 +32,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     if (confirm("Apakah Anda yakin ingin keluar (logout) dari sistem ini?")) {
       setShowLogin(false);
-      await logout({ redirectToRoot: true });
+      await logout();
     }
   };
 

@@ -448,8 +448,8 @@ export async function getPaginatedNews(
   const offset = (page - 1) * pageSize;
 
   const [rows] = await dbPool.query(
-    `${NEWS_SELECT}${whereClause} ORDER BY ${sortField} ${sortOrder.toUpperCase()} LIMIT ? OFFSET ?`,
-    [...values, Number(pageSize), Number(offset)]
+    `${NEWS_SELECT}${whereClause} ORDER BY ${sortField} ${sortOrder.toUpperCase()} LIMIT ${Number(pageSize)} OFFSET ${Number(offset)}`,
+    values
   );
 
   return {
@@ -515,16 +515,16 @@ function buildTrendPoints(
       const label =
         periodType === "monthly"
           ? (() => {
-              const [year, month] = key.split("-").map(Number);
-              const date = new Date(year, (month || 1) - 1, 1);
-              return `${MONTHS_ID[date.getMonth()]} ${date.getFullYear()}`;
-            })()
+            const [year, month] = key.split("-").map(Number);
+            const date = new Date(year, (month || 1) - 1, 1);
+            return `${MONTHS_ID[date.getMonth()]} ${date.getFullYear()}`;
+          })()
           : (() => {
-              const start = new Date(key);
-              const end = new Date(start);
-              end.setDate(end.getDate() + 6);
-              return `${start.getDate()} ${MONTHS_ID[start.getMonth()]} - ${end.getDate()} ${MONTHS_ID[end.getMonth()]} '${String(end.getFullYear()).slice(2)}`;
-            })();
+            const start = new Date(key);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 6);
+            return `${start.getDate()} ${MONTHS_ID[start.getMonth()]} - ${end.getDate()} ${MONTHS_ID[end.getMonth()]} '${String(end.getFullYear()).slice(2)}`;
+          })();
 
       return {
         key,

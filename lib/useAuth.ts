@@ -75,12 +75,10 @@ export function useAuth(): AuthState {
       const savedTheme = localStorage.getItem("theme");
 
       try {
-        console.log("Calling DELETE /api/auth/session...");
-        const res = await fetch("/api/auth/session", {
+        await fetch("/api/auth/session", {
           method: "DELETE",
           cache: "no-store",
         });
-        console.log("Logout API response status:", res.status);
       } catch (err) {
         console.error("Logout request failed:", err);
       }
@@ -94,7 +92,6 @@ export function useAuth(): AuthState {
       setLoading(false);
 
       if (options?.redirectToRoot || isAdminRoute()) {
-        console.log("Redirecting to root...");
         redirectToRoot();
       }
     },

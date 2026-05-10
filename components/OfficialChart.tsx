@@ -1,162 +1,120 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  ChartEvent,
-  ActiveElement
-} from "chart.js";
-import { Doughnut } from "react-chartjs-2";
-import ChartDataLabels from "chartjs-plugin-datalabels";
-
-ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
-
-interface RoleCount {
-  role: string;
-  total: number;
-  color?: string;
-}
+import { useEffect, useRef } from "react";
+import type { OfficialCountItem } from "@/types";
+import { initChart } from "@/lib/chart";
+import { getOfficialRolePriority } from "@/lib/utils";
 
 interface OfficialChartProps {
-  roleCounts?: RoleCount[];
-  onOfficialClick?: (role: string) => void;
-  // Fallback support for older props if needed
-  onFilterChange?: (role: string) => void;
-}
-
-const OFFICIAL_MAPPING: Record<string, string> = {
-  Walikota: "#87CEEB",
-  "Wakil Walikota": "#FFD700",
-  Sekda: "#964B00",
-  "Pejabat Lainnya": "#64748b",
-};
-
-function useDarkMode() {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    const checkDark = () => document.documentElement.classList.contains("dark");
-    setIsDark(checkDark());
-
-    const observer = new MutationObserver(() => {
-      setIsDark(checkDark());
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  return isDark;
+  roleCounts: OfficialCountItem[];
+  onOfficialClick: (roleName: string) => void;
 }
 
 export default function OfficialChart({
-  roleCounts = [],
+  roleCounts,
   onOfficialClick,
-  onFilterChange,
 }: OfficialChartProps) {
-  const isDark = useDarkMode();
-  const borderColor = isDark ? "#1e293b" : "#ffffff";
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const chartRef = useRef<any>(null);
 
-  // Filter out zero totals if you don't want them to show, or keep them
-  // The original mapping in getDashboardSummary uses "Walikota", "Wakil Walikota", "Sekda", "Pejabat Lainnya"
-  const labels = roleCounts.map(item => item.role);
-  const dataValues = roleCounts.map(item => item.total);
-  const bgColors = roleCounts.map(item => item.color || OFFICIAL_MAPPING[item.role] || "#64748b");
+  useEffect(() => {
+    if (roleCounts.length === 0 || !canvasRef.current) return;
 
-  const data = {
-    labels,
-    datasets: [
-      {
-        data: dataValues,
-        backgroundColor: bgColors,
-        borderColor: borderColor,
-        borderWidth: 2,
-      },
-    ],
-  };
+    const canvas = canvasRef.current;
+    const isDark = document.documentElement.classList.contains("dark");
+    const textColor = isDark ? "#cbd5e1" : "#475569";
+    const orderedCounts = [...roleCounts].sort(
+      (a, b) =>
+        (a.priority || getOfficialRolePriority(a.role)) -
+        (b.priority || getOfficialRolePriority(b.role))
+    );
+    const labels = orderedCounts.map((item) => item.role);
+    const colors = orderedCounts.map((item) => item.color || "#64748b");
+    const totals = orderedCounts.map((item) => item.total);
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: "60%",
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-        labels: {
-          color: isDark ? "#cbd5e1" : "#475569",
-          padding: 20,
-          font: {
-            size: 12,
-            family: "'Inter', 'Roboto', sans-serif"
-          }
+    async function renderChart() {
+      const Chart = await initChart();
+
+      if (chartRef.current) chartRef.current.destroy();
+
+      chartRef.current = new Chart(canvas, {
+        type: "doughnut",
+        data: {
+          labels,
+          datasets: [
+            {
+              data: totals,
+              backgroundColor: colors,
+              borderWidth: 2,
+              borderColor: isDark ? "#1e293b" : "#fff",
+              hoverOffset: 15,
+            },
+          ],
         },
-      },
-      datalabels: {
-        color: "#fff",
-        font: {
-          weight: "bold" as const,
-          size: 14
-        },
-        formatter: (value: number) => {
-          return value > 0 ? value : "";
-        },
-      },
-      tooltip: {
-        backgroundColor: isDark ? "#1e293b" : "#ffffff",
-        titleColor: isDark ? "#ffffff" : "#1e293b",
-        bodyColor: isDark ? "#cbd5e1" : "#475569",
-        borderColor: isDark ? "#334155" : "#e2e8f0",
-        borderWidth: 1,
-        padding: 10,
-        callbacks: {
-          label: function (context: any) {
-            const value = context.parsed;
-            const total = context.dataset.data.reduce(
-              (a: number, b: number) => a + b,
-              0
-            );
-            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-            return ` ${context.label}: ${value} (${percentage}%)`;
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: 16 },
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                color: textColor,
+                font: { family: "Poppins", size: 10 },
+                boxWidth: 10,
+                padding: 10,
+              },
+            },
+            datalabels: {
+              color: "#1e293b",
+              font: { weight: "900", family: "Poppins", size: 12 },
+              formatter: (value: number) => (value > 0 ? value : ""),
+            },
+            tooltip: {
+              backgroundColor: "#1e293b",
+              titleFont: { family: "Poppins" },
+              bodyFont: { family: "Poppins", weight: "bold", size: 14 },
+              padding: 12,
+              cornerRadius: 8,
+              displayColors: false,
+              callbacks: {
+                title: () => "",
+                label: (context: { raw: number; dataset: { data: number[] } }) => {
+                  const value = context.raw || 0;
+                  const sum = context.dataset.data.reduce((a, b) => a + b, 0);
+                  if (sum === 0) return "0%";
+                  return `${((value * 100) / sum).toFixed(0)}%`;
+                },
+              },
+            },
+          },
+          cutout: "60%",
+          onClick: (_evt: unknown, elements: { index: number }[]) => {
+            if (elements.length > 0) {
+              onOfficialClick(labels[elements[0].index]);
+            }
           },
         },
-      },
-    },
-    onClick: (event: ChartEvent, elements: ActiveElement[]) => {
-      if (elements && elements.length > 0) {
-        const index = elements[0].index;
-        const clickedLabel = labels[index];
-        if (onOfficialClick) onOfficialClick(clickedLabel);
-        if (onFilterChange) onFilterChange(clickedLabel);
-      }
-    },
-  };
+      });
+    }
 
-  const totalBerita = dataValues.reduce((a, b) => a + b, 0);
+    renderChart();
+
+    return () => {
+      chartRef.current?.destroy();
+    };
+  }, [onOfficialClick, roleCounts]);
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-300 dark:border-slate-700 p-4 sm:p-5 space-y-4 flex flex-col w-full h-full">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-4">
-        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white">
-          <i className="fas fa-users text-blue-500 text-xl sm:text-2xl"></i>
-          Statistik Pejabat
+    <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 flex flex-col items-start sm:items-stretch">
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white text-left">
+          <i className="fas fa-user-tie text-blue-500 text-xl sm:text-2xl"></i>
+          Nama Pejabat
         </h3>
       </div>
-      
-      <div className="relative w-full h-[300px] flex items-center justify-center">
-        {totalBerita > 0 ? (
-          <Doughnut data={data} options={options} />
-        ) : (
-          <div className="text-slate-500 dark:text-slate-400 text-center">
-            Tidak ada data pejabat untuk ditampilkan
-          </div>
-        )}
+      <div className="relative h-[280px] sm:h-[300px] w-full flex items-center justify-center">
+        <canvas ref={canvasRef}></canvas>
       </div>
     </div>
   );
