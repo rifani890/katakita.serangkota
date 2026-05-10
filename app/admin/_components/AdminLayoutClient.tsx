@@ -14,6 +14,7 @@ const baseNavItems = [
   { href: "/admin/berita", label: "Kelola Berita", icon: Newspaper },
   { href: "/admin/unit", label: "Unit Kerja", icon: Building2 },
   { href: "/admin/pejabat", label: "Nama Pejabat", icon: User },
+  { href: "/admin/validasi", label: "Validasi Data", icon: Shield },
 ];
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
