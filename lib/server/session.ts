@@ -38,7 +38,7 @@ function bytesToBase64Url(bytes: Uint8Array): string {
 }
 
 function getAuthSecret(): string {
-  return process.env.AUTH_SECRET || "dev-only-change-me";
+  return process.env.AUTH_SECRET || "9109d79f5a9923b5ba2e261116951b99";
 }
 
 async function importSecretKey() {
@@ -103,7 +103,7 @@ export function getSessionCookieName() {
 }
 
 export function getSessionCookieOptions() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "mysql://root:igvlMBchnvRXAVfXFINUmEggqmDXDcQN@turntable.proxy.rlwy.net:34692/railway";
   const secure =
     process.env.FORCE_SECURE_COOKIES === "true" ||
     siteUrl.toLowerCase().startsWith("https://");
