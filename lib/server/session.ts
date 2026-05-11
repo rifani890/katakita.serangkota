@@ -103,7 +103,7 @@ export function getSessionCookieName() {
 }
 
 export function getSessionCookieOptions() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "mysql://root:igvlMBchnvRXAVfXFINUmEggqmDXDcQN@turntable.proxy.rlwy.net:34692/railway";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "";
   const secure =
     process.env.FORCE_SECURE_COOKIES === "true" ||
     siteUrl.toLowerCase().startsWith("https://");
