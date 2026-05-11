@@ -38,7 +38,7 @@ function bytesToBase64Url(bytes: Uint8Array): string {
 }
 
 function getAuthSecret(): string {
-  return process.env.AUTH_SECRET || "9109d79f5a9923b5ba2e261116951b99";
+  return process.env.AUTH_SECRET || "dev-only-change-me";
 }
 
 async function importSecretKey() {
