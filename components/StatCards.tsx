@@ -57,7 +57,7 @@ function StatCard({
     >
       {/* Background Gradient Fade */}
       <div className={`absolute inset-0 bg-gradient-to-r ${bgGradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
-      
+
       {/* Vertical Gradient Accent Bar */}
       <div className={`absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b ${gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
 

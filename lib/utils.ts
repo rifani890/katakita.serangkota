@@ -5,6 +5,11 @@ export const MONTHS_ID = [
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
 
+export const MONTHS_SHORT_ID = [
+  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+];
+
 export const DAYS_ID = [
   "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu",
 ];

@@ -16,6 +16,7 @@ import type {
 } from "@/types";
 import {
   MONTHS_ID,
+  MONTHS_SHORT_ID,
   OFFICIAL_ROLE_COLORS,
   OFFICIAL_ROLE_ORDER,
   buildDefaultMediaMapping,
@@ -553,13 +554,13 @@ function buildTrendPoints(
           ? (() => {
             const [year, month] = key.split("-").map(Number);
             const date = new Date(year, (month || 1) - 1, 1);
-            return `${MONTHS_ID[date.getMonth()]} ${date.getFullYear()}`;
+            return `${MONTHS_SHORT_ID[date.getMonth()]}`;
           })()
           : (() => {
             const start = new Date(key);
             const end = new Date(start);
             end.setDate(end.getDate() + 6);
-            return `${start.getDate()} ${MONTHS_ID[start.getMonth()]} - ${end.getDate()} ${MONTHS_ID[end.getMonth()]} '${String(end.getFullYear()).slice(2)}`;
+            return `${start.getDate()} ${MONTHS_SHORT_ID[start.getMonth()]} - ${end.getDate()} ${MONTHS_SHORT_ID[end.getMonth()]}`;
           })();
 
       return {
