@@ -44,6 +44,7 @@ interface NewsDbRow {
   tanggal_raw: string | number | null;
   tanggal_converted: string | null;
   user_email: string | null;
+  segment: string | null;
   created_at: string | null;
   updated_at?: string | null;
 }
@@ -71,6 +72,7 @@ const NEWS_SELECT = `
     pejabat,
     potensi,
     unit,
+    segment,
     tanggal_raw,
     tanggal_converted,
     user_email,
@@ -219,6 +221,7 @@ function mapNewsRow(row: NewsDbRow): NewsItem {
     unit: row.unit ?? "",
     unitkerja: row.unit ?? "",
     userEmail: row.user_email ?? "",
+    segment: row.segment ?? "",
     mNorm: normMedia(row.media),
     tMingguKey: toDateKey(getSunday(parsedDate)),
     tBulanKey: toMonthKey(parsedDate),

@@ -14,6 +14,7 @@ export interface NewsItem {
   userEmail?: string;
   tMingguKey: string;
   tBulanKey: string;
+  segment?: string;
 }
 
 export interface PaginatedNewsResponse {

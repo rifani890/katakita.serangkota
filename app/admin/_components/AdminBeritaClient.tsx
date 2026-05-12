@@ -197,6 +197,8 @@ export default function AdminBeritaClient() {
                   <span className="text-slate-400 font-medium">Potensi:</span>{" "}
                   <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${potensiColor[viewNews.potensi] || potensiColor.Netral}`}>{viewNews.potensi || "Netral"}</span>
                 </div>
+                <div><span className="text-slate-400 font-medium">Segment:</span> <span className="text-slate-800 dark:text-white font-semibold">{viewNews.segment || "-"}</span></div>
+
               </div>
               <div>
                 <span className="text-slate-400 font-medium text-sm">Isi Berita:</span>
@@ -258,6 +260,7 @@ export default function AdminBeritaClient() {
                 </th>
                 <th className="px-4 py-3 text-xs font-bold uppercase">Pejabat</th>
                 <th className="px-4 py-3 text-xs font-bold uppercase">Unit</th>
+                <th className="px-4 py-3 text-xs font-bold uppercase">Segment</th>
                 <th className="px-4 py-3 text-xs font-bold uppercase cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("potensi")}>
                   Potensi {sortField === "potensi" && <span>{sortOrder === "asc" ? "↑" : "↓"}</span>}
                 </th>
@@ -267,9 +270,9 @@ export default function AdminBeritaClient() {
             </thead>
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {loading ? (
-                <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400">Memuat data...</td></tr>
+                <tr><td colSpan={10} className="px-4 py-8 text-center text-slate-400">Memuat data...</td></tr>
               ) : response.items.length === 0 ? (
-                <tr><td colSpan={9} className="px-4 py-8 text-center text-slate-400">Tidak ada berita ditemukan.</td></tr>
+                <tr><td colSpan={10} className="px-4 py-8 text-center text-slate-400">Tidak ada berita ditemukan.</td></tr>
               ) : (
                 response.items.map((news, index) => {
                   const pejabat = Array.isArray(news.pejabat) ? news.pejabat.join(", ") : news.pejabat || "-";
@@ -291,6 +294,7 @@ export default function AdminBeritaClient() {
                       <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">{news.media || "-"}</td>
                       <td className="px-4 py-4 text-xs text-slate-600 dark:text-slate-300 max-w-[180px]">{pejabat}</td>
                       <td className="px-4 py-4 text-xs text-slate-500 max-w-[140px]">{news.unit || "-"}</td>
+                      <td className="px-4 py-4 text-xs text-slate-500 max-w-[120px]">{news.segment || "-"}</td>
                       <td className="px-4 py-4 text-center">
                         <span className={`px-2 py-1 rounded-full text-xs font-semibold uppercase ${colorClass}`}>{news.potensi || "Netral"}</span>
                       </td>

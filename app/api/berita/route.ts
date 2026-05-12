@@ -76,15 +76,15 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { judul, isi, media, pejabat, potensi, unit, tanggal_raw, userEmail } = body;
+    const { judul, isi, media, pejabat, potensi, unit, segment, tanggal_raw, userEmail } = body;
 
     if (!judul || !judul.trim()) {
       return NextResponse.json({ error: "Judul tidak boleh kosong" }, { status: 400 });
     }
 
     await executeStatement(
-      `INSERT INTO berita (judul, isi, media, pejabat, potensi, unit, tanggal_raw, tanggal_converted, user_email, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      `INSERT INTO berita (judul, isi, media, pejabat, potensi, unit, segment, tanggal_raw, tanggal_converted, user_email, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         judul.trim(),
         isi || "",
@@ -92,6 +92,7 @@ export async function POST(req: Request) {
         serializePejabat(pejabat),
         potensi || "Netral",
         unit || null,
+        segment || null,
         tanggal_raw || null,
         toSqlDateTime(tanggal_raw),
         userEmail || null,
@@ -111,7 +112,7 @@ export async function PUT(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, judul, isi, media, pejabat, potensi, unit, tanggal_raw, userEmail } = body;
+    const { id, judul, isi, media, pejabat, potensi, unit, segment, tanggal_raw, userEmail } = body;
 
     if (!id || !judul || !judul.trim()) {
       return NextResponse.json({ error: "ID dan judul harus diisi" }, { status: 400 });
@@ -119,7 +120,7 @@ export async function PUT(req: Request) {
 
     await executeStatement(
       `UPDATE berita
-       SET judul = ?, isi = ?, media = ?, pejabat = ?, potensi = ?, unit = ?, tanggal_raw = ?, tanggal_converted = ?, user_email = ?, updated_at = NOW()
+       SET judul = ?, isi = ?, media = ?, pejabat = ?, potensi = ?, unit = ?, segment = ?, tanggal_raw = ?, tanggal_converted = ?, user_email = ?, updated_at = NOW()
        WHERE id = ?`,
       [
         judul.trim(),
@@ -128,6 +129,7 @@ export async function PUT(req: Request) {
         serializePejabat(pejabat),
         potensi || "Netral",
         unit || null,
+        segment || null,
         tanggal_raw || null,
         toSqlDateTime(tanggal_raw),
         userEmail || null,

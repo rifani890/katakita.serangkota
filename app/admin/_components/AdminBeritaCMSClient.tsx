@@ -76,6 +76,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
   const [formUnit, setFormUnit] = useState("");
   const [formPotensi, setFormPotensi] = useState("");
   const [formIsi, setFormIsi] = useState("");
+  const [formSegment, setFormSegment] = useState("");
 
   const [showPejabatDrop, setShowPejabatDrop] = useState(false);
   const [showUnitDrop, setShowUnitDrop] = useState(false);
@@ -106,6 +107,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
     setFormPotensi(news.potensi || "Netral");
     setFormUnit(news.unit || news.unitkerja || "");
     setFormIsi(news.isi || "");
+    setFormSegment(news.segment || "");
     const d = news.tanggal_raw ? new Date(Number(news.tanggal_raw)) : null;
     setFormTanggal(d && !isNaN(d.getTime()) ? d.toISOString().split("T")[0] : "");
     setFormPejabat(normalizePejabat(news.pejabat));
@@ -158,6 +160,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
         setFormMedia((current) => current || "");
         setFormPejabat((current) => current.length > 0 ? current : []);
         setFormUnit((current) => current || "");
+        setFormSegment("");
       }
     } finally {
       setLoading(false);
@@ -239,6 +242,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
           pejabat: formPejabat,
           unit: formUnit,
           potensi: formPotensi,
+          segment: formSegment,
           tanggal_raw: dateObj.getTime(),
           userEmail: user?.email || "",
         };
@@ -486,6 +490,22 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
                       </button>
                     </div>
                   )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">
+                    Segment Berita
+                  </label>
+                  <select
+                    value={formSegment}
+                    onChange={(e) => setFormSegment(e.target.value)}
+                    className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 outline-none focus:ring-2 ring-indigo-500 transition-all text-slate-800 dark:text-white"
+                  >
+                    <option value="">Pilih Segment (Opsional)</option>
+                    <option value="Peristiwa Kota Serang">Peristiwa Kota Serang</option>
+                    <option value="Peristiwa Kepala Daerah">Peristiwa Kepala Daerah</option>
+                    <option value="Pembangunan Fisik">Pembangunan Fisik</option>
+                  </select>
                 </div>
 
                 <div ref={pejabatDropRef}>
