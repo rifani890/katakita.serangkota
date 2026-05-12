@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useEffect, useState, useCallback } from "react";
 import { Shield, UserPlus, Trash2, Search, Users, Crown, UserCheck, AlertTriangle, Pencil } from "lucide-react";
 import { useAuth } from "@/lib/useAuth";
@@ -31,6 +32,18 @@ export default function AdminKelolaAdminClient() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
+  const [confirmState, setConfirmState] = useState({
+    open: false,
+    title: "",
+    msg: "",
+    type: "info" as "info" | "delete",
+    action: () => {}
+  });
+
+  const askConfirm = (title: string, msg: string, type: "info" | "delete", action: () => void) => {
+    setConfirmState({ open: true, title, msg, type, action });
+  };
+
   // Redirect non-admin users
   useEffect(() => {
     if (!authLoading && userRole !== "admin") {
@@ -41,7 +54,7 @@ export default function AdminKelolaAdminClient() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/users");
+      const res = await fetchWithAuth("/api/auth/users");
       if (!res.ok) throw new Error("Failed to fetch users");
       const userList: UserData[] = await res.json();
       // Sort: admin first, then by email
@@ -70,35 +83,31 @@ export default function AdminKelolaAdminClient() {
     setTimeout(() => setToast(null), 3000);
   }
 
-  async function handleToggleRole(userData: UserData) {
-    // Prevent demoting yourself
+  function handleToggleRole(userData: UserData) {
     if (userData.id === user?.uid) {
       showToast("Anda tidak bisa mengubah role Anda sendiri!", "error");
       return;
     }
     const nextRole = userData.role === "admin" ? "user" : "admin";
-    if (!confirm(`Apakah Anda yakin ingin mengubah role ${userData.email} menjadi ${nextRole}?`)) {
-      return;
-    }
-    setProcessing(true);
-    try {
-      const res = await fetch("/api/auth/users", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: userData.id, role: nextRole }),
-      });
-      if (!res.ok) throw new Error("Failed to update role");
-      showToast(
-        `Role ${userData.email} berhasil diubah menjadi ${nextRole}`,
-        "success"
-      );
-      fetchUsers();
-    } catch (err) {
-      console.error("Error updating role:", err);
-      showToast("Gagal mengubah role pengguna", "error");
-    } finally {
-      setProcessing(false);
-    }
+    askConfirm("Ubah Role", `Apakah Anda yakin ingin mengubah role ${userData.email} menjadi ${nextRole}?`, "info", async () => {
+      setConfirmState(prev => ({ ...prev, open: false }));
+      setProcessing(true);
+      try {
+        const res = await fetchWithAuth("/api/auth/users", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: userData.id, role: nextRole }),
+        });
+        if (!res.ok) throw new Error("Failed to update role");
+        showToast(`Role ${userData.email} berhasil diubah menjadi ${nextRole}`, "success");
+        fetchUsers();
+      } catch (err) {
+        console.error("Error updating role:", err);
+        showToast("Gagal mengubah role pengguna", "error");
+      } finally {
+        setProcessing(false);
+      }
+    });
   }
 
   function resetUserForm() {
@@ -128,60 +137,49 @@ export default function AdminKelolaAdminClient() {
     setShowAddModal(true);
   }
 
-  async function handleSaveUser() {
-    if (!newName.trim()) {
-      showToast("Nama tidak boleh kosong!", "error");
-      return;
-    }
-    if (!newEmail.trim()) {
-      showToast("Email tidak boleh kosong!", "error");
-      return;
-    }
-    if (!editTarget && newPassword.length < 6) {
-      showToast("Password minimal 6 karakter!", "error");
-      return;
-    }
-    if (editTarget && newPassword && newPassword.length < 6) {
-      showToast("Password minimal 6 karakter!", "error");
-      return;
-    }
+  function handleSaveUser() {
+    if (!newName.trim()) { showToast("Nama tidak boleh kosong!", "error"); return; }
+    if (!newEmail.trim()) { showToast("Email tidak boleh kosong!", "error"); return; }
+    if (!editTarget && newPassword.length < 6) { showToast("Password minimal 6 karakter!", "error"); return; }
+    if (editTarget && newPassword && newPassword.length < 6) { showToast("Password minimal 6 karakter!", "error"); return; }
+    
     const actionLabel = editTarget ? "menyimpan perubahan pengguna ini" : "menambahkan pengguna ini";
-    if (!confirm(`Apakah Anda yakin ingin ${actionLabel}?`)) return;
+    askConfirm("Konfirmasi Simpan", `Apakah Anda yakin ingin ${actionLabel}?`, "info", async () => {
+      setConfirmState(prev => ({ ...prev, open: false }));
+      setProcessing(true);
+      try {
+        const res = await fetchWithAuth("/api/auth/users", {
+          method: editTarget ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: editTarget?.id,
+            email: newEmail.trim(),
+            password: newPassword,
+            nama: newName.trim(),
+            role: newRole,
+          }),
+        });
 
-    setProcessing(true);
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || "Failed to save user");
+        }
 
-    try {
-      const res = await fetch("/api/auth/users", {
-        method: editTarget ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: editTarget?.id,
-          email: newEmail.trim(),
-          password: newPassword,
-          nama: newName.trim(),
-          role: newRole,
-        }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Failed to save user");
+        showToast(
+          editTarget
+            ? `Pengguna ${newEmail} berhasil diperbarui`
+            : `Pengguna ${newEmail} berhasil ditambahkan sebagai ${newRole}`,
+          "success"
+        );
+        resetUserForm();
+        fetchUsers();
+      } catch (err: any) {
+        console.error("Error saving user:", err);
+        showToast(err.message || "Gagal menyimpan pengguna", "error");
+      } finally {
+        setProcessing(false);
       }
-
-      showToast(
-        editTarget
-          ? `Pengguna ${newEmail} berhasil diperbarui`
-          : `Pengguna ${newEmail} berhasil ditambahkan sebagai ${newRole}`,
-        "success"
-      );
-      resetUserForm();
-      fetchUsers();
-    } catch (err: any) {
-      console.error("Error saving user:", err);
-      showToast(err.message || "Gagal menyimpan pengguna", "error");
-    } finally {
-      setProcessing(false);
-    }
+    });
   }
 
   function handleDeleteClick(userData: UserData) {
@@ -198,7 +196,7 @@ export default function AdminKelolaAdminClient() {
     setShowConfirm(false);
     setProcessing(true);
     try {
-      const res = await fetch(`/api/auth/users?id=${deleteTarget.id}`, {
+      const res = await fetchWithAuth(`/api/auth/users?id=${deleteTarget.id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete user");
@@ -234,6 +232,14 @@ export default function AdminKelolaAdminClient() {
   return (
     <div className="p-4 sm:p-8 space-y-8">
       <LoadingOverlay show={processing} text="Sedang Memproses..." />
+      <ConfirmDialog
+        show={confirmState.open}
+        title={confirmState.title}
+        message={confirmState.msg}
+        type={confirmState.type}
+        onConfirm={confirmState.action}
+        onCancel={() => setConfirmState(prev => ({ ...prev, open: false }))}
+      />
       <ConfirmDialog
         show={showConfirm}
         title="Hapus Pengguna"

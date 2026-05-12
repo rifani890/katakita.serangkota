@@ -61,9 +61,9 @@ export default function DashboardClient() {
       }
 
       const config = {
-        positive: { label: "Sentimen Positif", color: "#10b981", potensi: "Positif" },
-        neutral: { label: "Sentimen Netral", color: "#94a3b8", potensi: "Netral" },
-        negative: { label: "Sentimen Negatif", color: "#f43f5e", potensi: "Negatif" },
+        positive: { label: "Positif", color: "#10b981", potensi: "Positif" },
+        neutral: { label: "Netral", color: "#94a3b8", potensi: "Netral" },
+        negative: { label: "Negatif", color: "#f43f5e", potensi: "Negatif" },
       }[type];
 
       openDetailPage({ potensi: config.potensi }, config.label, config.color);

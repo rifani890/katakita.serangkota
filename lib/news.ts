@@ -16,6 +16,7 @@ import type {
 } from "@/types";
 import {
   MONTHS_ID,
+  OFFICIAL_ROLE_COLORS,
   OFFICIAL_ROLE_ORDER,
   buildDefaultMediaMapping,
   buildDefaultOfficialMapping,
@@ -81,6 +82,13 @@ const NEWS_SELECT = `
 const COUNT_SELECT = `SELECT COUNT(*) AS total FROM berita`;
 
 const DATE_SQL = `COALESCE(tanggal_converted, created_at)`;
+
+/**
+ * Global flag to track if MySQL Full-Text Search (FTS) index is available.
+ * null: not checked yet, true: available, false: not available (fallback to LIKE).
+ */
+let isFtsAvailable: boolean | null = null;
+
 
 const SORT_FIELD_MAP: Record<string, string> = {
   date: `${DATE_SQL}`,
@@ -248,17 +256,28 @@ function createDateRange(periodType?: "weekly" | "monthly", timeKey?: string) {
   return { start, end };
 }
 
-function buildWhereClause(options: NewsQueryOptions) {
+function buildWhereClause(options: NewsQueryOptions, useFts = true) {
   const conditions: string[] = [];
   const values: Array<string | number> = [];
 
   if (options.search?.trim()) {
-    const search = `%${options.search.trim()}%`;
-    conditions.push(
-      `(judul LIKE ? OR media LIKE ? OR potensi LIKE ? OR unit LIKE ? OR user_email LIKE ? OR pejabat LIKE ?)`
-    );
-    values.push(search, search, search, search, search, search);
+    const search = options.search.trim();
+
+    if (useFts) {
+      // Use MySQL Full-Text Search for high performance on large datasets
+      // Columns: judul, isi, media, pejabat, unit
+      conditions.push(`MATCH(judul, isi, media, pejabat, unit) AGAINST(? IN NATURAL LANGUAGE MODE)`);
+      values.push(search);
+    } else {
+      // Fallback to LIKE if FTS index is not available
+      const searchPattern = `%${search}%`;
+      conditions.push(
+        `(judul LIKE ? OR media LIKE ? OR potensi LIKE ? OR unit LIKE ? OR user_email LIKE ? OR pejabat LIKE ?)`
+      );
+      values.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+    }
   }
+
 
   if (options.potensi?.trim()) {
     conditions.push(`potensi = ?`);
@@ -310,7 +329,7 @@ function buildOfficialMapping(officials: OfficialItem[]): OfficialMapping {
       role,
       jabatan,
       priority: getOfficialRolePriority(jabatan),
-      color: official.color || stringToColor(name),
+      color: OFFICIAL_ROLE_COLORS[role] ?? "#64748b",
     };
   }
   return mapping;
@@ -405,7 +424,21 @@ export async function getPaginatedNews(
   const pageSize = clampPageSize(Number(options.pageSize));
   const sortField = normalizeSortField(options.sortField);
   const sortOrder = normalizeSortOrder(options.sortOrder);
-  const { whereClause, values } = buildWhereClause(options);
+
+  // Fallback Logic: Detect if FTS index is available before building the clause
+  if (isFtsAvailable === null && options.search?.trim()) {
+    try {
+      await dbPool.execute(
+        `SELECT 1 FROM berita WHERE MATCH(judul, isi, media, pejabat, unit) AGAINST('test') LIMIT 0`
+      );
+      isFtsAvailable = true;
+    } catch {
+      isFtsAvailable = false;
+    }
+  }
+
+  const { whereClause, values } = buildWhereClause(options, isFtsAvailable !== false);
+
 
   if (options.role?.trim()) {
     const officials = await fetchOfficials();
@@ -611,10 +644,7 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       role,
       total,
       priority: getOfficialRolePriority(role),
-      color:
-        Object.values(officialMapping).find((item) => item.role === role)?.color ||
-        officialMapping["Pejabat Lainnya"]?.color ||
-        "#64748b",
+      color: OFFICIAL_ROLE_COLORS[role] ?? "#64748b",
     }))
     .sort((a, b) => a.priority - b.priority);
 

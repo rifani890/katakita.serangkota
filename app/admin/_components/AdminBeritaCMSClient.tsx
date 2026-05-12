@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
@@ -20,7 +21,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
-import { LoadingOverlay } from "./AdminUI";
+import { LoadingOverlay, ConfirmDialog } from "./AdminUI";
 import type { MediaItem, NewsItem, OfficialItem, UnitItem } from "@/types";
 
 interface AdminBeritaCMSClientProps {
@@ -54,12 +55,26 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
   const [saving, setSaving] = useState(false);
   const [savingText, setSavingText] = useState("Memproses...");
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMsg, setConfirmMsg] = useState("");
+  const [confirmType, setConfirmType] = useState<"info" | "delete">("info");
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+
+  const askConfirm = (title: string, message: string, type: "info" | "delete", action: () => void) => {
+    setConfirmTitle(title);
+    setConfirmMsg(message);
+    setConfirmType(type);
+    setConfirmAction(() => action);
+    setConfirmOpen(true);
+  };
+
   const [formJudul, setFormJudul] = useState("");
   const [formMedia, setFormMedia] = useState("");
   const [formTanggal, setFormTanggal] = useState("");
   const [formPejabat, setFormPejabat] = useState<string[]>([]);
   const [formUnit, setFormUnit] = useState("");
-  const [formPotensi, setFormPotensi] = useState("Netral");
+  const [formPotensi, setFormPotensi] = useState("");
   const [formIsi, setFormIsi] = useState("");
 
   const [showPejabatDrop, setShowPejabatDrop] = useState(false);
@@ -97,7 +112,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
   }, []);
 
   const refreshUnits = useCallback(async () => {
-    const res = await fetch("/api/unit", { cache: "no-store" });
+    const res = await fetchWithAuth("/api/unit", { cache: "no-store" });
     if (res.ok) {
       const units: UnitItem[] = await res.json();
       setAllUnits(units);
@@ -105,7 +120,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
   }, []);
 
   const refreshOfficials = useCallback(async () => {
-    const res = await fetch("/api/pejabat", { cache: "no-store" });
+    const res = await fetchWithAuth("/api/pejabat", { cache: "no-store" });
     if (res.ok) {
       const officials: OfficialItem[] = await res.json();
       setAllOfficials(officials);
@@ -139,17 +154,10 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
           router.replace("/admin/berita");
         }
       } else {
-        const firstMedia = media
-          .map((m) => m.nama || m.name || "")
-          .find(Boolean);
-        const firstOfficial = officials
-          .map((o) => o.nama || o.name || o.nama_pejabat || "")
-          .find(Boolean);
-
-        setFormTanggal((current) => current || toInputDate(new Date()));
-        setFormMedia((current) => current || firstMedia || "Media Internal");
-        setFormPejabat((current) => current.length > 0 ? current : firstOfficial ? [firstOfficial] : ["Pejabat Lainnya"]);
-        setFormUnit((current) => current || units[0]?.unit || units[0]?.nama || "");
+        setFormTanggal((current) => current || "");
+        setFormMedia((current) => current || "");
+        setFormPejabat((current) => current.length > 0 ? current : []);
+        setFormUnit((current) => current || "");
       }
     } finally {
       setLoading(false);
@@ -183,85 +191,130 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
     );
   };
 
-  const handleQuickAddMedia = async () => {
+  const handleQuickAddMedia = () => {
     const name = newMediaName.trim();
     if (!name) return;
-    if (!confirm(`Yakin ingin menambahkan media "${name}"?`)) return;
-
-    setSavingText("Menambahkan Media...");
-    setSaving(true);
-    try {
-      const res = await fetch("/api/media", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nama: name }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Gagal menambahkan media");
+    askConfirm("Tambah Media", `Yakin ingin menambahkan media "${name}"?`, "info", async () => {
+      setConfirmOpen(false);
+      setSavingText("Menambahkan Media...");
+      setSaving(true);
+      try {
+        const res = await fetchWithAuth("/api/media", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama: name }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Gagal menambahkan media");
+        }
+        setFormMedia(name);
+        setNewMediaName("");
+        setShowQuickMedia(false);
+        await loadData();
+      } catch (err) {
+        alert((err as Error).message);
+      } finally {
+        setSaving(false);
       }
-      setFormMedia(name);
-      setNewMediaName("");
-      setShowQuickMedia(false);
-      await loadData();
-    } catch (err) {
-      alert((err as Error).message);
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formJudul.trim()) { alert("Judul berita wajib diisi."); return; }
     if (!formMedia) { alert("Media wajib dipilih."); return; }
     if (!formTanggal) { alert("Tanggal wajib diisi."); return; }
     if (formPejabat.length === 0) { alert("Harap pilih setidaknya satu pejabat."); return; }
-    if (!confirm("Apakah Anda yakin ingin menyimpan berita ini?")) return;
+    
+    askConfirm("Konfirmasi Simpan", "Apakah Anda yakin ingin menyimpan berita ini?", "info", async () => {
+      setConfirmOpen(false);
+      setSavingText("Menyimpan Berita...");
+      setSaving(true);
+      try {
+        const dateObj = new Date(formTanggal);
+        const payload = {
+          judul: formJudul.trim(),
+          isi: formIsi.trim(),
+          media: formMedia,
+          pejabat: formPejabat,
+          unit: formUnit,
+          potensi: formPotensi,
+          tanggal_raw: dateObj.getTime(),
+          userEmail: user?.email || "",
+        };
 
-    setSavingText("Menyimpan Berita...");
-    setSaving(true);
-    try {
-      const dateObj = new Date(formTanggal);
-      const payload = {
-        judul: formJudul.trim(),
-        isi: formIsi.trim(),
-        media: formMedia,
-        pejabat: formPejabat,
-        unit: formUnit,
-        potensi: formPotensi,
-        tanggal_raw: dateObj.getTime(),
-        userEmail: user?.email || "",
-      };
-
-      const res = await fetch("/api/berita", {
-        method: isEdit ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isEdit ? { id: beritaId, ...payload } : payload),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Gagal menyimpan berita");
+        const res = await fetchWithAuth("/api/berita", {
+          method: isEdit ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(isEdit ? { id: beritaId, ...payload } : payload),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Gagal menyimpan berita");
+        }
+        router.push("/admin/berita");
+        router.refresh();
+      } catch (err) {
+        alert((err as Error).message);
+      } finally {
+        setSaving(false);
       }
-      router.push("/admin/berita");
-      router.refresh();
-    } catch (err) {
-      alert((err as Error).message);
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
-  const toolbarIcons = [Bold, Italic, Underline, Link2, List, ImageIcon];
+  const handleFormat = (tag: string) => {
+    const textarea = document.getElementById("editor-textarea") as HTMLTextAreaElement;
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = formIsi;
+    const selectedText = text.substring(start, end);
+    let newText = text;
+
+    if (tag === "link") {
+      const url = prompt("Masukkan URL:");
+      if (url) newText = text.substring(0, start) + `<a href="${url}">${selectedText || url}</a>` + text.substring(end);
+    } else if (tag === "img") {
+      const url = prompt("Masukkan URL Gambar:");
+      if (url) newText = text.substring(0, start) + `<img src="${url}" alt="image" />` + text.substring(end);
+    } else if (tag === "ul") {
+      newText = text.substring(0, start) + `<ul>\n<li>${selectedText || "List item"}</li>\n</ul>` + text.substring(end);
+    } else {
+      newText = text.substring(0, start) + `<${tag}>${selectedText}</${tag}>` + text.substring(end);
+    }
+
+    setFormIsi(newText);
+    setTimeout(() => {
+      textarea.focus();
+    }, 0);
+  };
+
+  const toolbarActions = [
+    { Icon: Bold, action: () => handleFormat("b") },
+    { Icon: Italic, action: () => handleFormat("i") },
+    { Icon: Underline, action: () => handleFormat("u") },
+    { Icon: Link2, action: () => handleFormat("link") },
+    { Icon: List, action: () => handleFormat("ul") },
+    { Icon: ImageIcon, action: () => handleFormat("img") },
+  ];
 
   return (
     <div className="min-h-full bg-slate-100 dark:bg-slate-900">
       <LoadingOverlay show={saving || loading} text={loading ? "Memuat CMS..." : savingText} />
+      <ConfirmDialog
+        show={confirmOpen}
+        title={confirmTitle}
+        message={confirmMsg}
+        type={confirmType}
+        onConfirm={confirmAction}
+        onCancel={() => setConfirmOpen(false)}
+      />
 
       <div className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 text-white backdrop-blur-md">
         <div className="px-4 sm:px-5 py-2.5 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
           <button
             onClick={() => router.push("/admin/berita")}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/60 text-white font-medium hover:bg-white/10 transition-all text-sm"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 border border-white/20 text-white font-bold hover:bg-white/20 transition-all text-sm shadow-sm"
           >
             <ArrowLeft size={16} /> Kembali
           </button>
@@ -312,10 +365,11 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
                 </label>
                 <div className="rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-900">
                   <div className="flex items-center gap-1 px-3 py-2 border-b border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
-                    {toolbarIcons.map((Icon, idx) => (
+                    {toolbarActions.map(({ Icon, action }, idx) => (
                       <button
                         key={idx}
                         type="button"
+                        onClick={action}
                         className="w-8 h-8 inline-flex items-center justify-center rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         aria-label="Toolbar"
                       >
@@ -324,6 +378,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
                     ))}
                   </div>
                   <textarea
+                    id="editor-textarea"
                     value={formIsi}
                     onChange={(e) => setFormIsi(e.target.value)}
                     rows={18}
@@ -335,8 +390,8 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
             </section>
           </main>
 
-          <aside className="order-1 xl:order-2 xl:sticky xl:top-24 space-y-5">
-            <section className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-visible">
+          <aside className="order-1 xl:order-2 xl:sticky xl:top-24 flex flex-col gap-5">
+            <section className="order-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-visible">
               <div className="px-5 pt-5 flex items-center gap-2">
                 <Settings2 className="text-slate-700 dark:text-slate-200" size={18} />
                 <h3 className="text-xl font-black text-slate-900 dark:text-white">Pengaturan Publikasi</h3>
@@ -364,6 +419,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
                       onChange={(e) => setFormPotensi(e.target.value)}
                       className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2.5 outline-none focus:ring-2 ring-indigo-500 transition-all text-slate-800 dark:text-white"
                     >
+                      <option value="" disabled>Pilih Potensi</option>
                       <option value="Positif">Positif</option>
                       <option value="Netral">Netral</option>
                       <option value="Negatif">Negatif</option>
@@ -388,7 +444,7 @@ export default function AdminBeritaCMSClient({ beritaId }: AdminBeritaCMSClientP
               </div>
             </section>
 
-            <section className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-visible">
+            <section className="order-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm overflow-visible">
               <div className="px-5 pt-5 flex items-center gap-2">
                 <Newspaper className="text-slate-700 dark:text-slate-200" size={18} />
                 <h3 className="text-xl font-black text-slate-900 dark:text-white">Pengaturan Sumber Berita</h3>

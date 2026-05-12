@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
   ChevronLeft,
@@ -46,6 +47,7 @@ export default function AdminBeritaClient() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMsg, setConfirmMsg] = useState("");
+  const [confirmType, setConfirmType] = useState<"info" | "delete">("info");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
 
   const queryString = useMemo(() => {
@@ -65,7 +67,7 @@ export default function AdminBeritaClient() {
     async function loadData() {
       setLoading(true);
       try {
-        const res = await fetch(`/api/berita?${queryString}`, {
+        const res = await fetchWithAuth(`/api/berita?${queryString}`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Gagal memuat berita");
@@ -89,21 +91,22 @@ export default function AdminBeritaClient() {
     setPage(1);
   }, [deferredSearch, perPage, sortField, sortOrder]);
 
-  const askConfirm = (title: string, message: string, action: () => void) => {
+  const askConfirm = (title: string, message: string, type: "info" | "delete", action: () => void) => {
     setConfirmTitle(title);
     setConfirmMsg(message);
+    setConfirmType(type);
     setConfirmAction(() => action);
     setConfirmOpen(true);
   };
 
   const handleDelete = (key: string, judul: string) => {
-    askConfirm("Hapus Berita", `Apakah Anda yakin ingin menghapus berita "${judul}" secara permanen?`, async () => {
+    askConfirm("Hapus Berita", `Apakah Anda yakin ingin menghapus berita "${judul}" secara permanen?`, "delete", async () => {
       setConfirmOpen(false);
       setSavingText("Menghapus Berita...");
       setSaving(true);
       try {
-        await fetch(`/api/berita?id=${key}`, { method: "DELETE" });
-        const res = await fetch(`/api/berita?${queryString}`);
+        await fetchWithAuth(`/api/berita?id=${key}`, { method: "DELETE" });
+        const res = await fetchWithAuth(`/api/berita?${queryString}`);
         if (res.ok) {
           const data = (await res.json()) as PaginatedNewsResponse;
           setResponse(data);
@@ -118,7 +121,7 @@ export default function AdminBeritaClient() {
   };
 
   const handlePrint = (news: NewsItem) => {
-    askConfirm("Cetak Berita", "Apakah Anda ingin mencetak rincian berita ini?", () => {
+    askConfirm("Cetak Berita", "Apakah Anda ingin mencetak rincian berita ini?", "info", () => {
       setConfirmOpen(false);
       printNews(news);
     });
@@ -153,7 +156,7 @@ export default function AdminBeritaClient() {
         show={confirmOpen}
         title={confirmTitle}
         message={confirmMsg}
-        type="delete"
+        type={confirmType}
         onConfirm={confirmAction}
         onCancel={() => setConfirmOpen(false)}
       />
@@ -363,13 +366,7 @@ export default function AdminBeritaClient() {
 
         <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
           <div className="text-sm text-slate-500">
-            Menampilkan{" "}
-            <span className="font-bold text-slate-800 dark:text-white">
-              {response.totalItems === 0 ? 0 : (response.page - 1) * response.pageSize + 1}
-              -
-              {Math.min(response.page * response.pageSize, response.totalItems)}
-            </span>{" "}
-            dari <span className="font-bold text-slate-800 dark:text-white">{response.totalItems}</span> berita
+            {/* Teks informasi pagination telah dihapus */}
           </div>
 
           <div className="flex items-center gap-3">

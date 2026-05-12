@@ -58,7 +58,15 @@ function createPoolConfig() {
   return config;
 }
 
-export const dbPool = mysql.createPool(createPoolConfig());
+const globalForDb = globalThis as unknown as {
+  dbPool: ReturnType<typeof mysql.createPool> | undefined;
+};
+
+export const dbPool = globalForDb.dbPool ?? mysql.createPool(createPoolConfig());
+
+if (process.env.NODE_ENV !== "production") {
+  globalForDb.dbPool = dbPool;
+}
 
 export async function queryRows<T>(
   sql: string,

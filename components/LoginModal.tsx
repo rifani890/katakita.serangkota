@@ -80,7 +80,7 @@ export default function LoginModal({ isOpen, onClose, redirectTo }: LoginModalPr
           </h3>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-rose-500 transition-colors"
+            className="text-slate-500 hover:text-rose-500 transition-colors"
           >
             <X size={24} />
           </button>
@@ -99,7 +99,7 @@ export default function LoginModal({ isOpen, onClose, redirectTo }: LoginModalPr
                 Email
               </label>
               <div className="relative flex items-center">
-                <Mail className="absolute left-3 text-slate-400" size={16} />
+                <Mail className="absolute left-3 text-slate-500" size={16} />
                 <input
                   ref={emailRef}
                   type="email"
@@ -116,7 +116,7 @@ export default function LoginModal({ isOpen, onClose, redirectTo }: LoginModalPr
                 Password
               </label>
               <div className="relative flex items-center">
-                <Lock className="absolute left-3 text-slate-400" size={16} />
+                <Lock className="absolute left-3 text-slate-500" size={16} />
                 <input
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -128,7 +128,7 @@ export default function LoginModal({ isOpen, onClose, redirectTo }: LoginModalPr
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  className="absolute right-3 text-slate-500 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>

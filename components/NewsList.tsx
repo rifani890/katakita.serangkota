@@ -30,7 +30,7 @@ function NewsCard({ news, onClick }: NewsCardProps) {
         <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${sentimenClass}`}>
           {news.potensi}
         </span>
-        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 tracking-widest">
+        <span className="text-xs font-bold text-slate-600 dark:text-slate-300 tracking-widest">
           {formatDate(news.tanggal_raw)}
         </span>
       </div>
@@ -38,7 +38,7 @@ function NewsCard({ news, onClick }: NewsCardProps) {
         {news.judul}
       </div>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pl-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
           {news.media || "Media tidak tersedia"}
         </span>
         <Link
@@ -124,7 +124,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
           Daftar Berita Terbaru
         </h3>
         <div className="relative w-full lg:w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
           <input
             type="text"
             value={searchInput}
@@ -137,7 +137,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
 
       <div className="w-full">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700 mb-4 pr-2 pb-3">
-          <div className="font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider text-xs">
+          <div className="font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">
             Informasi Berita
           </div>
           <button
@@ -151,7 +151,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
 
         <div className="flex flex-col gap-4">
           {loading ? (
-            <div className="animate-pulse bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-8 text-center text-slate-400">
+            <div className="animate-pulse bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-8 text-center text-slate-500">
               Sedang memuat data...
             </div>
           ) : error ? (
@@ -159,7 +159,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
               {error}
             </div>
           ) : response.items.length === 0 ? (
-            <div className="p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
+            <div className="p-8 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
               Tidak ada berita ditemukan.
             </div>
           ) : (
@@ -170,29 +170,9 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pt-4">
-        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 font-medium">
-          <span>
-            Menampilkan{" "}
-            <strong className="text-slate-800 dark:text-slate-200">
-              {response.totalItems === 0
-                ? 0
-                : (response.page - 1) * response.pageSize + 1}
-              -
-              {Math.min(response.page * response.pageSize, response.totalItems)}
-            </strong>{" "}
-            dari{" "}
-            <strong className="text-slate-800 dark:text-slate-200">
-              {response.totalItems}
-            </strong>{" "}
-            berita
-          </span>
-          <span className="text-xs text-slate-400">
-            Mode ringan aktif: data diambil per halaman dari server.
-          </span>
-        </div>
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-end gap-4 pt-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full lg:w-auto">
-          <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+          <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
             <span>Tampilkan</span>
             <select
               value={pageSize}
@@ -219,7 +199,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"}`}
+                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"}`}
               >
                 {page}
               </button>

@@ -1,6 +1,6 @@
 import type { MediaItem, OfficialItem, UnitItem } from "@/types";
 import { executeStatement, queryRows } from "@/lib/server/database";
-import { getOfficialRolePriority } from "@/lib/utils";
+import { getOfficialRolePriority, normalizeOfficialRole } from "@/lib/utils";
 
 interface MediaRow {
   id: number;
@@ -103,7 +103,7 @@ export async function listOfficials(): Promise<OfficialItem[]> {
       jabatan: row.jabatan ?? undefined,
       role: row.jabatan ?? undefined,
       color: row.color ?? undefined,
-      priority: getOfficialRolePriority(row.jabatan ?? undefined),
+      priority: getOfficialRolePriority(normalizeOfficialRole(row.jabatan ?? undefined)),
     }))
     .sort((a, b) => {
       const priorityDiff =

@@ -14,7 +14,6 @@ const baseNavItems = [
   { href: "/admin/berita", label: "Kelola Berita", icon: Newspaper },
   { href: "/admin/unit", label: "Unit Kerja", icon: Building2 },
   { href: "/admin/pejabat", label: "Nama Pejabat", icon: User },
-  { href: "/admin/validasi", label: "Validasi Data", icon: Shield },
 ];
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
@@ -23,6 +22,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
   const pathname = usePathname();
   const { isDark, toggleTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showConfirmLogout, setShowConfirmLogout] = useState(false);
 
   const navItems = userRole === "admin"
     ? [...baseNavItems, { href: "/admin/kelola-admin", label: "Kelola Admin", icon: Shield }]
@@ -30,16 +30,14 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
   useEffect(() => {
     if (!loading && !user) {
-      const next = encodeURIComponent(pathname || "/admin");
-      router.replace(`/login?next=${next}`);
-    }
-  }, [user, loading, router, pathname]);
-
-  const handleLogout = async () => {
-    if (confirm("Apakah Anda yakin ingin keluar (logout) dari sistem ini?")) {
-      await logout();
       router.replace("/");
     }
+  }, [user, loading, router]);
+
+  const handleLogout = async () => {
+    setShowConfirmLogout(false);
+    await logout();
+    router.replace("/");
   };
 
   if (loading) {
@@ -85,7 +83,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 {isDark ? <Sun size={18} /> : <Moon size={18} />}
               </button>
               <button
-                onClick={handleLogout}
+                onClick={() => setShowConfirmLogout(true)}
                 className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:hover:bg-rose-900/50 transition-colors"
               >
                 <LogOut size={16} />
@@ -118,7 +116,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           {/* Mobile close */}
           <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
             <span className="font-bold text-slate-800 dark:text-white">Admin Menu</span>
-            <button onClick={() => setSidebarOpen(false)} className="p-2 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSidebarOpen(false)} className="p-2 text-slate-500 hover:text-slate-600">
               <X size={18} />
             </button>
           </div>
@@ -133,7 +131,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                   onClick={() => setSidebarOpen(false)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive
                       ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-bold"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                     }`}
                 >
                   <Icon size={18} className="w-5 text-center flex-shrink-0" />
@@ -155,7 +153,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
           <div className="p-4 border-t border-slate-200 dark:border-slate-700">
             <button
-              onClick={handleLogout}
+              onClick={() => setShowConfirmLogout(true)}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-medium transition-all"
             >
               <LogOut size={18} className="w-5 text-center flex-shrink-0" />
@@ -169,6 +167,30 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           {children}
         </main>
       </div>
+
+      {/* Custom Logout Confirmation Modal */}
+      {showConfirmLogout && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm border border-slate-200 dark:border-slate-700">
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Konfirmasi Logout</h3>
+            <p className="text-slate-600 dark:text-slate-300 mb-6">Apakah Anda yakin ingin keluar dari sistem?</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmLogout(false)}
+                className="flex-1 px-4 py-2 rounded-lg font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 transition-colors"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 px-4 py-2 rounded-lg font-medium bg-rose-600 hover:bg-rose-700 text-white transition-colors"
+              >
+                Ya, Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

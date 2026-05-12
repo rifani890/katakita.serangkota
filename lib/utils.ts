@@ -19,6 +19,13 @@ export const OFFICIAL_ROLE_PRIORITY: Record<(typeof OFFICIAL_ROLE_ORDER)[number]
   "Pejabat Lainnya": 4,
 };
 
+export const OFFICIAL_ROLE_COLORS: Record<string, string> = {
+  "Walikota Serang": "#3b82f6",
+  "Wakil Walikota Serang": "#f59e0b",
+  "Sekretaris Daerah Kota Serang": "#8B4513",
+  "Pejabat Lainnya": "#64748b",
+};
+
 export const DEFAULT_SITE_URL = "http://localhost:3000";
 
 export function parseDate(dateVal: string | number | undefined): Date {
@@ -115,17 +122,19 @@ export function normalizeOfficialRole(role: string | undefined): string {
   const normalized = (role || "").trim().replace(/^['"]+|['"]+$/g, "").trim().toLowerCase();
   const compact = normalized.replace(/\s+/g, "");
   if (!normalized) return "Pejabat Lainnya";
-  if (compact.includes("wakilwalikota")) {
+
+  // Cek Wakil dulu sebelum Walikota (urutan penting!)
+  if (compact.includes("wakilwalikota") || compact.includes("wkl.walikota")) {
     return "Wakil Walikota Serang";
   }
-  if (compact.includes("walikota")) {
+  if (compact.includes("walikota") || compact.includes("walikota") || compact === "wk") {
     return "Walikota Serang";
   }
   if (
-    normalized.includes("sekertaris daerah") ||
     normalized.includes("sekretaris daerah") ||
-    normalized === "sekda" ||
-    normalized.includes("sekda")
+    normalized.includes("sekertaris daerah") ||
+    normalized.startsWith("sekda") ||
+    compact === "sekda"
   ) {
     return "Sekretaris Daerah Kota Serang";
   }
@@ -170,13 +179,18 @@ export function getNewsExcerpt(news: Pick<NewsItem, "isi" | "judul">, maxLength 
 }
 
 export function parsePejabatValue(pejabat: unknown): string[] {
-  if (Array.isArray(pejabat)) return pejabat.map(String);
+  if (Array.isArray(pejabat)) {
+    return pejabat.map(String).flatMap(s => s.split(',')).map(s => s.trim()).filter(Boolean);
+  }
   if (typeof pejabat !== "string" || !pejabat.trim()) return [];
   try {
     const parsed = JSON.parse(pejabat);
-    return Array.isArray(parsed) ? parsed.map(String) : [pejabat];
+    if (Array.isArray(parsed)) {
+      return parsed.map(String).flatMap(s => s.split(',')).map(s => s.trim()).filter(Boolean);
+    }
+    return String(parsed).split(',').map(s => s.trim()).filter(Boolean);
   } catch {
-    return [pejabat];
+    return pejabat.split(',').map(s => s.trim()).filter(Boolean);
   }
 }
 
@@ -213,25 +227,25 @@ export function buildDefaultOfficialMapping(): OfficialMapping {
       role: "Walikota Serang",
       jabatan: "Walikota Serang",
       priority: 1,
-      color: "#87CEEB",
+      color: OFFICIAL_ROLE_COLORS["Walikota Serang"],
     },
     "Nur Agis Aulia": {
       role: "Wakil Walikota Serang",
       jabatan: "Wakil Walikota Serang",
       priority: 2,
-      color: "#FFD700",
+      color: OFFICIAL_ROLE_COLORS["Wakil Walikota Serang"],
     },
     "Nanang Saefudin": {
       role: "Sekretaris Daerah Kota Serang",
       jabatan: "Sekretaris Daerah Kota Serang",
       priority: 3,
-      color: "#964B00",
+      color: OFFICIAL_ROLE_COLORS["Sekretaris Daerah Kota Serang"],
     },
     "Pejabat Lainnya": {
       role: "Pejabat Lainnya",
       jabatan: "Pejabat Lainnya",
       priority: 4,
-      color: "#808080",
+      color: OFFICIAL_ROLE_COLORS["Pejabat Lainnya"],
     },
   };
 }

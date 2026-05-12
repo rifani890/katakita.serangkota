@@ -78,6 +78,7 @@ export function useAuth(): AuthState {
         await fetch("/api/auth/session", {
           method: "DELETE",
           cache: "no-store",
+          credentials: "include",
         });
       } catch (err) {
         console.error("Logout request failed:", err);
@@ -104,6 +105,7 @@ export function useAuth(): AuthState {
         const res = await fetch("/api/auth/session", {
           method: "GET",
           cache: "no-store",
+          credentials: "include",
         });
 
         if (!res.ok) {
@@ -116,7 +118,17 @@ export function useAuth(): AuthState {
         }
 
         const data = await res.json();
-        const nextUser = data.user as AuthUser;
+        const nextUser = data.user as AuthUser | null;
+        
+        if (!nextUser) {
+          applyUser(null);
+          emitAuthChanged(null);
+          if (options?.redirectIfMissing && isAdminRoute()) {
+            redirectToRoot();
+          }
+          return;
+        }
+
         applyUser(nextUser);
         emitAuthChanged(nextUser);
       } catch (err) {
@@ -138,6 +150,7 @@ export function useAuth(): AuthState {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
         cache: "no-store",
+        credentials: "include",
       });
 
       if (!res.ok) {

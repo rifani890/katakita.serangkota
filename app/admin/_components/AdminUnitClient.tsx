@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useState, useEffect, useCallback } from "react";
 import { Building2, Plus, Pencil, Trash2 } from "lucide-react";
 import { LoadingOverlay, ConfirmDialog, Modal } from "./AdminUI";
@@ -32,7 +33,7 @@ export default function AdminUnitClient() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/unit");
+      const res = await fetchWithAuth("/api/unit");
       if (res.ok) {
         const arr: UnitKerja[] = await res.json();
         setData(arr.sort((a, b) => (a.unit || a.nama || "").localeCompare(b.unit || b.nama || "")));
@@ -69,36 +70,38 @@ export default function AdminUnitClient() {
     setConfirmOpen(true);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formUnit.trim()) { alert("Nama unit kerja wajib diisi."); return; }
     const action = activeKey ? "memperbarui" : "menambahkan";
-    if (!confirm(`Apakah Anda yakin ingin ${action} unit kerja ini?`)) return;
+    
+    askConfirm("Konfirmasi", `Apakah Anda yakin ingin ${action} unit kerja ini?`, "info", async () => {
+      setConfirmOpen(false);
+      setSavingText("Menyimpan...");
+      setSaving(true);
+      try {
+        const payload = { nama: formUnit.trim() };
+        const res = await fetchWithAuth("/api/unit", {
+          method: activeKey ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(activeKey ? { id: activeKey, ...payload } : payload),
+        });
 
-    setSavingText("Menyimpan...");
-    setSaving(true);
-    try {
-      const payload = { nama: formUnit.trim() };
-      const res = await fetch("/api/unit", {
-        method: activeKey ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(activeKey ? { id: activeKey, ...payload } : payload),
-      });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "Gagal menyimpan unit kerja.");
+        }
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Gagal menyimpan unit kerja.");
+        setModalOpen(false);
+        await loadData();
+        askConfirm("Data Tersimpan", "Unit kerja berhasil disimpan.", "info", () => {
+          setConfirmOpen(false);
+        });
+      } catch (err: unknown) {
+        alert((err as Error).message);
+      } finally {
+        setSaving(false);
       }
-
-      setModalOpen(false);
-      await loadData();
-      askConfirm("Data Tersimpan", "Unit kerja berhasil disimpan.", "info", () => {
-        setConfirmOpen(false);
-      });
-    } catch (err: unknown) {
-      alert((err as Error).message);
-    } finally {
-      setSaving(false);
-    }
+    });
   };
 
   const handleDelete = (key: string, unit: string) => {
@@ -107,7 +110,7 @@ export default function AdminUnitClient() {
       setSavingText("Menghapus...");
       setSaving(true);
       try {
-        await fetch(`/api/unit?id=${key}`, { method: "DELETE" });
+        await fetchWithAuth(`/api/unit?id=${key}`, { method: "DELETE" });
         await loadData();
       } catch (err: unknown) {
         alert((err as Error).message);

@@ -1,5 +1,6 @@
 "use client";
 
+import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useState, useEffect, useCallback } from "react";
 import { User, Plus, Pencil, Trash2 } from "lucide-react";
 import { LoadingOverlay, ConfirmDialog, Modal } from "./AdminUI";
@@ -35,7 +36,7 @@ export default function AdminPejabatClient() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/pejabat");
+      const res = await fetchWithAuth("/api/pejabat");
       if (res.ok) {
         const arr: Pejabat[] = await res.json();
         setData(arr);
@@ -88,13 +89,13 @@ export default function AdminPejabatClient() {
           color: null
         };
         if (activeKey) {
-          await fetch("/api/pejabat", {
+          await fetchWithAuth("/api/pejabat", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id: activeKey, ...payload }),
           });
         } else {
-          await fetch("/api/pejabat", {
+          await fetchWithAuth("/api/pejabat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
@@ -116,7 +117,7 @@ export default function AdminPejabatClient() {
       setSavingText("Menghapus...");
       setSaving(true);
       try {
-        await fetch(`/api/pejabat?id=${key}`, { method: "DELETE" });
+        await fetchWithAuth(`/api/pejabat?id=${key}`, { method: "DELETE" });
         await loadData();
       } catch (err: unknown) {
         alert((err as Error).message);

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { TrendLegendItem, TrendPoint } from "@/types";
 import { initChart } from "@/lib/chart";
+import { useTheme } from "@/lib/useTheme";
 
 interface TrendChartProps {
   weeklyPoints: TrendPoint[];
@@ -26,6 +27,7 @@ export default function TrendChart({
   const chartRef = useRef<any>(null);
   const [filterType, setFilterType] = useState<FilterType>("weekly");
   const [hoveredDataset, setHoveredDataset] = useState<number | null>(null);
+  const { isDark: themeIsDark } = useTheme();
 
   useEffect(() => {
     const points = filterType === "weekly" ? weeklyPoints : monthlyPoints;
@@ -33,7 +35,7 @@ export default function TrendChart({
 
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    const isDark = document.documentElement.classList.contains("dark");
+    const isDark = themeIsDark;
     const textColor = isDark ? "#cbd5e1" : "#475569";
     const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
 
@@ -147,7 +149,7 @@ export default function TrendChart({
     return () => {
       chartRef.current?.destroy();
     };
-  }, [filterType, mediaLegend, monthlyPoints, onMediaTrendClick, weeklyPoints]);
+  }, [filterType, mediaLegend, monthlyPoints, onMediaTrendClick, weeklyPoints, themeIsDark]);
 
   const handleLegendHover = (shorthand: string | null) => {
     const chart = chartRef.current;
@@ -211,7 +213,7 @@ export default function TrendChart({
                 className="w-4 h-4 rounded-full ring-2 ring-transparent group-hover:ring-offset-1 transition-all"
                 style={{ backgroundColor: item.color }}
               />
-              <span className="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
+              <span className="text-sm font-bold text-slate-600 dark:text-slate-300 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
                 {item.shorthand}
               </span>
             </div>

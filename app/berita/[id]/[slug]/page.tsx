@@ -10,6 +10,7 @@ import {
   getSiteUrl,
   stripHtml,
 } from "@/lib/utils";
+import { ArrowLeft } from "lucide-react";
 
 interface NewsDetailPageProps {
   params: {
@@ -108,9 +109,9 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
           <div className="border-b border-slate-200 bg-slate-50 px-5 sm:px-8 py-4">
             <Link
               href="/"
-              className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm transition-all"
             >
-              Kembali ke Dashboard
+              <ArrowLeft size={16} /> Kembali ke Dashboard
             </Link>
           </div>
 
@@ -157,7 +158,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
               dangerouslySetInnerHTML={{ __html: news.isi || "" }}
             />
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs sm:text-sm text-slate-500">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs sm:text-sm text-slate-600">
               URL kanonis:{" "}
               <a href={canonicalUrl} className="font-semibold text-blue-600 break-all">
                 {canonicalUrl}

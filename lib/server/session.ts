@@ -104,9 +104,10 @@ export function getSessionCookieName() {
 
 export function getSessionCookieOptions() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "";
+  const isProduction = process.env.NODE_ENV === "production";
   const secure =
     process.env.FORCE_SECURE_COOKIES === "true" ||
-    siteUrl.toLowerCase().startsWith("https://");
+    (isProduction && siteUrl.toLowerCase().startsWith("https://"));
 
   return {
     httpOnly: true,

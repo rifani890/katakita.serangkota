@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { OfficialCountItem } from "@/types";
 import { initChart } from "@/lib/chart";
 import { getOfficialRolePriority } from "@/lib/utils";
+import { useTheme } from "@/lib/useTheme";
 
 interface OfficialChartProps {
   roleCounts: OfficialCountItem[];
@@ -17,11 +18,13 @@ export default function OfficialChart({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<any>(null);
 
+  const { isDark: themeIsDark } = useTheme();
+
   useEffect(() => {
     if (roleCounts.length === 0 || !canvasRef.current) return;
 
     const canvas = canvasRef.current;
-    const isDark = document.documentElement.classList.contains("dark");
+    const isDark = themeIsDark;
     const textColor = isDark ? "#cbd5e1" : "#475569";
     const orderedCounts = [...roleCounts].sort(
       (a, b) =>
@@ -66,7 +69,7 @@ export default function OfficialChart({
               },
             },
             datalabels: {
-              color: "#1e293b",
+              color: "#ffffff",
               font: { weight: "900", family: "Poppins", size: 12 },
               formatter: (value: number) => (value > 0 ? value : ""),
             },
@@ -101,9 +104,9 @@ export default function OfficialChart({
     renderChart();
 
     return () => {
-      chartRef.current?.destroy();
+      if (chartRef.current) chartRef.current.destroy();
     };
-  }, [onOfficialClick, roleCounts]);
+  }, [roleCounts, onOfficialClick, themeIsDark]);
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 flex flex-col items-start sm:items-stretch">

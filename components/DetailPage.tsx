@@ -154,7 +154,7 @@ export default function DetailPage({
 
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
           <div className="relative w-full lg:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={14} />
             <input
               type="text"
               value={searchInput}
@@ -164,14 +164,14 @@ export default function DetailPage({
             />
           </div>
           <div className="flex flex-wrap items-center gap-3 bg-slate-100 dark:bg-slate-900/50 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700/60 overflow-x-auto w-full lg:w-auto">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap">
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-widest whitespace-nowrap">
               Urutkan:
             </span>
             {(["date", "title", "media", "potensi"] as SortConfig["column"][]).map((column) => (
               <button
                 key={column}
                 onClick={() => toggleSort(column)}
-                className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-500 flex items-center gap-1 transition-colors whitespace-nowrap outline-none"
+                className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-500 flex items-center gap-1 transition-colors whitespace-nowrap outline-none"
               >
                 {column === "date"
                   ? "Tanggal"
@@ -189,7 +189,7 @@ export default function DetailPage({
         <div className="overflow-x-auto w-full">
           <div className="flex flex-col gap-4">
             {loading ? (
-              <div className="p-12 text-center text-slate-400 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
+              <div className="p-12 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
                 Sedang memuat data...
               </div>
             ) : error ? (
@@ -197,7 +197,7 @@ export default function DetailPage({
                 {error}
               </div>
             ) : response.items.length === 0 ? (
-              <div className="p-12 text-center text-slate-400 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
+              <div className="p-12 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
                 Tidak ada data ditemukan dalam filter ini.
               </div>
             ) : (
@@ -226,7 +226,7 @@ export default function DetailPage({
                         <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
                           {news.media}
                         </span>
-                        <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-widest ml-1">
+                        <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 tracking-widest ml-1">
                           {formatDate(news.tanggal_raw)}
                         </span>
                       </div>
@@ -242,14 +242,14 @@ export default function DetailPage({
                         >
                           <button
                             onClick={() => onOpenModal(news.key)}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
                             title="Baca Berita"
                           >
                             <Eye size={16} />
                           </button>
                           <button
                             onClick={() => onPrintDirect(news.key)}
-                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all"
+                            className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-all"
                             title="Cetak Berita"
                           >
                             <Printer size={16} />
@@ -264,7 +264,7 @@ export default function DetailPage({
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300 mt-1">
                         {pejabatArray.length > 0 ? (
                           pejabatArray.map((name, index) => {
                             const mapping = getOfficialMapping(name, officialMapping);
@@ -287,7 +287,7 @@ export default function DetailPage({
                             );
                           })
                         ) : (
-                          <span className="text-slate-400">-</span>
+                          <span className="text-slate-500">-</span>
                         )}
                       </div>
                     </div>
@@ -299,21 +299,8 @@ export default function DetailPage({
         </div>
 
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pt-4">
-          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 font-medium">
-            <span>
-              Menampilkan{" "}
-              <strong className="text-slate-800 dark:text-slate-200">
-                {response.totalItems === 0 ? 0 : (response.page - 1) * response.pageSize + 1}
-                -
-                {Math.min(response.page * response.pageSize, response.totalItems)}
-              </strong>{" "}
-              dari{" "}
-              <strong className="text-slate-800 dark:text-slate-200">{response.totalItems}</strong>{" "}
-              berita
-            </span>
-            <span className="text-xs text-slate-400">
-              Pagination dijalankan di server agar tetap ringan untuk data besar.
-            </span>
+          <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600 font-medium">
+            {/* Teks informasi pagination telah dihapus */}
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto">
             <select
@@ -339,7 +326,7 @@ export default function DetailPage({
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400"}`}
+                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"}`}
                 >
                   {page}
                 </button>

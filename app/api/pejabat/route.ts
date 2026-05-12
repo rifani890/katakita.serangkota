@@ -6,6 +6,7 @@ import {
   updateOfficial,
 } from "@/lib/server/repositories/catalogRepository";
 import { requireSessionUser } from "@/lib/server/route-auth";
+import { OFFICIAL_ROLE_ORDER } from "@/lib/utils";
 
 export async function GET() {
   try {
@@ -23,11 +24,16 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { nama, jabatan, color } = body;
+    const { nama, color } = body;
 
     if (!nama || !nama.trim()) {
       return NextResponse.json({ error: "Nama pejabat tidak boleh kosong" }, { status: 400 });
     }
+
+    const jabatanClean = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
+    const jabatan = (OFFICIAL_ROLE_ORDER as readonly string[]).includes(jabatanClean)
+      ? jabatanClean
+      : "Pejabat Lainnya";
 
     await createOfficial({ nama, jabatan, color });
     return NextResponse.json({ message: "Pejabat berhasil ditambahkan" });
@@ -46,11 +52,16 @@ export async function PUT(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, nama, jabatan, color } = body;
+    const { id, nama, color } = body;
 
     if (!id || !nama || !nama.trim()) {
       return NextResponse.json({ error: "ID dan nama harus diisi" }, { status: 400 });
     }
+
+    const jabatanClean = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
+    const jabatan = (OFFICIAL_ROLE_ORDER as readonly string[]).includes(jabatanClean)
+      ? jabatanClean
+      : "Pejabat Lainnya";
 
     await updateOfficial({ id, nama, jabatan, color });
     return NextResponse.json({ message: "Pejabat berhasil diupdate" });

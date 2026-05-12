@@ -44,7 +44,7 @@ function StatCard({
           <i className={`fas ${icon}`}></i>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
             {title}
           </p>
           <p className="text-2xl sm:text-3xl font-extrabold">{count.toLocaleString()}</p>
@@ -66,10 +66,10 @@ export default function StatCards({ stats, loading, onFilter }: StatCardsProps) 
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <SkeletonCard borderClass="border-l-blue-500" />
-        <SkeletonCard borderClass="border-l-emerald-500" />
-        <SkeletonCard borderClass="border-l-slate-400" />
-        <SkeletonCard borderClass="border-l-rose-500" />
+        <SkeletonCard borderClass="border-l-indigo-500" />
+        <SkeletonCard borderClass="border-l-teal-500" />
+        <SkeletonCard borderClass="border-l-zinc-400" />
+        <SkeletonCard borderClass="border-l-red-500" />
       </div>
     );
   }
@@ -80,40 +80,40 @@ export default function StatCards({ stats, loading, onFilter }: StatCardsProps) 
         title="Total Berita"
         count={stats.total}
         icon="fa-globe"
-        colorClass="bg-blue-500"
-        borderClass="border-l-blue-500"
-        hoverClass="hover:bg-blue-50 dark:hover:bg-blue-950/20"
-        textClass="text-blue-600 dark:text-blue-400"
+        colorClass="bg-indigo-500"
+        borderClass="border-l-indigo-500"
+        hoverClass="hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
+        textClass="text-indigo-600 dark:text-indigo-400"
         onClick={() => onFilter("total")}
       />
       <StatCard
         title="Positif"
         count={stats.positive}
         icon="fa-smile"
-        colorClass="bg-emerald-500"
-        borderClass="border-l-emerald-500"
-        hoverClass="hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
-        textClass="text-emerald-600 dark:text-emerald-400"
+        colorClass="bg-teal-500"
+        borderClass="border-l-teal-500"
+        hoverClass="hover:bg-teal-50 dark:hover:bg-teal-950/20"
+        textClass="text-teal-600 dark:text-teal-400"
         onClick={() => onFilter("positive")}
       />
       <StatCard
         title="Netral"
         count={stats.neutral}
         icon="fa-meh"
-        colorClass="bg-slate-400"
-        borderClass="border-l-slate-400"
-        hoverClass="hover:bg-slate-200 dark:hover:bg-slate-700/50"
-        textClass="text-slate-600 dark:text-slate-300"
+        colorClass="bg-zinc-400"
+        borderClass="border-l-zinc-400"
+        hoverClass="hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+        textClass="text-zinc-600 dark:text-zinc-300"
         onClick={() => onFilter("neutral")}
       />
       <StatCard
         title="Negatif"
         count={stats.negative}
         icon="fa-frown"
-        colorClass="bg-rose-500"
-        borderClass="border-l-rose-500"
-        hoverClass="hover:bg-rose-50 dark:hover:bg-rose-950/20"
-        textClass="text-rose-600 dark:text-rose-400"
+        colorClass="bg-red-500"
+        borderClass="border-l-red-500"
+        hoverClass="hover:bg-red-50 dark:hover:bg-red-950/20"
+        textClass="text-red-600 dark:text-red-400"
         onClick={() => onFilter("negative")}
       />
     </div>
