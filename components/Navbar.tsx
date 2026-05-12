@@ -18,7 +18,7 @@ export default function Navbar() {
 
   const showLoginBtn = !authLoading && !isLoggedIn;
   const showLogoutBtn = !authLoading && isLoggedIn;
-  const showAdminBtn = !authLoading && isLoggedIn && isAdmin;
+  const showAdminBtn = !authLoading && isLoggedIn;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
