@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 @layer base {
   body {
     @apply font-poppins bg-slate-50 text-slate-900 transition-colors duration-300;

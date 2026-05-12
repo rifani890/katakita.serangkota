@@ -158,12 +158,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
               dangerouslySetInnerHTML={{ __html: news.isi || "" }}
             />
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-xs sm:text-sm text-slate-600">
-              URL kanonis:{" "}
-              <a href={canonicalUrl} className="font-semibold text-blue-600 break-all">
-                {canonicalUrl}
-              </a>
-            </div>
+
           </article>
         </div>
       </div>

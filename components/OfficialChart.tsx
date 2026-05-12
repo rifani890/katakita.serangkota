@@ -26,6 +26,12 @@ export default function OfficialChart({
     setMounted(true);
   }, []);
 
+  const orderedCounts = [...roleCounts].sort(
+    (a, b) =>
+      (a.priority || getOfficialRolePriority(a.role)) -
+      (b.priority || getOfficialRolePriority(b.role))
+  );
+
   useEffect(() => {
     if (!mounted || roleCounts.length === 0 || !canvasRef.current) return;
 
@@ -36,11 +42,6 @@ export default function OfficialChart({
     const tooltipColor = isDark ? "#f8fafc" : "#1e293b";
     const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
 
-    const orderedCounts = [...roleCounts].sort(
-      (a, b) =>
-        (a.priority || getOfficialRolePriority(a.role)) -
-        (b.priority || getOfficialRolePriority(b.role))
-    );
     const labels = orderedCounts.map((item) => item.role);
     const colors = orderedCounts.map((item) => item.color || "#64748b");
     const totals = orderedCounts.map((item) => item.total);
@@ -120,25 +121,24 @@ export default function OfficialChart({
         });
       } else {
         const chart = chartRef.current;
-        // Update data
         chart.data.labels = labels;
         chart.data.datasets[0].data = totals;
         chart.data.datasets[0].backgroundColor = colors;
         chart.data.datasets[0].borderColor = borderColor;
 
-        // Update options for theme
+        // Update theme options
         chart.options.plugins.legend.labels.color = textColor;
         chart.options.plugins.tooltip.backgroundColor = tooltipBg;
         chart.options.plugins.tooltip.titleColor = tooltipColor;
         chart.options.plugins.tooltip.bodyColor = tooltipColor;
         chart.options.plugins.tooltip.borderColor = tooltipBorder;
 
-        chart.update("none"); // Use 'none' to avoid unwanted animations during simple color updates
+        chart.update("none");
       }
     }
 
     initOrUpdateChart();
-  }, [mounted, roleCounts, themeIsDark, onOfficialClick]);
+  }, [mounted, orderedCounts, themeIsDark, onOfficialClick]);
 
   useEffect(() => {
     return () => {
