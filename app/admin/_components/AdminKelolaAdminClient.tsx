@@ -2,7 +2,7 @@
 
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useEffect, useState, useCallback } from "react";
-import { Shield, UserPlus, Trash2, Search, Users, Crown, UserCheck, AlertTriangle, Pencil } from "lucide-react";
+import { Shield, UserPlus, Trash2, Search, Users, Crown, UserCheck, AlertTriangle, Pencil, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/lib/useAuth";
 import { useRouter } from "next/navigation";
 import { LoadingOverlay, ConfirmDialog } from "./AdminUI";
@@ -30,6 +30,7 @@ export default function AdminKelolaAdminClient() {
   const [editTarget, setEditTarget] = useState<UserData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<UserData | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
   const [confirmState, setConfirmState] = useState({
@@ -117,6 +118,7 @@ export default function AdminKelolaAdminClient() {
     setNewEmail("");
     setNewPassword("");
     setNewRole("user");
+    setShowPassword(false);
   }
 
   function openAddModal() {
@@ -582,13 +584,22 @@ export default function AdminKelolaAdminClient() {
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
                   Password
                 </label>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder={editTarget ? "Kosongkan jika tidak diganti" : "Minimal 6 karakter"}
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={editTarget ? "Kosongkan jika tidak diganti" : "Minimal 6 karakter"}
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">

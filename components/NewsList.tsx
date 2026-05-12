@@ -2,9 +2,9 @@
 
 import { useDeferredValue, useEffect, useState } from "react";
 import Link from "next/link";
-import { ExternalLink, Search } from "lucide-react";
+import { Calendar, ExternalLink, Search } from "lucide-react";
 import type { NewsItem, PaginatedNewsResponse } from "@/types";
-import { buildNewsPath, formatDate, getBorderAccent, getSentimenClass } from "@/lib/utils";
+import { buildNewsPath, formatDate, getBorderAccent, getCardGradient, getSentimenClass } from "@/lib/utils";
 
 interface NewsListProps {
   onOpenModal: (key: string) => void;
@@ -19,22 +19,35 @@ interface NewsCardProps {
 function NewsCard({ news, onClick }: NewsCardProps) {
   const border = getBorderAccent(news.potensi);
   const sentimenClass = getSentimenClass(news.potensi);
+  const cardGradient = getCardGradient(news.potensi);
 
   return (
     <div
       onClick={onClick}
-      className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500 dark:hover:border-blue-500 transition-all cursor-pointer group flex flex-col gap-4 relative overflow-hidden"
+      className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all cursor-pointer group flex flex-col gap-4 relative overflow-hidden"
     >
-      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${border}`} />
-      <div className="flex items-center gap-3 pl-1">
+      {/* Background Gradient */}
+      <div className={`absolute inset-0 ${cardGradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+      
+      {/* Vertical Accent Bar */}
+      <div className={`absolute left-0 top-0 bottom-0 w-[5px] ${border} opacity-80 group-hover:opacity-100 transition-opacity`} />
+      
+      <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pl-3 relative z-10">
         <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${sentimenClass}`}>
           {news.potensi}
         </span>
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-          {formatDate(news.tanggal_raw)}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <Calendar size={12} className="text-slate-400" />
+            {formatDate(news.tanggal_raw)}
+          </span>
+          <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 uppercase tracking-wider">
+            {news.media || "Media"}
+          </span>
+        </div>
       </div>
-      <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-500 transition-colors leading-snug text-base pl-1">
+      <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug text-base pl-3 relative z-10">
         {news.judul}
       </div>
     </div>
@@ -79,7 +92,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
         const res = await fetch(`/api/berita?${params.toString()}`);
         if (!res.ok) throw new Error("Gagal memuat berita");
         const data = (await res.json()) as PaginatedNewsResponse;
-        
+
         if (isCurrent) {
           setResponse(data);
         }
@@ -166,13 +179,28 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 items-center border-t border-slate-100 dark:border-slate-800 pt-8">
-        {response.totalPages > 1 && (
-          <div className="flex gap-2 justify-center">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-end gap-4 pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full lg:w-auto">
+          <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
+            <span>Tampilkan</span>
+            <select
+              value={pageSize}
+              onChange={(event) => setPageSize(Number(event.target.value))}
+              className="bg-blue-50/50 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 dark:text-slate-300 transition-colors"
+            >
+              {[10, 20, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+            <span>baris</span>
+          </div>
+          <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={response.page === 1}
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <i className="fas fa-chevron-left text-xs"></i>
             </button>
@@ -180,7 +208,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-9 h-9 rounded-lg text-sm font-black transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"}`}
+                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"}`}
               >
                 {page}
               </button>
@@ -188,26 +216,11 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
             <button
               onClick={() => setCurrentPage((page) => Math.min(response.totalPages, page + 1))}
               disabled={response.page === response.totalPages}
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               <i className="fas fa-chevron-right text-xs"></i>
             </button>
           </div>
-        )}
-
-        <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Tampilkan:</span>
-          <select
-            value={pageSize}
-            onChange={(event) => setPageSize(Number(event.target.value))}
-            className="bg-blue-50/50 dark:bg-slate-950/50 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 focus:ring-2 focus:ring-blue-500 font-black text-slate-700 dark:text-slate-300 transition-all outline-none"
-          >
-            {[10, 20, 50, 100].map((size) => (
-              <option key={size} value={size}>
-                {size} baris
-              </option>
-            ))}
-          </select>
         </div>
       </div>
     </div>

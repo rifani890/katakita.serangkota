@@ -1,8 +1,12 @@
 import type { OfficialMapping, MediaMapping, NewsItem } from "@/types";
 
 export const MONTHS_ID = [
-  "Jan","Feb","Mar","Apr","Mei","Jun",
-  "Jul","Agu","Sep","Okt","Nov","Des",
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+];
+
+export const DAYS_ID = [
+  "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu",
 ];
 
 export const OFFICIAL_ROLE_ORDER = [
@@ -59,10 +63,11 @@ export function getSunday(date: Date): Date {
 export function formatDate(dateVal: string | number | undefined): string {
   const d = parseDate(dateVal);
   if (d.getTime() === 0) return "-";
-  const day = String(d.getDate()).padStart(2, "0");
+  const dayName = DAYS_ID[d.getDay()];
+  const day = d.getDate();
   const month = MONTHS_ID[d.getMonth()];
   const year = d.getFullYear();
-  return `${day} ${month} ${year}`;
+  return `${dayName}, ${day} ${month} ${year}`;
 }
 
 export function formatDateISO(dateVal: string | number | undefined): string {
@@ -93,9 +98,19 @@ export function getSentimenClass(sentimen: string): string {
 }
 
 export function getBorderAccent(potensi: string): string {
-  if (potensi === "Positif") return "bg-emerald-500";
-  if (potensi === "Negatif") return "bg-rose-500";
-  return "bg-slate-400";
+  const p = (potensi || "").toLowerCase();
+  if (p === "positif") return "bg-gradient-to-b from-emerald-400 to-emerald-600";
+  if (p === "negatif") return "bg-gradient-to-b from-rose-400 to-rose-600";
+  if (p === "netral") return "bg-gradient-to-b from-slate-400 to-slate-500";
+  return "bg-gradient-to-b from-blue-400 to-blue-600";
+}
+
+export function getCardGradient(potensi: string): string {
+  const p = (potensi || "").toLowerCase();
+  if (p === "positif") return "bg-gradient-to-r from-emerald-50/50 via-transparent to-transparent dark:from-emerald-900/10";
+  if (p === "negatif") return "bg-gradient-to-r from-rose-50/50 via-transparent to-transparent dark:from-rose-900/10";
+  if (p === "netral") return "bg-gradient-to-r from-slate-50/50 via-transparent to-transparent dark:from-slate-800/10";
+  return "bg-gradient-to-r from-blue-50/50 via-transparent to-transparent dark:from-blue-900/10";
 }
 
 export function getPrimaryRole(

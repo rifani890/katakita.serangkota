@@ -32,22 +32,46 @@ function StatCard({
   textClass,
   onClick,
 }: StatCardProps) {
+  // Map color classes to gradient definitions
+  const gradientMap: Record<string, string> = {
+    "border-l-indigo-500": "from-indigo-500 to-blue-600",
+    "border-l-teal-500": "from-teal-400 to-emerald-600",
+    "border-l-zinc-400": "from-slate-400 to-slate-500",
+    "border-l-red-500": "from-rose-500 to-red-600",
+  };
+
+  const bgGradientMap: Record<string, string> = {
+    "border-l-indigo-500": "from-indigo-50/50 via-transparent to-transparent dark:from-indigo-900/10",
+    "border-l-teal-500": "from-teal-50/50 via-transparent to-transparent dark:from-teal-900/10",
+    "border-l-zinc-400": "from-slate-50/50 via-transparent to-transparent dark:from-slate-800/10",
+    "border-l-red-500": "from-rose-50/50 via-transparent to-transparent dark:from-rose-900/10",
+  };
+
+  const gradient = gradientMap[borderClass] || "from-slate-400 to-slate-500";
+  const bgGradient = bgGradientMap[borderClass] || "from-slate-50/50 via-transparent to-transparent dark:from-slate-800/10";
+
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 transition-all border-l-4 ${borderClass} cursor-pointer ${hoverClass} hover:shadow-md hover:-translate-y-1 ${textClass}`}
+      className={`bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 transition-all cursor-pointer relative overflow-hidden group hover:shadow-md hover:-translate-y-1 ${textClass}`}
     >
-      <div className="flex items-center gap-4">
+      {/* Background Gradient Fade */}
+      <div className={`absolute inset-0 bg-gradient-to-r ${bgGradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+      
+      {/* Vertical Gradient Accent Bar */}
+      <div className={`absolute left-0 top-0 bottom-0 w-[5px] bg-gradient-to-b ${gradient} opacity-90 group-hover:opacity-100 transition-opacity`} />
+
+      <div className="flex items-center gap-4 relative z-10">
         <div
           className={`p-3 ${colorClass} bg-opacity-10 rounded-xl text-xl sm:text-2xl ${colorClass.replace("bg-", "text-")}`}
         >
           <i className={`fas ${icon}`}></i>
         </div>
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">
             {title}
           </p>
-          <p className="text-2xl sm:text-3xl font-extrabold">{count.toLocaleString()}</p>
+          <p className="text-2xl sm:text-3xl font-black">{count.toLocaleString()}</p>
         </div>
       </div>
     </div>

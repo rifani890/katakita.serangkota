@@ -11,7 +11,6 @@ import {
   stripHtml,
 } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
-import Footer from "@/components/Footer";
 
 interface NewsDetailPageProps {
   params: {
@@ -163,7 +162,6 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
           </article>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

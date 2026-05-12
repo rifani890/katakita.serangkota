@@ -3,6 +3,7 @@
 import { fetchWithAuth } from "@/lib/fetchWithAuth";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
+  Calendar,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -16,7 +17,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { printNews } from "@/lib/print";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getBorderAccent, getCardGradient } from "@/lib/utils";
 import { LoadingOverlay, ConfirmDialog } from "./AdminUI";
 import type { NewsItem, PaginatedNewsResponse } from "@/types";
 
@@ -249,13 +250,13 @@ export default function AdminBeritaClient() {
             <thead className="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
               <tr className="border-b border-slate-300 dark:border-slate-600 divide-x divide-slate-300 dark:divide-slate-600">
                 <th className="px-4 py-3 text-xs font-bold uppercase w-12 text-center">No</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("tanggal_raw")}>
+                <th className="px-4 py-3 text-xs font-bold uppercase w-28 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("tanggal_raw")}>
                   Tanggal {sortField === "tanggal_raw" && <span>{sortOrder === "asc" ? "↑" : "↓"}</span>}
                 </th>
                 <th className="px-4 py-3 text-xs font-bold uppercase cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("judul")}>
                   Judul {sortField === "judul" && <span>{sortOrder === "asc" ? "↑" : "↓"}</span>}
                 </th>
-                <th className="px-4 py-3 text-xs font-bold uppercase cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("media")}>
+                <th className="px-4 py-3 text-xs font-bold uppercase w-28 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleSort("media")}>
                   Media {sortField === "media" && <span>{sortOrder === "asc" ? "↑" : "↓"}</span>}
                 </th>
                 <th className="px-4 py-3 text-xs font-bold uppercase">Pejabat</th>
@@ -287,11 +288,15 @@ export default function AdminBeritaClient() {
                       <td className="px-4 py-4 text-center text-slate-500 text-xs font-bold">
                         {(response.page - 1) * response.pageSize + index + 1}
                       </td>
-                      <td className="px-4 py-4 text-xs text-slate-500 whitespace-nowrap">{formatDate(news.tanggal_raw)}</td>
+                      <td className="px-4 py-4 text-xs text-slate-500 leading-tight max-w-[100px] break-words">
+                        {formatDate(news.tanggal_raw)}
+                      </td>
                       <td className="px-4 py-4 min-w-[220px]">
                         <div className="text-sm font-bold text-slate-800 dark:text-white group-hover:text-blue-600 transition-colors leading-snug">{news.judul || "-"}</div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">{news.media || "-"}</td>
+                      <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300 leading-tight max-w-[120px] break-words">
+                        {news.media || "-"}
+                      </td>
                       <td className="px-4 py-4 text-xs text-slate-600 dark:text-slate-300 max-w-[180px]">{pejabat}</td>
                       <td className="px-4 py-4 text-xs text-slate-500 max-w-[140px]">{news.unit || "-"}</td>
                       <td className="px-4 py-4 text-xs text-slate-500 max-w-[120px]">{news.segment || "-"}</td>
@@ -336,14 +341,36 @@ export default function AdminBeritaClient() {
             response.items.map((news) => {
               const pejabat = Array.isArray(news.pejabat) ? news.pejabat.join(", ") : news.pejabat || "-";
               const colorClass = potensiColor[news.potensi] || potensiColor.Netral;
+
+              const border = getBorderAccent(news.potensi);
+              const cardGradient = getCardGradient(news.potensi);
+
               return (
-                <div key={news.key} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60 p-4 space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-xs font-bold uppercase tracking-wider text-slate-500">{formatDate(news.tanggal_raw)}</div>
-                      <div className="mt-1 text-base font-bold text-slate-800 dark:text-white leading-snug">{news.judul}</div>
+                <div
+                  key={news.key}
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4 space-y-3 relative overflow-hidden group transition-all"
+                >
+                  {/* Background Gradient */}
+                  <div className={`absolute inset-0 ${cardGradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+
+                  {/* Vertical Accent Bar */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-[5px] ${border} opacity-80 group-hover:opacity-100 transition-opacity`} />
+
+                  <div className="flex flex-wrap items-center gap-y-2 gap-x-3 relative z-10 pl-3">
+                    <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${colorClass}`}>{news.potensi || "Netral"}</span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1">
+                        <Calendar size={11} />
+                        {formatDate(news.tanggal_raw)}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-slate-300" />
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/50 uppercase tracking-wider">
+                        {news.media || "Media"}
+                      </span>
                     </div>
-                    <span className={`px-2 py-1 rounded-full text-[10px] font-semibold uppercase ${colorClass}`}>{news.potensi || "Netral"}</span>
+                  </div>
+                  <div className="relative z-10 pl-3">
+                    <div className="text-base font-bold text-slate-800 dark:text-white leading-snug group-hover:text-blue-600 transition-colors">{news.judul}</div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400">
                     <div><strong className="text-slate-700 dark:text-slate-200">Media:</strong> {news.media || "-"}</div>
@@ -371,9 +398,26 @@ export default function AdminBeritaClient() {
           )}
         </div>
 
-        <div className="flex flex-col gap-6 items-center border-t border-slate-100 dark:border-slate-800 pt-6">
+        <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
+          <div className="text-sm text-slate-500">
+            {/* Teks informasi pagination telah dihapus */}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Baris:</span>
+            <select
+              value={perPage}
+              onChange={(event) => setPerPage(Number(event.target.value))}
+              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm outline-none ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white"
+            >
+              {[10, 20, 50, 100].map((value) => (
+                <option key={value} value={value}>{value}</option>
+              ))}
+            </select>
+          </div>
+
           {response.totalPages > 1 && (
-            <div className="flex gap-1.5 items-center justify-center">
+            <div className="flex gap-1.5 items-center">
               <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="w-9 h-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 text-slate-500 disabled:opacity-40 hover:bg-slate-50 transition-all">
                 <ChevronLeft size={14} />
               </button>
@@ -387,19 +431,6 @@ export default function AdminBeritaClient() {
               </button>
             </div>
           )}
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tampilkan:</span>
-            <select
-              value={perPage}
-              onChange={(event) => setPerPage(Number(event.target.value))}
-              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm outline-none ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white transition-all"
-            >
-              {[10, 20, 50, 100].map((value) => (
-                <option key={value} value={value}>{value} baris</option>
-              ))}
-            </select>
-          </div>
         </div>
       </div>
     </div>
