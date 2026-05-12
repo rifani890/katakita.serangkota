@@ -94,7 +94,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         </div>
       </nav>
 
-      <div className="flex h-[calc(100vh-4rem)] w-full relative overflow-hidden">
+      <div className="flex h-[calc(100vh-4rem)] h-[calc(100dvh-4rem)] w-full relative overflow-hidden">
         {/* Sidebar overlay (mobile) */}
         {sidebarOpen && (
           <div
@@ -130,8 +130,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                   href={href}
                   onClick={() => setSidebarOpen(false)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${isActive
-                      ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-bold"
-                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                    ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20 font-bold"
+                    : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/50"
                     }`}
                 >
                   <Icon size={18} className="w-5 text-center flex-shrink-0" />
@@ -151,7 +151,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
             </div>
           </nav>
 
-          <div className="p-4 border-t border-slate-200 dark:border-slate-700">
+          <div className="p-4 pb-10 md:pb-4 border-t border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setShowConfirmLogout(true)}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 font-medium transition-all"
@@ -174,16 +174,16 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
           <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm border border-slate-200 dark:border-slate-700">
             <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Konfirmasi Logout</h3>
             <p className="text-slate-600 dark:text-slate-300 mb-6">Apakah Anda yakin ingin keluar dari sistem?</p>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setShowConfirmLogout(false)}
-                className="flex-1 px-4 py-2 rounded-lg font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 transition-colors"
+                className="order-2 sm:order-1 flex-1 px-4 py-2.5 rounded-lg font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200 transition-colors"
               >
                 Batal
               </button>
               <button
                 onClick={handleLogout}
-                className="flex-1 px-4 py-2 rounded-lg font-medium bg-rose-600 hover:bg-rose-700 text-white transition-colors"
+                className="order-1 sm:order-2 flex-1 px-4 py-2.5 rounded-lg font-medium bg-rose-600 hover:bg-rose-700 text-white transition-colors"
               >
                 Ya, Keluar
               </button>

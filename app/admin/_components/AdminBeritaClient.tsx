@@ -48,7 +48,7 @@ export default function AdminBeritaClient() {
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMsg, setConfirmMsg] = useState("");
   const [confirmType, setConfirmType] = useState<"info" | "delete">("info");
-  const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
+  const [confirmAction, setConfirmAction] = useState<() => void>(() => { });
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams({
@@ -371,26 +371,9 @@ export default function AdminBeritaClient() {
           )}
         </div>
 
-        <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-4">
-          <div className="text-sm text-slate-500">
-            {/* Teks informasi pagination telah dihapus */}
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Baris:</span>
-            <select
-              value={perPage}
-              onChange={(event) => setPerPage(Number(event.target.value))}
-              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm outline-none ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white"
-            >
-              {[10, 20, 50, 100].map((value) => (
-                <option key={value} value={value}>{value}</option>
-              ))}
-            </select>
-          </div>
-
+        <div className="flex flex-col gap-6 items-center border-t border-slate-100 dark:border-slate-800 pt-6">
           {response.totalPages > 1 && (
-            <div className="flex gap-1.5 items-center">
+            <div className="flex gap-1.5 items-center justify-center">
               <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1} className="w-9 h-9 flex items-center justify-center rounded-lg bg-white dark:bg-slate-800 ring-1 ring-slate-200 dark:ring-slate-700 text-slate-500 disabled:opacity-40 hover:bg-slate-50 transition-all">
                 <ChevronLeft size={14} />
               </button>
@@ -404,6 +387,19 @@ export default function AdminBeritaClient() {
               </button>
             </div>
           )}
+
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tampilkan:</span>
+            <select
+              value={perPage}
+              onChange={(event) => setPerPage(Number(event.target.value))}
+              className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm outline-none ring-1 ring-slate-200 dark:ring-slate-700 focus:ring-2 focus:ring-indigo-500 text-slate-800 dark:text-white transition-all"
+            >
+              {[10, 20, 50, 100].map((value) => (
+                <option key={value} value={value}>{value} baris</option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
     </div>

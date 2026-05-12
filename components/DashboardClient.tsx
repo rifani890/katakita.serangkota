@@ -11,6 +11,7 @@ import TrendChart from "@/components/TrendChart";
 import NewsList from "@/components/NewsList";
 import DetailPage, { type DetailPageQuery } from "@/components/DetailPage";
 import NewsModal from "@/components/NewsModal";
+import Footer from "@/components/Footer";
 
 type ActivePage = "dashboard" | "detail";
 
@@ -182,6 +183,7 @@ export default function DashboardClient() {
         onClose={() => setModalKey(null)}
         onPrint={handlePrintDirect}
       />
+      <Footer />
     </div>
   );
 }
