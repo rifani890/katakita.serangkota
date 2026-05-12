@@ -34,6 +34,42 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     }
   }, [user, loading, router]);
 
+  // Auto Logout 5 Menit Inactivity
+  useEffect(() => {
+    if (!user) return;
+
+    let timer: NodeJS.Timeout;
+
+    const resetTimer = () => {
+      if (timer) clearTimeout(timer);
+      // Logout setelah 5 menit (300.000 ms)
+      timer = setTimeout(() => {
+        handleLogout();
+      }, 300000);
+    };
+
+    // Listen to various user interactions
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("mousedown", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+    window.addEventListener("scroll", resetTimer);
+    window.addEventListener("touchstart", resetTimer);
+    window.addEventListener("click", resetTimer);
+
+    // Initial timer
+    resetTimer();
+
+    return () => {
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("mousedown", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+      window.removeEventListener("scroll", resetTimer);
+      window.removeEventListener("touchstart", resetTimer);
+      window.removeEventListener("click", resetTimer);
+    };
+  }, [user]);
+
   const handleLogout = async () => {
     setShowConfirmLogout(false);
     await logout();

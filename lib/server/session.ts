@@ -1,5 +1,5 @@
 const AUTH_COOKIE_NAME = "katakita_session";
-const AUTH_MAX_AGE_SECONDS = 8 * 60 * 60;
+const AUTH_MAX_AGE_SECONDS = 5 * 60; // 5 Menit
 
 export interface SessionUser {
   uid: string;

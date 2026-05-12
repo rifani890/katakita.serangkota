@@ -7,9 +7,7 @@ export async function middleware(request: NextRequest) {
   const user = await verifySessionToken(token);
 
   if (!user) {
-    const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("next", pathname);
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   const isKelolaAdmin =
