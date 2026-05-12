@@ -27,10 +27,10 @@ function NewsCard({ news, onClick }: NewsCardProps) {
       className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500/50 dark:hover:border-blue-500/50 transition-all cursor-pointer group flex flex-col gap-4 relative overflow-hidden"
     >
       {/* Background Gradient */}
-      <div className={`absolute inset-0 ${cardGradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+      <div className={`absolute inset-0 ${cardGradient} opacity-100 transition-opacity`} />
       
       {/* Vertical Accent Bar */}
-      <div className={`absolute left-0 top-0 bottom-0 w-[5px] ${border} opacity-80 group-hover:opacity-100 transition-opacity`} />
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${border} opacity-90 group-hover:opacity-100 transition-opacity`} />
       
       <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pl-3 relative z-10">
         <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${sentimenClass}`}>

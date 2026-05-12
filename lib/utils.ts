@@ -90,27 +90,26 @@ export function normMedia(m: string | undefined): string {
 }
 
 export function getSentimenClass(sentimen: string): string {
-  switch (sentimen) {
-    case "Positif": return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
-    case "Negatif": return "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400";
-    default: return "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300";
-  }
+  const s = (sentimen || "").toLowerCase().trim();
+  if (s === "positif") return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
+  if (s === "negatif") return "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400";
+  return "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300";
 }
 
 export function getBorderAccent(potensi: string): string {
-  const p = (potensi || "").toLowerCase();
-  if (p === "positif") return "bg-gradient-to-b from-emerald-400 to-emerald-600";
-  if (p === "negatif") return "bg-gradient-to-b from-rose-400 to-rose-600";
+  const p = (potensi || "").toLowerCase().trim();
+  if (p === "positif") return "bg-gradient-to-b from-emerald-500 to-emerald-600";
+  if (p === "negatif") return "bg-gradient-to-b from-rose-500 to-rose-600";
   if (p === "netral") return "bg-gradient-to-b from-slate-400 to-slate-500";
-  return "bg-gradient-to-b from-blue-400 to-blue-600";
+  return "bg-gradient-to-b from-blue-500 to-blue-600";
 }
 
 export function getCardGradient(potensi: string): string {
-  const p = (potensi || "").toLowerCase();
-  if (p === "positif") return "bg-gradient-to-r from-emerald-50/50 via-transparent to-transparent dark:from-emerald-900/10";
-  if (p === "negatif") return "bg-gradient-to-r from-rose-50/50 via-transparent to-transparent dark:from-rose-900/10";
-  if (p === "netral") return "bg-gradient-to-r from-slate-50/50 via-transparent to-transparent dark:from-slate-800/10";
-  return "bg-gradient-to-r from-blue-50/50 via-transparent to-transparent dark:from-blue-900/10";
+  const p = (potensi || "").toLowerCase().trim();
+  if (p === "positif") return "bg-gradient-to-r from-emerald-500/20 via-emerald-500/5 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5";
+  if (p === "negatif") return "bg-gradient-to-r from-rose-500/20 via-rose-500/5 to-transparent dark:from-rose-500/10 dark:via-rose-500/5";
+  if (p === "netral") return "bg-gradient-to-r from-slate-500/20 via-slate-500/5 to-transparent dark:from-slate-500/10 dark:via-slate-500/5";
+  return "bg-gradient-to-r from-blue-500/20 via-blue-500/5 to-transparent dark:from-blue-500/10 dark:via-blue-500/5";
 }
 
 export function getPrimaryRole(
