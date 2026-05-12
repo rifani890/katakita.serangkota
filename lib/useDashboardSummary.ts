@@ -33,7 +33,13 @@ export function useDashboardSummary() {
     setError(null);
 
     try {
-      const res = await fetch("/api/dashboard/summary", { credentials: "include" });
+      const res = await fetch("/api/dashboard/summary", {
+        credentials: "include",
+        cache: "no-store",
+        headers: {
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+        },
+      });
       if (!res.ok) {
         throw new Error("Gagal memuat ringkasan dashboard");
       }
