@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { OfficialMapping } from "@/types";
 import { useDashboardSummary } from "@/lib/useDashboardSummary";
 import { printNews } from "@/lib/print";
@@ -34,7 +34,18 @@ export default function DashboardClient() {
   const [detailQuery, setDetailQuery] = useState<DetailPageQuery>({});
   const [filterLabel, setFilterLabel] = useState<FilterLabel>({ label: "Semua", color: "#3b82f6" });
   const [modalKey, setModalKey] = useState<string | null>(null);
+  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
   const dashboardScrollY = useRef(0);
+
+  useEffect(() => {
+    // Check for timeout parameter
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("timeout") === "1") {
+      setShowTimeoutModal(true);
+      // Clean up URL without refreshing
+      window.history.replaceState({}, document.title, "/");
+    }
+  }, []);
 
   const openDetailPage = useCallback((query: DetailPageQuery, label: string, color: string) => {
     dashboardScrollY.current = window.scrollY;
@@ -182,6 +193,29 @@ export default function DashboardClient() {
         onClose={() => setModalKey(null)}
         onPrint={handlePrintDirect}
       />
+
+      {/* Timeout Notification Modal */}
+      {showTimeoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700 text-center transform animate-in zoom-in-95 duration-300">
+            <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-12 h-12 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-rose-500/40">
+                <i className="fas fa-clock text-xl"></i>
+              </div>
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-3">Sesi Berakhir</h3>
+            <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+              Sesi Anda telah berakhir secara otomatis setelah <strong>5 menit</strong> tanpa aktivitas demi keamanan data.
+            </p>
+            <button
+              onClick={() => setShowTimeoutModal(false)}
+              className="w-full py-4 rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/30 transition-all active:scale-95"
+            >
+              Mengerti
+            </button>
+          </div>
+        </div>
+      )}
 
       <footer className="py-12 text-center border-t border-slate-200 dark:border-slate-800 bg-transparent transition-colors">
         <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.2em] uppercase">

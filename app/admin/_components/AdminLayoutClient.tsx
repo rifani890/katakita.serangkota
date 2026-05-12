@@ -44,7 +44,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       if (timer) clearTimeout(timer);
       // Logout setelah 5 menit (300.000 ms)
       timer = setTimeout(() => {
-        handleLogout();
+        handleLogout(true); // Pass true for auto-logout
       }, 300000);
     };
 
@@ -70,10 +70,14 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
     };
   }, [user]);
 
-  const handleLogout = async () => {
+  const handleLogout = async (isAuto = false) => {
     setShowConfirmLogout(false);
     await logout();
-    router.replace("/");
+    if (isAuto) {
+      router.replace("/?timeout=1");
+    } else {
+      router.replace("/");
+    }
   };
 
   if (loading) {
@@ -228,7 +232,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
                 Batal
               </button>
               <button
-                onClick={handleLogout}
+                onClick={() => handleLogout()}
                 className="flex-1 px-4 py-2 rounded-lg font-medium bg-rose-600 hover:bg-rose-700 text-white transition-colors"
               >
                 Ya, Keluar
