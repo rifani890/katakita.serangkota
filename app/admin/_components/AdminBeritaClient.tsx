@@ -350,11 +350,11 @@ export default function AdminBeritaClient() {
                   key={news.key}
                   className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/40 p-4 space-y-3 relative overflow-hidden group transition-all"
                 >
-                  {/* Background Gradient */}
-                  <div className={`absolute inset-0 ${cardGradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+                  {/* Background Gradient - Added pointer-events-none */}
+                  <div className={`absolute inset-0 ${cardGradient} opacity-60 group-hover:opacity-100 transition-opacity pointer-events-none`} />
 
                   {/* Vertical Accent Bar */}
-                  <div className={`absolute left-0 top-0 bottom-0 w-[5px] ${border} opacity-80 group-hover:opacity-100 transition-opacity`} />
+                  <div className={`absolute left-0 top-0 bottom-0 w-[5px] ${border} opacity-80 group-hover:opacity-100 transition-opacity pointer-events-none`} />
 
                   <div className="flex flex-wrap items-center gap-y-2 gap-x-3 relative z-10 pl-3">
                     <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${colorClass}`}>{news.potensi || "Netral"}</span>
@@ -372,13 +372,13 @@ export default function AdminBeritaClient() {
                   <div className="relative z-10 pl-3">
                     <div className="text-base font-bold text-slate-800 dark:text-white leading-snug group-hover:text-blue-600 transition-colors">{news.judul}</div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400 relative z-10 pl-3">
                     <div><strong className="text-slate-700 dark:text-slate-200">Media:</strong> {news.media || "-"}</div>
                     <div><strong className="text-slate-700 dark:text-slate-200">Unit:</strong> {news.unit || "-"}</div>
                     <div className="sm:col-span-2"><strong className="text-slate-700 dark:text-slate-200">Pejabat:</strong> {pejabat}</div>
                     <div className="sm:col-span-2 break-all"><strong className="text-slate-700 dark:text-slate-200">User:</strong> {news.userEmail || "-"}</div>
                   </div>
-                  <div className="flex flex-wrap gap-2 pt-1">
+                  <div className="flex flex-wrap gap-2 pt-1 relative z-10 pl-3">
                     <button onClick={() => setViewNews(news)} className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold">
                       <Eye size={14} /> Lihat
                     </button>

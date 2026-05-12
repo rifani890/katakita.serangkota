@@ -1,183 +1,89 @@
-# KataKita Next.js
+# KataKita Kota Serang - News Dashboard
 
-Dashboard monitoring berita Kota Serang berbasis Next.js 14, MySQL, dan Tailwind CSS.
+Dashboard monitoring berita modern untuk Pemerintah Kota Serang yang dibangun menggunakan **Next.js 14**, **Tailwind CSS**, dan **MySQL**. Aplikasi ini dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara *real-time*.
 
-## Ringkasan
+## ✨ Fitur Utama & Keunggulan
 
-Fitur utama yang sekarang tersedia:
+### 1. Visual & Premium Dashboard
+- **Dynamic Glassmorphism**: Antarmuka bersih dengan efek kaca transparan dan *mesh gradients* yang memberikan kesan premium dan modern.
+- **Interactive StatCards**: Kartu statistik dengan animasi *glow* dan perubahan warna latar belakang dinamis berdasarkan kategori (Indigo, Teal, Zinc, Rose) saat di-*hover*.
+- **Sentiment Icons**: Visualisasi sentimen yang intuitif menggunakan set ikon wajah (*Smile-beam*, *Meh*, *Frown-open*) untuk memudahkan identifikasi suasana berita.
 
-- Dashboard publik yang responsif untuk desktop, tablet, dan HP.
-- Chart pejabat dengan prioritas urutan:
-  `Walikota Serang -> Wakil Walikota Serang -> Sekretaris Daerah Kota Serang -> Pejabat Lainnya`
-  memakai nilai prioritas numerik 1 sampai 4.
-- Pagination, search, dan sorting berita berbasis server-side agar tetap ringan saat data membesar.
-- Halaman detail berita publik yang ramah SEO di URL:
-  `/berita/[id]/[slug]`.
-- Metadata SEO, Open Graph, JSON-LD `NewsArticle`, `robots.txt`, dan `sitemap.xml`.
-- Sesi login berbasis cookie `httpOnly`, proteksi route admin, dan redirect otomatis ke root saat sesi habis.
-- Panel admin untuk kelola berita, pejabat, unit kerja, dan admin/user.
+### 2. Analisis Tren yang Akurat
+- **Synchronized Charts**: Grafik tren media cetak yang mendukung filter **Mingguan** dan **Bulanan** dengan sinkronisasi data yang presisi.
+- **Timezone-Aware Filtering**: Logika filter tanggal yang dioptimalkan untuk zona waktu lokal (WIB), memastikan data di awal/akhir periode tetap terekam dengan benar.
+- **Interactive Data Points**: Klik pada titik grafik untuk langsung melihat daftar berita terfilter untuk media dan periode tersebut.
 
-## Teknologi
+### 3. Pengalaman Pengguna (UX) yang Konsisten
+- **Unified Pagination**: Sistem navigasi halaman yang terstandarisasi (terpusat/centered) dengan selector jumlah baris (10, 20, 50, 100) di seluruh halaman dashboard dan detail.
+- **Responsive Design**: Tata letak yang adaptif sepenuhnya untuk Desktop, Tablet, hingga Smartphone, termasuk penyesuaian otomatis grafik dan tabel berita.
+- **Sentiment Badges**: Label sentimen berbentuk *pill* (lonjong) dengan *border* tipis yang seragam untuk keterbacaan yang lebih baik.
 
-- Next.js 14 App Router
-- React 18
-- Tailwind CSS
-- MySQL (`mysql2/promise`)
-- Chart.js
+### 4. Performa & SEO
+- **Server-Side Processing**: Pagination, pencarian, dan pengurutan dilakukan di sisi server (MySQL) menggunakan query yang dioptimalkan (Full-Text Search jika tersedia).
+- **SEO Ready**: URL ramah SEO (`/berita/[id]/[slug]`), Metadata dinamis, Open Graph, JSON-LD NewsArticle, sitemap.xml, dan robots.txt otomatis.
 
-## Struktur Penting
+## 🛠️ Teknologi Utama
 
-- `app/`
-  Halaman, route API, sitemap, robots, detail berita SEO, dan komponen admin yang di-co-locate di `app/admin/_components`.
-- `components/`
-  UI publik yang dipakai lintas halaman.
-- `lib/news.ts`
-  Query berita, server-side pagination, summary dashboard, dan helper sitemap.
-- `lib/server/`
-  Helper database, session, auth route guard, dan repository server-side.
-- `lib/utils.ts`
-  Helper tanggal, slug, excerpt, prioritas pejabat, dan util SEO.
-- `types/`
-  Tipe data aplikasi.
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS & Lucide Icons
+- **Chart**: Chart.js with Interactive Plugins
+- **Database**: MySQL with Connection Pooling
+- **Auth**: Secure Cookie-based Authentication
 
-## SEO yang Ditambahkan
+## 📂 Struktur Penting
 
-- Metadata global di `app/layout.tsx`
-- Metadata halaman beranda di `app/page.tsx`
-- Metadata dinamis per berita di `app/berita/[id]/[slug]/page.tsx`
-- Structured data `NewsArticle`
-- `app/robots.ts`
-- `app/sitemap.ts`
+- `app/`: Routing, API Handlers, dan Admin Components.
+- `components/`: UI Publik (Navbar, StatCards, TrendChart, NewsList, dll).
+- `lib/news.ts`: Logika inti query berita, server-side pagination, dan agregasi statistik.
+- `lib/utils.ts`: Helper untuk format tanggal lokal, normalisasi peran pejabat, dan SEO.
 
-Catatan:
+## 🚀 Instalasi & Pengembangan
 
-- Supaya URL kanonis dan sitemap benar di production, set `NEXT_PUBLIC_SITE_URL`.
-- Berita baru akan punya halaman detail SEO yang bisa diindeks Google tanpa perlu halaman statis manual.
+1. **Clone & Install**
+   ```bash
+   git clone https://github.com/username/katakita.serangkota.git
+   npm install
+   ```
 
-## Keamanan
+2. **Konfigurasi Environment**
+   Buat file `.env` dan sesuaikan variabel berikut:
+   ```env
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASS=
+   DB_NAME=katakita
+   NEXT_PUBLIC_SITE_URL=http://localhost:3000
+   AUTH_SECRET=rahasia_anda
+   ```
 
-Perubahan keamanan yang sudah diterapkan:
+3. **Jalankan Aplikasi**
+   ```bash
+   npm run dev
+   ```
 
-- login admin sekarang membuat sesi cookie `httpOnly`
-- route `/admin/*` diproteksi oleh `middleware.ts`
-- route admin sensitif seperti `kelola-admin` hanya bisa diakses role `admin`
-- API tulis/hapus master data dan berita sekarang memerlukan sesi login
-- sesi akan diarahkan kembali ke root `/` saat hilang atau kedaluwarsa
-- header keamanan dasar ditambahkan di `next.config.mjs`
+## 🛠️ Panduan Kustomisasi & Pengembangan
 
-## Pagination dan Performa
+### 1. Merubah Tampilan (UI Styling)
+Dashboard ini dibangun dengan sistem desain berbasis **Tailwind CSS**. Untuk merubah tampilan:
+- **Warna Aksen**: Edit `tailwind.config.ts` untuk merubah palet warna global atau langsung ubah kelas warna pada komponen (misal: `indigo-600`, `teal-500`).
+- **Efek Glassmorphism**: Gunakan kelas `backdrop-blur-md` dan kombinasi `bg-white/90` (light) atau `bg-dark-card/90` (dark).
+- **Animasi Hover**: Interaksi kartu statistik dikelola di `components/StatCards.tsx` menggunakan objek `hoverBgMap`. Ubah nilai di sana untuk mengganti intensitas warna hover.
+- **Iconography**: Ikon menggunakan **Lucide React** dan **FontAwesome** (untuk wajah sentimen). Anda bisa mengganti ikon di masing-masing file komponen.
 
-Sebelum perapihan, daftar berita banyak diproses di browser. Sekarang:
+### 2. Pengelolaan Database
+Aplikasi ini berinteraksi langsung dengan database MySQL melalui `lib/server/database.ts`.
+- **Menambah Kolom**: Jika Anda menambah kolom di tabel `berita`, pastikan untuk memperbarui interface `NewsDbRow` dan fungsi `mapNewsRow` di `lib/news.ts`.
+- **Mapping Pejabat & Media**: 
+    - Daftar pejabat dikelola melalui `OfficialMapping` di `lib/utils.ts`. 
+    - Logika normalisasi nama media berada di fungsi `normMedia` dan `buildMediaMapping` di `lib/news.ts`.
+- **Optimasi Query**: Fitur pencarian menggunakan MySQL **Full-Text Search**. Pastikan index FTS terpasang pada kolom `judul, isi, media, pejabat, unit` untuk performa maksimal.
 
-- daftar berita publik memakai `GET /api/berita?page=...`
-- daftar berita admin memakai `GET /api/berita?page=...`
-- pencarian, sort, dan pagination dilakukan di server
-- halaman detail filter juga mengambil data per halaman dari server
-- `sitemap.xml` dibuat dinamis
+## 🔒 Keamanan
+- **Route Guard**: Middleware Next.js untuk memproteksi akses ke area `/admin`.
+- **Session Security**: Cookie `httpOnly` dan `secure` untuk menjaga integritas sesi.
+- **XSS & SQLi Protection**: Sanitasi input otomatis dan *parameterized queries* melalui ORM/Database helper.
 
-Untuk data ribuan sampai besar, pendekatan ini jauh lebih ringan di browser.
+---
 
-Jika data tumbuh sampai sangat besar sekali:
-
-- pertahankan pagination server-side
-- pertimbangkan index database di kolom `created_at`, `tanggal_converted`, `potensi`, `media`
-- pertimbangkan summary table/materialized aggregation untuk chart yang sangat besar
-
-## Variabel Environment
-
-Saat ini proyek membaca:
-
-```env
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASS=
-DB_NAME=
-DB_SOCKET=
-DB_CONNECTION_LIMIT=
-NEXT_PUBLIC_SITE_URL=
-SITE_URL=
-AUTH_SECRET=
-```
-
-Minimal untuk production:
-
-```env
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASS=
-DB_NAME=
-NEXT_PUBLIC_SITE_URL=
-AUTH_SECRET=
-```
-
-## Menjalankan Proyek
-
-1. Install dependency
-
-```bash
-npm install
-```
-
-2. Pastikan MySQL aktif, database sudah tersedia, dan variabel environment sudah sesuai.
-
-3. Jalankan development server
-
-```bash
-npm run dev
-```
-
-4. Build production
-
-```bash
-npm run build
-```
-
-5. Jalankan lint
-
-```bash
-npm run lint
-```
-
-## Endpoint Penting
-
-- `GET /api/dashboard/summary`
-  Summary statistik dashboard dan data chart.
-- `GET /api/auth/session`
-  Validasi sesi aktif saat ini.
-- `GET /api/berita`
-  List berita dengan mode pagination server-side.
-- `GET /api/berita/[id]`
-  Detail satu berita.
-- `POST /api/berita`
-  Tambah berita.
-- `PUT /api/berita`
-  Ubah berita.
-- `DELETE /api/berita?id=...`
-  Hapus berita.
-
-## Perubahan Besar yang Sudah Dirapikan
-
-- Menghapus duplikasi endpoint berita lama `/api/news`
-- Menghapus hook yang tidak terpakai:
-  `lib/useSQLData.ts`, `lib/useSQLAdmin.ts`
-- Memindahkan komponen admin dari `components/admin` ke `app/admin/_components`
-- Mengganti helper database lama menjadi `lib/server/database.ts`
-- Menambahkan repository server-side agar logika query lebih mudah dibaca
-- Menyederhanakan `AdminBeritaClient` agar fokus ke listing
-- Mengoptimalkan `AdminBeritaCMSClient` agar saat edit hanya mengambil satu berita
-- Menambahkan tampilan kartu mobile untuk halaman admin yang sebelumnya sangat desktop-first
-- Menghapus artefak seed/test dan file contoh yang tidak dibutuhkan runtime aplikasi
-
-## Catatan Database
-
-Aplikasi mengasumsikan tabel-tabel utama berikut tersedia:
-
-- `berita`
-- `pejabat`
-- `unit_kerja`
-- `media`
-- `users`
-
-Beberapa fitur akan tetap build meski database tidak aktif saat build, tetapi data dinamis tentu membutuhkan koneksi database saat runtime.
+*Dikembangkan oleh Diskominfo Kota Serang &copy; 2026 KataKita.*

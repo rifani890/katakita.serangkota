@@ -2,56 +2,55 @@
 ## Project: KataKita Dashboard Kota Serang
 
 ### 1. Overview
-Dokumen ini disusun untuk pengujian aplikasi KataKita dengan fokus utama pada **Responsivitas Antarmuka (UI/UX)** dan **Keamanan Sistem (Security)** sebelum dilakukan deployment ke tahap produksi.
+This document is prepared for testing the KataKita application, focusing primarily on **User Interface Responsiveness (UI/UX)** and **System Security** before deployment to production.
 
 ---
 
-### 2. Fokus Pengujian: Responsivitas (Responsiveness)
-Tujuan: Memastikan dashboard dapat diakses dengan nyaman di berbagai perangkat (Mobile, Tablet, Desktop).
+### 2. Testing Focus: Responsiveness
+Objective: To ensure the dashboard is accessible and user-friendly across various devices (Mobile, Tablet, Desktop).
 
-#### 2.1. Komponen Utama
+#### 2.1. Key Components
 *   **Navigation Bar (Navbar)**:
-    *   Logo dan teks "KataKita Kota Serang" tidak boleh terpotong di layar kecil.
-    *   Tombol toggle tema (Dark/Light) harus mudah diklik di mobile.
-*   **StatCards (Kartu Statistik)**:
-    *   Layout harus berubah dari 4 kolom (Desktop) menjadi 2 kolom (Tablet) dan 1 kolom (Mobile).
-    *   Animasi hover harus tetap halus tanpa menyebabkan layout shifting.
-*   **Charts (Grafik Pejabat & Tren)**:
-    *   Kedua grafik harus sejajar sempurna di desktop.
-    *   Di mobile, grafik harus menumpuk secara vertikal (stacking) dengan margin yang konsisten.
-    *   Dropdown "Mingguan/Bulanan" tidak boleh meluap (overflow) ke luar layar.
-*   **NewsList (Daftar Berita)**:
-    *   **Pagination**: Di tampilan HP, tombol angka harus berada di tengah, dan selector "Tampilkan 10, 20..." harus berada di bawahnya secara rapi.
-    *   Tabel berita harus menggunakan mekanisme *scroll horizontal* atau *card-view* di layar sangat kecil.
+    *   The logo and "KataKita Kota Serang" text must be wrapped in a link pointing to the root (`/`).
+    *   Smooth scaling animation on hover for the logo/brand identity.
+*   **StatCards (Metric Cards)**:
+    *   Hover state in light mode must display a clear transparent background color matching the card's accent.
+    *   Sentiment icons must use a consistent face set (Smile, Meh, Frown).
+*   **Trend Chart**:
+    *   The "Weekly/Monthly" dropdown must correctly update X-axis labels.
+    *   Clicking on chart points (both Weekly and Monthly) must open the corresponding filtered news details.
+*   **NewsList & Detail Table**:
+    *   **Centered Pagination**: Pagination on both the main page and detail page must be perfectly **centered**.
+    *   **Consistent Styling**: Page number buttons must be `rounded-xl` with a blue shadow when active.
+    *   **Row Selector**: A "Show per Page" selector must be present on both pages with identical styling.
+*   **Sentiment Badges**:
+    *   POSITIVE, NEGATIVE, and NEUTRAL labels must be **pill-shaped (rounded-full)** with a uniform thin border.
 
 ---
 
-### 3. Fokus Pengujian: Keamanan (Security)
-Tujuan: Melindungi integritas data dan memastikan akses hanya diberikan kepada pihak yang berwenang.
+### 3. Testing Focus: Security & Data Integrity
+Objective: To protect data integrity and ensure filter accuracy.
 
-#### 3.1. Autentikasi & Otorisasi
-*   **Session Management**: Memastikan token JWT/Session terlindungi dengan `httpOnly` dan `secure` cookies.
-*   **Admin Route Protection**: Semua route `/admin` dan API `/api/admin/*` wajib dicek melalui middleware atau server-side check (NextAuth `getServerSession`).
-*   **Role Validation**: Memastikan user dengan role non-admin tidak dapat mengakses fungsi penghapusan atau edit berita.
+#### 3.1. Filter Data Accuracy
+*   **Timezone Consistency**: Date filters (Weekly/Monthly) must accurately use local time (WIB), ensuring news at the beginning/end of a period is not missed.
+*   **Filter Syncing**: Ensure `timeKey` and `periodType` parameters are correctly sent to the API when switching chart filters.
 
-#### 3.2. Keamanan Data & API
-*   **SQL Injection Prevention**: Memastikan semua query ke database menggunakan parameterized queries (sudah dihandle oleh Prisma/ORM).
-*   **Cross-Site Scripting (XSS)**: Memastikan input judul dan isi berita disanitasi sebelum dirender (Next.js secara default meng-escape teks).
-*   **API Rate Limiting**: Memastikan endpoint pencarian tidak dapat dibombardir oleh bot (DDoS prevention).
-*   **Environment Variables**: Memastikan tidak ada rahasia (DB URL, NextAuth Secret) yang bocor ke sisi client (hanya gunakan prefix `NEXT_PUBLIC_` untuk yang aman bagi client).
+#### 3.2. Authentication & Authorization
+*   **Session Management**: Ensure JWT/Session tokens are protected with `httpOnly` and `secure` cookies.
+*   **Admin Route Protection**: All `/admin` routes must be verified via server-side checks (NextAuth).
 
 ---
 
-### 4. Skenario Pengujian (Test Cases)
-| ID | Kategori | Skenario | Hasil yang Diharapkan |
+### 4. Test Cases
+| ID | Category | Scenario | Expected Result |
 |:---|:---|:---|:---|
-| R-01 | Responsivitas | Buka dashboard di iPhone 12/13 (Chrome DevTools) | Pagination rapi di tengah, selector di bawahnya. |
-| R-02 | Responsivitas | Hover StatCards di Light Mode | Muncul warna latar belakang yang jelas sesuai aksen. |
-| S-01 | Keamanan | Akses langsung ke `/admin` tanpa login | Redirect otomatis ke halaman login atau root. |
-| S-02 | Keamanan | Mencoba POST ke `/api/berita` tanpa session | Mengembalikan Error 401 Unauthorized. |
-| S-03 | Keamanan | Input script `<script>alert(1)</script>` di search | Script dirender sebagai teks literal, bukan dieksekusi. |
+| R-01 | Responsiveness | Open Detail Page on Mobile | Pagination is centered and aligned with the row selector. |
+| R-02 | UI/UX | Hover on "Positive" StatCard | A clear transparent green background appears. |
+| R-03 | UI/UX | View Sentiment Badge in News List | Appears as an oval badge (pill) with a subtle border. |
+| D-01 | Integrity | Switch Chart to "Monthly" and click "Feb" point | Opens news details specifically for February without leaking data from other months. |
+| S-01 | Security | Access `/admin` directly without logging in | Automatically redirects to the login page. |
 
 ---
 
-### 5. Penutup
-Setiap temuan (bug) terkait responsivitas dan keamanan harus segera dilaporkan dan diperbaiki sebelum siklus sprint ini berakhir.
+### 5. Conclusion
+This PRD update covers the standardization of UI pagination and fixes for the monthly filter logic that was previously problematic.
