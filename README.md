@@ -38,6 +38,27 @@ Dashboard monitoring berita modern untuk Pemerintah Kota Serang yang dibangun me
 - `lib/news.ts`: Logika inti query berita, server-side pagination, dan agregasi statistik.
 - `lib/utils.ts`: Helper untuk format tanggal lokal, normalisasi peran pejabat, dan SEO.
 
+## 📂 Struktur Proyek
+
+Berikut adalah penjelasan mengenai isi dan kegunaan dari setiap folder utama dalam proyek ini:
+
+- **`app/`**: Berisi seluruh logika rute aplikasi menggunakan *Next.js App Router*.
+    - `/admin`: Halaman khusus pengelolaan dashboard admin.
+    - `/api`: Endpoint API server-side untuk interaksi database.
+    - `/berita`: Halaman detail berita yang dioptimalkan untuk SEO.
+    - `globals.css`: Pengaturan gaya global aplikasi.
+- **`components/`**: Komponen UI yang dapat digunakan kembali (*reusable components*).
+    - Berisi elemen seperti `Navbar`, `TrendChart`, `StatCards`, dan `NewsList`.
+- **`lib/`**: Kumpulan fungsi pembantu (*helpers*), *hooks*, dan logika inti.
+    - `server/`: Berisi repository database, helper sesi, dan konfigurasi koneksi MySQL.
+    - `news.ts`: Logika utama untuk query, pagination, dan kalkulasi statistik berita.
+    - `utils.ts`: Helper untuk format tanggal, manipulasi string, dan normalisasi data.
+    - `useAuth.ts`, `useTheme.ts`: Custom hooks untuk manajemen sesi dan tema.
+- **`public/`**: Folder untuk aset statis yang dapat diakses publik.
+    - Menyimpan file seperti `logo.png`, `favicon.ico`, dan aset visual lainnya.
+- **`types/`**: Pusat definisi tipe data (TypeScript Interfaces).
+    - Digunakan untuk memastikan konsistensi data dan fitur *autocompletion* saat pengembangan.
+
 ## 🚀 Instalasi & Pengembangan
 
 1. **Clone & Install**
