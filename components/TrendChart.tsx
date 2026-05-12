@@ -175,6 +175,17 @@ export default function TrendChart({
         chart.options.plugins.tooltip.titleColor = tooltipColor;
         chart.options.plugins.tooltip.bodyColor = tooltipColor;
         chart.options.plugins.tooltip.borderColor = tooltipBorder;
+        
+        // Update onClick handler to use current filterType and points
+        chart.options.onClick = (_evt: any, elements: any[]) => {
+          if (elements.length === 0) return;
+          const { datasetIndex, index } = elements[0];
+          const shorthand = chart.data.datasets[datasetIndex]?.label;
+          const timeKey = points[index]?.key;
+          if (shorthand && timeKey) {
+            onMediaTrendClick(shorthand, timeKey, filterType);
+          }
+        };
 
         chart.update("none");
       }

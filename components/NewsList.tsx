@@ -33,7 +33,7 @@ function NewsCard({ news, onClick }: NewsCardProps) {
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${border} opacity-90 group-hover:opacity-100 transition-opacity`} />
       
       <div className="flex flex-wrap items-center gap-y-2 gap-x-4 pl-3 relative z-10">
-        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${sentimenClass}`}>
+        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-current opacity-90 ${sentimenClass}`}>
           {news.potensi}
         </span>
         <div className="flex items-center gap-3">

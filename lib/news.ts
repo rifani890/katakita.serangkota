@@ -295,11 +295,15 @@ function buildWhereClause(options: NewsQueryOptions, useFts = true) {
 
   const dateRange = createDateRange(options.periodType, options.timeKey);
   if (dateRange) {
+    const startStr = dateRange.start.getFullYear() + "-" + 
+                     String(dateRange.start.getMonth() + 1).padStart(2, '0') + "-" + 
+                     String(dateRange.start.getDate()).padStart(2, '0') + " 00:00:00";
+    const endStr = dateRange.end.getFullYear() + "-" + 
+                   String(dateRange.end.getMonth() + 1).padStart(2, '0') + "-" + 
+                   String(dateRange.end.getDate()).padStart(2, '0') + " 00:00:00";
+    
     conditions.push(`${DATE_SQL} >= ? AND ${DATE_SQL} < ?`);
-    values.push(
-      dateRange.start.toISOString().slice(0, 19).replace("T", " "),
-      dateRange.end.toISOString().slice(0, 19).replace("T", " ")
-    );
+    values.push(startStr, endStr);
   }
 
   const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";

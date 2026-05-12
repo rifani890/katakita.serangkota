@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Moon, Sun, BarChart2, LogIn, LogOut, Loader2 } from "lucide-react";
@@ -42,8 +43,8 @@ export default function Navbar() {
       <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white/90 dark:bg-dark-card/90 backdrop-blur-md border-b border-slate-300 dark:border-slate-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between min-h-16 py-3 items-center gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 overflow-hidden flex items-center justify-center flex-shrink-0">
+            <Link href="/" className="flex items-center gap-3 min-w-0 group cursor-pointer">
+              <div className="w-10 h-10 overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
                 <Image
                   src="/logo.png"
                   alt="Logo KataKita"
@@ -52,10 +53,15 @@ export default function Navbar() {
                   className="object-contain"
                 />
               </div>
-              <span className="text-lg sm:text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
-                KataKita
-              </span>
-            </div>
+              <div className="flex flex-col">
+                <span className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent leading-none">
+                  KataKita
+                </span>
+                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 mt-0.5">
+                  Kota Serang
+                </span>
+              </div>
+            </Link>
 
             <div className="relative flex flex-wrap justify-end items-center gap-2 sm:gap-3">
               <button
