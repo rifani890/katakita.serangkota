@@ -85,31 +85,35 @@ export default function DetailPage({
   }, [currentPage, deferredSearch, filterQuery, pageSize, sort]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let isCurrent = true;
 
     async function fetchDetail() {
       setLoading(true);
       setError(null);
 
       try {
-        const res = await fetch(`/api/berita?${queryString}`, {
-          signal: controller.signal,
-        });
+        const res = await fetch(`/api/berita?${queryString}`);
         if (!res.ok) throw new Error("Gagal memuat berita");
         const data = (await res.json()) as PaginatedNewsResponse;
-        setResponse(data);
+        if (isCurrent) {
+          setResponse(data);
+        }
       } catch (err) {
-        if ((err as Error).name === "AbortError") return;
+        if (!isCurrent) return;
         console.error("DetailPage fetch error:", err);
         setError("Gagal memuat daftar berita terfilter.");
         setResponse(EMPTY_PAGE);
       } finally {
-        setLoading(false);
+        if (isCurrent) {
+          setLoading(false);
+        }
       }
     }
 
     fetchDetail();
-    return () => controller.abort();
+    return () => {
+      isCurrent = false;
+    };
   }, [queryString]);
 
   function toggleSort(column: SortConfig["column"]) {

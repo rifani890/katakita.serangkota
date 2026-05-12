@@ -30,24 +30,27 @@ export default function NewsModal({ newsKey, onClose, onPrint, canDelete = false
     setVisible(true);
     setLoading(true);
 
-    const controller = new AbortController();
+    let isCurrent = true;
 
-    fetch(`/api/berita/${newsKey}`, { signal: controller.signal })
+    fetch(`/api/berita/${newsKey}`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Gagal mengambil berita");
         return (await res.json()) as NewsItem;
       })
-      .then((data) => setNews(data))
-      .catch((err) => {
-        if ((err as Error).name !== "AbortError") {
-          console.error("NewsModal fetch error:", err);
-          setNews(null);
-        }
+      .then((data) => {
+        if (isCurrent) setNews(data);
       })
-      .finally(() => setLoading(false));
+      .catch((err) => {
+        if (!isCurrent) return;
+        console.error("NewsModal fetch error:", err);
+        setNews(null);
+      })
+      .finally(() => {
+        if (isCurrent) setLoading(false);
+      });
 
     return () => {
-      controller.abort();
+      isCurrent = false;
       document.body.style.overflow = "";
     };
   }, [newsKey]);

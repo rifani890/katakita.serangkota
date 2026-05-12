@@ -20,27 +20,15 @@ export async function POST(req: Request) {
       console.error("verifyUserPassword error:", err);
       return null;
     });
-    const fallbackUser =
-      email.toLowerCase() === "admin@gmail.com" && password === "admin123"
-        ? {
-            id: "default-admin",
-            email: "admin@gmail.com",
-            nama: "Admin",
-            role: "admin",
-          }
-        : null;
-
-    const authenticatedUser = user || fallbackUser;
-
-    if (!authenticatedUser) {
+    if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     const sessionUser = {
-      uid: authenticatedUser.id,
-      email: authenticatedUser.email,
-      nama: authenticatedUser.nama ?? null,
-      role: authenticatedUser.role || "user",
+      uid: user.id,
+      email: user.email,
+      nama: user.nama ?? null,
+      role: user.role || "user",
     };
 
     const token = await createSessionToken(sessionUser);

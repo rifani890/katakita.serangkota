@@ -62,29 +62,32 @@ export default function AdminBeritaClient() {
   }, [deferredSearch, page, perPage, sortField, sortOrder]);
 
   useEffect(() => {
-    const controller = new AbortController();
+    let isCurrent = true;
 
     async function loadData() {
       setLoading(true);
       try {
-        const res = await fetchWithAuth(`/api/berita?${queryString}`, {
-          signal: controller.signal,
-        });
+        const res = await fetchWithAuth(`/api/berita?${queryString}`);
         if (!res.ok) throw new Error("Gagal memuat berita");
         const data = (await res.json()) as PaginatedNewsResponse;
-        setResponse(data);
-      } catch (err) {
-        if ((err as Error).name !== "AbortError") {
-          console.error("AdminBeritaClient fetch error:", err);
-          setResponse(EMPTY_PAGE);
+        if (isCurrent) {
+          setResponse(data);
         }
+      } catch (err) {
+        if (!isCurrent) return;
+        console.error("AdminBeritaClient fetch error:", err);
+        setResponse(EMPTY_PAGE);
       } finally {
-        setLoading(false);
+        if (isCurrent) {
+          setLoading(false);
+        }
       }
     }
 
     loadData();
-    return () => controller.abort();
+    return () => {
+      isCurrent = false;
+    };
   }, [queryString]);
 
   useEffect(() => {

@@ -23,31 +23,19 @@ function NewsCard({ news, onClick }: NewsCardProps) {
   return (
     <div
       onClick={onClick}
-      className="bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-4 sm:p-5 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition-all cursor-pointer group flex flex-col gap-3 relative overflow-hidden"
+      className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-5 hover:border-blue-500 dark:hover:border-blue-500 transition-all cursor-pointer group flex flex-col gap-4 relative overflow-hidden"
     >
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${border}`} />
-      <div className="flex flex-wrap items-center gap-3 pl-1">
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${sentimenClass}`}>
+      <div className="flex items-center gap-3 pl-1">
+        <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${sentimenClass}`}>
           {news.potensi}
         </span>
-        <span className="text-xs font-bold text-slate-600 dark:text-slate-300 tracking-widest">
+        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
           {formatDate(news.tanggal_raw)}
         </span>
       </div>
-      <div className="font-bold text-slate-900 dark:text-white group-hover:text-blue-500 transition-colors leading-relaxed text-[15px] pl-1">
+      <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-500 transition-colors leading-snug text-base pl-1">
         {news.judul}
-      </div>
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between pl-1">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-          {news.media || "Media tidak tersedia"}
-        </span>
-        <Link
-          href={buildNewsPath(news)}
-          onClick={(event) => event.stopPropagation()}
-          className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-        >
-          Baca Selengkapnya <ExternalLink size={12} />
-        </Link>
       </div>
     </div>
   );
@@ -71,44 +59,52 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
   const deferredSearch = useDeferredValue(searchInput);
 
   useEffect(() => {
-    const controller = new AbortController();
-    const params = new URLSearchParams({
-      page: String(currentPage),
-      pageSize: String(pageSize),
-      sortField: "date",
-      sortOrder: "desc",
-    });
-
-    if (deferredSearch.trim()) {
-      params.set("search", deferredSearch.trim());
-    }
+    let isCurrent = true;
 
     async function fetchNews() {
+      const params = new URLSearchParams({
+        page: String(currentPage),
+        pageSize: String(pageSize),
+        sortField: "date",
+        sortOrder: "desc",
+      });
+
+      if (deferredSearch.trim()) {
+        params.set("search", deferredSearch.trim());
+      }
+
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/berita?${params.toString()}`, {
-          signal: controller.signal,
-        });
+        const res = await fetch(`/api/berita?${params.toString()}`);
         if (!res.ok) throw new Error("Gagal memuat berita");
         const data = (await res.json()) as PaginatedNewsResponse;
-        setResponse(data);
+        
+        if (isCurrent) {
+          setResponse(data);
+        }
       } catch (err) {
-        if ((err as Error).name === "AbortError") return;
+        if (!isCurrent) return;
         console.error("NewsList fetch error:", err);
         setError("Gagal memuat daftar berita.");
         setResponse(EMPTY_PAGE);
       } finally {
-        setLoading(false);
+        if (isCurrent) {
+          setLoading(false);
+        }
       }
     }
 
     fetchNews();
-    return () => controller.abort();
+    return () => {
+      isCurrent = false;
+    };
   }, [currentPage, deferredSearch, pageSize]);
 
   useEffect(() => {
-    setCurrentPage(1);
+    if (currentPage !== 1) {
+      setCurrentPage(1);
+    }
   }, [deferredSearch, pageSize]);
 
   const pageNumbers: number[] = [];
@@ -117,7 +113,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
   for (let index = start; index <= end; index++) pageNumbers.push(index);
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 mt-8 sm:mt-12">
+    <div className="bg-white dark:bg-[#111827]/30 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800/60 p-6 sm:p-8 space-y-8 mt-8 sm:mt-16">
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
         <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white text-left">
           <i className="fas fa-newspaper text-blue-600 text-xl sm:text-2xl"></i>
@@ -136,16 +132,16 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
       </div>
 
       <div className="w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 dark:border-slate-700 mb-4 pr-2 pb-3">
-          <div className="font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-xs">
+        <div className="flex items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 mb-6 pb-3">
+          <div className="font-bold text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em] text-[10px]">
             Informasi Berita
           </div>
           <button
             onClick={onOpenDetail}
-            className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors flex items-center gap-1 group"
+            className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors flex items-center gap-1.5 group"
           >
             Buka Detail
-            <i className="fas fa-external-link-alt text-[10px] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+            <ExternalLink size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </div>
 

@@ -27,17 +27,24 @@ export default function TrendChart({
   const chartRef = useRef<any>(null);
   const [filterType, setFilterType] = useState<FilterType>("weekly");
   const [hoveredDataset, setHoveredDataset] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { isDark: themeIsDark } = useTheme();
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const points = filterType === "weekly" ? weeklyPoints : monthlyPoints;
     if (points.length === 0 || !canvasRef.current || !containerRef.current) return;
 
-    const canvas = canvasRef.current;
-    const container = containerRef.current;
     const isDark = themeIsDark;
     const textColor = isDark ? "#cbd5e1" : "#475569";
-    const gridColor = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
+    const gridColor = isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)";
+    const tooltipBg = isDark ? "#1e293b" : "#ffffff";
+    const tooltipColor = isDark ? "#f8fafc" : "#1e293b";
+    const tooltipBorder = isDark ? "#334155" : "#e2e8f0";
 
     const labels = points.map((point) => point.label);
     const datasets = mediaLegend.map((item, index) => ({
@@ -56,17 +63,17 @@ export default function TrendChart({
       order: 10 - index,
     }));
 
+    const container = containerRef.current;
     const minPointWidth = filterType === "weekly" ? 60 : 100;
     const parentWidth = container.parentElement?.clientWidth ?? 400;
     const calculatedWidth = Math.max(parentWidth, labels.length * minPointWidth);
     container.style.width = `${calculatedWidth}px`;
 
-    async function renderChart() {
+    async function initOrUpdateChart() {
       const Chart = await initChart();
 
-      if (chartRef.current) chartRef.current.destroy();
-
       const promoteDataset = (datasetIndex: number | null) => {
+        if (!chartRef.current) return;
         chartRef.current.data.datasets.forEach(
           (
             dataset: { borderWidth: number; pointRadius: number; pointHoverRadius: number; order?: number },
@@ -83,73 +90,107 @@ export default function TrendChart({
         setHoveredDataset(datasetIndex);
       };
 
-      chartRef.current = new Chart(canvas, {
-        type: "line",
-        data: { labels, datasets },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: { intersect: false, mode: "nearest", axis: "xy" },
-          plugins: {
-            datalabels: { display: false },
-            legend: { display: false },
-            tooltip: {
-              backgroundColor: "#1e293b",
-              intersect: false,
-              mode: "nearest",
-              callbacks: {
-                title: (items: { dataIndex: number }[]) => {
-                  if (!items.length) return "";
-                  return points[items[0].dataIndex]?.label || "";
-                },
-                label: (ctx: { dataset: { label: string }; parsed: { y: number } }) => {
-                  const label = ctx.dataset.label ? `${ctx.dataset.label}: ` : "";
-                  return `${label}${Math.round(ctx.parsed.y)} Berita`;
+      if (!chartRef.current) {
+        chartRef.current = new Chart(canvasRef.current, {
+          type: "line",
+          data: { labels, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: "nearest", axis: "xy" },
+            plugins: {
+              datalabels: { display: false },
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: tooltipBg,
+                titleColor: tooltipColor,
+                bodyColor: tooltipColor,
+                borderColor: tooltipBorder,
+                borderWidth: 1,
+                padding: 12,
+                cornerRadius: 8,
+                intersect: false,
+                mode: "nearest",
+                titleFont: { family: "Poppins", weight: "bold" },
+                bodyFont: { family: "Poppins" },
+                callbacks: {
+                  title: (items: any[]) => {
+                    if (!items.length) return "";
+                    return points[items[0].dataIndex]?.label || "";
+                  },
+                  label: (ctx: any) => {
+                    const label = ctx.dataset.label ? `${ctx.dataset.label}: ` : "";
+                    return `${label}${Math.round(ctx.parsed.y)} Berita`;
+                  },
                 },
               },
             },
-          },
-          scales: {
-            x: {
-              display: true,
-              ticks: { color: textColor, font: { size: 10 }, maxRotation: 0, minRotation: 0 },
-              grid: { display: false },
-            },
-            y: {
-              display: true,
-              beginAtZero: true,
-              suggestedMax: 5,
-              ticks: {
-                color: textColor,
-                stepSize: 1,
-                precision: 0,
-                callback: (value: number) => (value % 1 === 0 ? value : undefined),
+            scales: {
+              x: {
+                display: true,
+                ticks: { color: textColor, font: { size: 10, family: "Poppins" }, maxRotation: 0, minRotation: 0 },
+                grid: { display: false },
               },
-              grid: { color: gridColor },
+              y: {
+                display: true,
+                beginAtZero: true,
+                suggestedMax: 5,
+                ticks: {
+                  color: textColor,
+                  font: { family: "Poppins" },
+                  stepSize: 1,
+                  precision: 0,
+                  callback: (value: any) => (value % 1 === 0 ? value : undefined),
+                },
+                grid: { color: gridColor },
+              },
+            },
+            onHover: (_evt: any, elements: any[]) => {
+              promoteDataset(elements.length > 0 ? elements[0].datasetIndex : null);
+            },
+            onClick: (_evt: any, elements: any[]) => {
+              if (elements.length === 0) return;
+              const { datasetIndex, index } = elements[0];
+              const shorthand = datasets[datasetIndex]?.label;
+              const timeKey = points[index]?.key;
+              if (shorthand && timeKey) {
+                onMediaTrendClick(shorthand, timeKey, filterType);
+              }
             },
           },
-          onHover: (_evt: unknown, elements: { datasetIndex: number }[]) => {
-            promoteDataset(elements.length > 0 ? elements[0].datasetIndex : null);
-          },
-          onClick: (_evt: unknown, elements: { datasetIndex: number; index: number }[]) => {
-            if (elements.length === 0) return;
-            const { datasetIndex, index } = elements[0];
-            const shorthand = datasets[datasetIndex]?.label;
-            const timeKey = points[index]?.key;
-            if (shorthand && timeKey) {
-              onMediaTrendClick(shorthand, timeKey, filterType);
-            }
-          },
-        },
-      });
+        });
+      } else {
+        const chart = chartRef.current;
+        // Update data
+        chart.data.labels = labels;
+        chart.data.datasets = datasets;
+
+        // Update scales
+        chart.options.scales.x.ticks.color = textColor;
+        chart.options.scales.y.ticks.color = textColor;
+        chart.options.scales.y.grid.color = gridColor;
+
+        // Update tooltips
+        chart.options.plugins.tooltip.backgroundColor = tooltipBg;
+        chart.options.plugins.tooltip.titleColor = tooltipColor;
+        chart.options.plugins.tooltip.bodyColor = tooltipColor;
+        chart.options.plugins.tooltip.borderColor = tooltipBorder;
+
+        chart.update("none");
+      }
     }
 
-    renderChart();
+    initOrUpdateChart();
+  }, [mounted, filterType, mediaLegend, monthlyPoints, onMediaTrendClick, weeklyPoints, themeIsDark]);
 
+  useEffect(() => {
     return () => {
-      chartRef.current?.destroy();
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
     };
-  }, [filterType, mediaLegend, monthlyPoints, onMediaTrendClick, weeklyPoints, themeIsDark]);
+  }, []);
 
   const handleLegendHover = (shorthand: string | null) => {
     const chart = chartRef.current;
