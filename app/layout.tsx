@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { getSiteUrl } from "@/lib/utils";
+
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -77,7 +80,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="flex flex-col min-h-screen dark:bg-dark-bg">
+      <body className={`${jakarta.className} flex flex-col min-h-screen dark:bg-dark-bg`}>
         <div className="flex-grow">
           {children}
         </div>

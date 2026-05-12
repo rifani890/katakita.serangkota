@@ -111,8 +111,8 @@ export default function TrendChart({
                 cornerRadius: 8,
                 intersect: false,
                 mode: "nearest",
-                titleFont: { family: "Poppins", weight: "bold" },
-                bodyFont: { family: "Poppins" },
+                titleFont: { family: "Plus Jakarta Sans", weight: "bold" },
+                bodyFont: { family: "Plus Jakarta Sans" },
                 callbacks: {
                   title: (items: any[]) => {
                     if (!items.length) return "";
@@ -128,7 +128,7 @@ export default function TrendChart({
             scales: {
               x: {
                 display: true,
-                ticks: { color: textColor, font: { size: 10, family: "Poppins" }, maxRotation: 0, minRotation: 0 },
+                ticks: { color: textColor, font: { size: 10, family: "Plus Jakarta Sans", weight: "bold" }, maxRotation: 0, minRotation: 0 },
                 grid: { display: false },
               },
               y: {
@@ -137,7 +137,7 @@ export default function TrendChart({
                 suggestedMax: 5,
                 ticks: {
                   color: textColor,
-                  font: { family: "Poppins" },
+                  font: { family: "Plus Jakarta Sans", weight: "bold", size: 11 },
                   stepSize: 1,
                   precision: 0,
                   callback: (value: any) => (value % 1 === 0 ? value : undefined),
@@ -222,16 +222,16 @@ export default function TrendChart({
 
   return (
     <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 flex flex-col items-start sm:items-stretch">
-      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
         <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white text-left">
-          <i className="fas fa-chart-line text-indigo-500 text-xl sm:text-2xl"></i>
+          <i className="fas fa-chart-line text-blue-500 text-xl sm:text-2xl"></i>
           Tren Media Cetak
         </h3>
-        <div className="flex items-center w-full sm:w-auto">
+        <div className="flex items-center w-auto self-start sm:self-auto">
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value as FilterType)}
-            className="w-full sm:w-auto text-sm bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 transition-all font-semibold text-slate-600 dark:text-slate-300"
+            className="text-[11px] bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-black text-slate-600 dark:text-slate-300 tracking-widest"
           >
             <option value="weekly">Mingguan</option>
             <option value="monthly">Bulanan</option>
@@ -239,22 +239,25 @@ export default function TrendChart({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-start sm:justify-center gap-4 sm:gap-8 py-2 w-full">
+      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 py-2 w-full relative z-10">
         {mediaLegend.map((item, index) => {
           const isHovered = hoveredDataset === index;
           return (
             <div
               key={item.media}
-              className={`flex items-center gap-2 cursor-pointer transition-all group ${isHovered ? "opacity-100" : "opacity-70 hover:opacity-100"}`}
+              className={`flex items-center gap-2 cursor-pointer transition-all group ${isHovered ? "opacity-100 scale-105" : "opacity-60 hover:opacity-100"}`}
               onClick={() => onFilterByMedia(item.media)}
               onMouseEnter={() => handleLegendHover(item.shorthand)}
               onMouseLeave={() => handleLegendHover(null)}
             >
               <div
-                className="w-4 h-4 rounded-full ring-2 ring-transparent group-hover:ring-offset-1 transition-all"
-                style={{ backgroundColor: item.color }}
+                className="w-3 h-3 rounded-full shadow-lg transition-transform group-hover:scale-125"
+                style={{ backgroundColor: item.color, boxShadow: `0 0 10px ${item.color}66` }}
               />
-              <span className="text-sm font-bold text-slate-600 dark:text-slate-300 group-hover:text-blue-600 transition-colors uppercase tracking-tight">
+              <span
+                className={`text-[10px] font-black transition-colors tracking-[0.1em] ${isHovered ? "" : "text-slate-800 dark:text-white"}`}
+                style={{ color: isHovered ? item.color : undefined }}
+              >
                 {item.shorthand}
               </span>
             </div>
@@ -262,8 +265,8 @@ export default function TrendChart({
         })}
       </div>
 
-      <div className="relative w-full h-[250px] sm:h-[280px] bg-white dark:bg-slate-900 rounded-xl p-3 sm:p-4">
-        <div className="w-full h-full overflow-x-auto overflow-y-hidden">
+      <div className="relative w-full h-[250px] sm:h-[280px] bg-slate-50/30 dark:bg-slate-900/20 rounded-2xl p-3 sm:p-4 border border-slate-100/50 dark:border-slate-800/50 relative z-10">
+        <div className="w-full h-full overflow-x-auto overflow-y-hidden no-scrollbar">
           <div ref={containerRef} className="h-full" style={{ minWidth: "100%" }}>
             <canvas ref={canvasRef}></canvas>
           </div>

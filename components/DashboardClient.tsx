@@ -151,7 +151,7 @@ export default function DashboardClient() {
               loading={loading}
               onFilter={handleStatFilter}
             />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
               <OfficialChart roleCounts={officialCounts} onOfficialClick={handleOfficialClick} />
               <TrendChart
                 weeklyPoints={trend.weekly}

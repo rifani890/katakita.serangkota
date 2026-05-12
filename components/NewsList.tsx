@@ -179,14 +179,14 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-end gap-4 pt-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full lg:w-auto">
-          <div className="flex items-center gap-3 text-sm text-slate-600 font-medium">
-            <span>Tampilkan</span>
+      <div className="flex flex-col items-center justify-center gap-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+        <div className="flex flex-col-reverse sm:flex-row items-center gap-6 w-full justify-center">
+          <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Tampilkan</span>
             <select
               value={pageSize}
               onChange={(event) => setPageSize(Number(event.target.value))}
-              className="bg-blue-50/50 dark:bg-slate-950/50 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 focus:ring-2 focus:ring-blue-500 font-bold text-slate-700 dark:text-slate-300 transition-colors"
+              className="bg-slate-100/50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-1.5 focus:ring-2 focus:ring-blue-500 font-black text-slate-700 dark:text-slate-300 transition-all outline-none appearance-none cursor-pointer"
             >
               {[10, 20, 50, 100].map((size) => (
                 <option key={size} value={size}>
@@ -194,29 +194,32 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
                 </option>
               ))}
             </select>
-            <span>baris</span>
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-60">Baris</span>
           </div>
-          <div className="flex gap-2">
+          
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
               disabled={response.page === 1}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all shadow-sm"
             >
               <i className="fas fa-chevron-left text-xs"></i>
             </button>
-            {pageNumbers.map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-sm font-semibold transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30" : "hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"}`}
-              >
-                {page}
-              </button>
-            ))}
+            <div className="flex items-center gap-2">
+              {pageNumbers.map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-10 h-10 rounded-xl text-xs font-black transition-all ${page === response.page ? "bg-blue-600 text-white shadow-lg shadow-blue-500/40" : "hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"}`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setCurrentPage((page) => Math.min(response.totalPages, page + 1))}
               disabled={response.page === response.totalPages}
-              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="w-10 h-10 flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-blue-50 dark:hover:bg-blue-900/20 text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-all shadow-sm"
             >
               <i className="fas fa-chevron-right text-xs"></i>
             </button>
