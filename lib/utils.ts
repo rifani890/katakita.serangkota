@@ -242,24 +242,6 @@ export function stringToColor(str: string): string {
 
 export function buildDefaultOfficialMapping(): OfficialMapping {
   return {
-    "H. Budi Rustandi": {
-      role: "Walikota Serang",
-      jabatan: "Walikota Serang",
-      priority: 1,
-      color: OFFICIAL_ROLE_COLORS["Walikota Serang"],
-    },
-    "Nur Agis Aulia": {
-      role: "Wakil Walikota Serang",
-      jabatan: "Wakil Walikota Serang",
-      priority: 2,
-      color: OFFICIAL_ROLE_COLORS["Wakil Walikota Serang"],
-    },
-    "Nanang Saefudin": {
-      role: "Sekretaris Daerah Kota Serang",
-      jabatan: "Sekretaris Daerah Kota Serang",
-      priority: 3,
-      color: OFFICIAL_ROLE_COLORS["Sekretaris Daerah Kota Serang"],
-    },
     "Pejabat Lainnya": {
       role: "Pejabat Lainnya",
       jabatan: "Pejabat Lainnya",

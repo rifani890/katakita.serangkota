@@ -30,10 +30,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nama pejabat tidak boleh kosong" }, { status: 400 });
     }
 
-    const jabatanClean = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
-    const jabatan = (OFFICIAL_ROLE_ORDER as readonly string[]).includes(jabatanClean)
-      ? jabatanClean
-      : "Pejabat Lainnya";
+    const jabatan = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
 
     await createOfficial({ nama, jabatan, color });
     return NextResponse.json({ message: "Pejabat berhasil ditambahkan" });
@@ -58,10 +55,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "ID dan nama harus diisi" }, { status: 400 });
     }
 
-    const jabatanClean = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
-    const jabatan = (OFFICIAL_ROLE_ORDER as readonly string[]).includes(jabatanClean)
-      ? jabatanClean
-      : "Pejabat Lainnya";
+    const jabatan = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
 
     await updateOfficial({ id, nama, jabatan, color });
     return NextResponse.json({ message: "Pejabat berhasil diupdate" });

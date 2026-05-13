@@ -15,213 +15,213 @@ import NewsModal from "@/components/NewsModal";
 type ActivePage = "dashboard" | "detail";
 
 interface FilterLabel {
-  label: string;
-  color: string;
+ label: string;
+ color: string;
 }
 
 export default function DashboardClient() {
-  const {
-    stats,
-    officialCounts,
-    trend,
-    officialMapping,
-    mediaLegend,
-    loading,
-    error,
-  } = useDashboardSummary();
+ const {
+ stats,
+ officialCounts,
+ trend,
+ officialMapping,
+ mediaLegend,
+ loading,
+ error,
+ } = useDashboardSummary();
 
-  const [activePage, setActivePage] = useState<ActivePage>("dashboard");
-  const [detailQuery, setDetailQuery] = useState<DetailPageQuery>({});
-  const [filterLabel, setFilterLabel] = useState<FilterLabel>({ label: "Semua", color: "#3b82f6" });
-  const [modalKey, setModalKey] = useState<string | null>(null);
-  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
-  const dashboardScrollY = useRef(0);
+ const [activePage, setActivePage] = useState<ActivePage>("dashboard");
+ const [detailQuery, setDetailQuery] = useState<DetailPageQuery>({});
+ const [filterLabel, setFilterLabel] = useState<FilterLabel>({ label: "Semua", color: "#3b82f6" });
+ const [modalKey, setModalKey] = useState<string | null>(null);
+ const [showTimeoutModal, setShowTimeoutModal] = useState(false);
+ const dashboardScrollY = useRef(0);
 
-  useEffect(() => {
-    // Check for timeout parameter
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("timeout") === "1") {
-      setShowTimeoutModal(true);
-      // Clean up URL without refreshing
-      window.history.replaceState({}, document.title, "/");
-    }
-  }, []);
+ useEffect(() => {
+ // Check for timeout parameter
+ const params = new URLSearchParams(window.location.search);
+ if (params.get("timeout") === "1") {
+ setShowTimeoutModal(true);
+ // Clean up URL without refreshing
+ window.history.replaceState({}, document.title, "/");
+ }
+ }, []);
 
-  const openDetailPage = useCallback((query: DetailPageQuery, label: string, color: string) => {
-    dashboardScrollY.current = window.scrollY;
-    setDetailQuery(query);
-    setFilterLabel({ label, color });
-    setActivePage("detail");
-    requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "auto" }));
-  }, []);
+ const openDetailPage = useCallback((query: DetailPageQuery, label: string, color: string) => {
+ dashboardScrollY.current = window.scrollY;
+ setDetailQuery(query);
+ setFilterLabel({ label, color });
+ setActivePage("detail");
+ requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0, behavior: "auto" }));
+ }, []);
 
-  const handleBackToDashboard = useCallback(() => {
-    setActivePage("dashboard");
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo({ top: dashboardScrollY.current, left: 0, behavior: "auto" });
-      });
-    });
-  }, []);
+ const handleBackToDashboard = useCallback(() => {
+ setActivePage("dashboard");
+ requestAnimationFrame(() => {
+ requestAnimationFrame(() => {
+ window.scrollTo({ top: dashboardScrollY.current, left: 0, behavior: "auto" });
+ });
+ });
+ }, []);
 
-  const handleStatFilter = useCallback(
-    (type: "total" | "positive" | "neutral" | "negative") => {
-      if (type === "total") {
-        openDetailPage({}, "Semua Berita", "#3b82f6");
-        return;
-      }
+ const handleStatFilter = useCallback(
+ (type: "total" | "positive" | "neutral" | "negative") => {
+ if (type === "total") {
+ openDetailPage({}, "Semua Berita", "#3b82f6");
+ return;
+ }
 
-      const config = {
-        positive: { label: "Positif", color: "#10b981", potensi: "Positif" },
-        neutral: { label: "Netral", color: "#94a3b8", potensi: "Netral" },
-        negative: { label: "Negatif", color: "#f43f5e", potensi: "Negatif" },
-      }[type];
+ const config = {
+ positive: { label: "Positif", color: "#10b981", potensi: "Positif" },
+ neutral: { label: "Netral", color: "#94a3b8", potensi: "Netral" },
+ negative: { label: "Negatif", color: "#f43f5e", potensi: "Negatif" },
+ }[type];
 
-      openDetailPage({ potensi: config.potensi }, config.label, config.color);
-    },
-    [openDetailPage]
-  );
+ openDetailPage({ potensi: config.potensi }, config.label, config.color);
+ },
+ [openDetailPage]
+ );
 
-  const handleOfficialClick = useCallback(
-    (roleName: string) => {
-      const color =
-        officialCounts.find((item) => item.role === roleName)?.color || "#64748b";
-      openDetailPage({ role: roleName }, roleName, color);
-    },
-    [officialCounts, openDetailPage]
-  );
+ const handleOfficialClick = useCallback(
+ (roleName: string) => {
+ const color =
+ officialCounts.find((item) => item.role === roleName)?.color || "#64748b";
+ openDetailPage({ role: roleName }, roleName, color);
+ },
+ [officialCounts, openDetailPage]
+ );
 
-  const handleMediaTrendClick = useCallback(
-    (shorthand: string, timeKey: string, filterType: string) => {
-      const media = mediaLegend.find((item) => item.shorthand === shorthand);
-      if (!media) return;
-      openDetailPage(
-        {
-          media: media.media,
-          periodType: filterType as "weekly" | "monthly",
-          timeKey,
-        },
-        `${media.media} • ${filterType === "weekly" ? "Per Minggu" : "Per Bulan"}`,
-        media.color
-      );
-    },
-    [mediaLegend, openDetailPage]
-  );
+ const handleMediaTrendClick = useCallback(
+ (shorthand: string, timeKey: string, filterType: string) => {
+ const media = mediaLegend.find((item) => item.shorthand === shorthand);
+ if (!media) return;
+ openDetailPage(
+ {
+ media: media.media,
+ periodType: filterType as "weekly" | "monthly",
+ timeKey,
+ },
+ `${media.media} • ${filterType === "weekly" ? "Per Minggu" : "Per Bulan"}`,
+ media.color
+ );
+ },
+ [mediaLegend, openDetailPage]
+ );
 
-  const handleFilterByMedia = useCallback(
-    (media: string) => {
-      const color = mediaLegend.find((item) => item.media === media)?.color || "#3b82f6";
-      openDetailPage({ media }, `Media: ${media}`, color);
-    },
-    [mediaLegend, openDetailPage]
-  );
+ const handleFilterByMedia = useCallback(
+ (media: string) => {
+ const color = mediaLegend.find((item) => item.media === media)?.color || "#3b82f6";
+ openDetailPage({ media }, `Media: ${media}`, color);
+ },
+ [mediaLegend, openDetailPage]
+ );
 
-  const handleOpenDetail = useCallback(() => {
-    openDetailPage({}, "Semua Berita", "#3b82f6");
-  }, [openDetailPage]);
+ const handleOpenDetail = useCallback(() => {
+ openDetailPage({}, "Semua Berita", "#3b82f6");
+ }, [openDetailPage]);
 
-  const handlePrintDirect = useCallback(async (key: string) => {
-    if (!confirm("Apakah Anda ingin mencetak berita ini secara langsung?")) return;
+ const handlePrintDirect = useCallback(async (key: string) => {
+ if (!confirm("Apakah Anda ingin mencetak berita ini secara langsung?")) return;
 
-    try {
-      const res = await fetch(`/api/berita/${key}`);
-      if (!res.ok) throw new Error("Gagal mengambil berita");
-      const news = await res.json();
-      printNews(news);
-    } catch (err) {
-      console.error("handlePrintDirect error:", err);
-      alert("Berita gagal dimuat untuk dicetak.");
-    }
-  }, []);
+ try {
+ const res = await fetch(`/api/berita/${key}`);
+ if (!res.ok) throw new Error("Gagal mengambil berita");
+ const news = await res.json();
+ printNews(news);
+ } catch (err) {
+ console.error("handlePrintDirect error:", err);
+ alert("Berita gagal dimuat untuk dicetak.");
+ }
+ }, []);
 
-  const filterLabelJSX = (
-    <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-      <span
-        className="w-3 h-3 rounded-full"
-        style={{ backgroundColor: filterLabel.color, boxShadow: `0 0 8px ${filterLabel.color}66` }}
-      />
-      <span className="text-slate-700 dark:text-slate-200 font-bold">{filterLabel.label}</span>
-    </span>
-  );
+ const filterLabelJSX = (
+ <span className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+ <span
+ className="w-3 h-3 rounded-full"
+ style={{ backgroundColor: filterLabel.color, boxShadow: `0 0 8px ${filterLabel.color}66` }}
+ />
+ <span className="text-slate-700 dark:text-slate-200 font-bold">{filterLabel.label}</span>
+ </span>
+ );
 
-  return (
-    <div className="antialiased overflow-x-hidden min-h-screen bg-slate-50 dark:bg-dark-bg text-slate-900 dark:text-dark-text font-poppins transition-colors duration-300">
-      <Navbar />
+ return (
+ <div className="antialiased overflow-x-hidden min-h-screen bg-slate-50 dark:bg-dark-bg text-slate-900 dark:text-dark-text font-poppins transition-colors duration-300">
+ <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6 sm:pb-8">
-        {error && (
-          <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-600 dark:text-rose-400 text-sm font-medium">
-            {error}
-          </div>
-        )}
+ <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-6 sm:pb-8">
+ {error && (
+ <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl text-rose-600 dark:text-rose-400 text-sm font-medium">
+ {error}
+ </div>
+ )}
 
-        {activePage === "dashboard" && (
-          <div className="space-y-8">
-            <StatCards
-              stats={stats}
-              loading={loading}
-              onFilter={handleStatFilter}
-            />
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
-              <OfficialChart roleCounts={officialCounts} onOfficialClick={handleOfficialClick} />
-              <TrendChart
-                weeklyPoints={trend.weekly}
-                monthlyPoints={trend.monthly}
-                mediaLegend={mediaLegend}
-                onMediaTrendClick={handleMediaTrendClick}
-                onFilterByMedia={handleFilterByMedia}
-              />
-            </div>
-            <NewsList onOpenModal={setModalKey} onOpenDetail={handleOpenDetail} />
-          </div>
-        )}
+ {activePage === "dashboard" && (
+ <div className="space-y-8">
+ <StatCards
+ stats={stats}
+ loading={loading}
+ onFilter={handleStatFilter}
+ />
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
+ <OfficialChart roleCounts={officialCounts} onOfficialClick={handleOfficialClick} />
+ <TrendChart
+ weeklyPoints={trend.weekly}
+ monthlyPoints={trend.monthly}
+ mediaLegend={mediaLegend}
+ onMediaTrendClick={handleMediaTrendClick}
+ onFilterByMedia={handleFilterByMedia}
+ />
+ </div>
+ <NewsList onOpenModal={setModalKey} onOpenDetail={handleOpenDetail} />
+ </div>
+ )}
 
-        {activePage === "detail" && (
-          <DetailPage
-            filterQuery={detailQuery}
-            filterLabel={filterLabelJSX}
-            officialMapping={officialMapping as OfficialMapping}
-            onBack={handleBackToDashboard}
-            onOpenModal={setModalKey}
-            onPrintDirect={handlePrintDirect}
-          />
-        )}
-      </main>
+ {activePage === "detail" && (
+ <DetailPage
+ filterQuery={detailQuery}
+ filterLabel={filterLabelJSX}
+ officialMapping={officialMapping as OfficialMapping}
+ onBack={handleBackToDashboard}
+ onOpenModal={setModalKey}
+ onPrintDirect={handlePrintDirect}
+ />
+ )}
+ </main>
 
-      <NewsModal
-        newsKey={modalKey}
-        onClose={() => setModalKey(null)}
-        onPrint={handlePrintDirect}
-      />
+ <NewsModal
+ newsKey={modalKey}
+ onClose={() => setModalKey(null)}
+ onPrint={handlePrintDirect}
+ />
 
-      {/* Timeout Notification Modal */}
-      {showTimeoutModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700 text-center transform animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-              <div className="w-12 h-12 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-rose-500/40">
-                <i className="fas fa-clock text-xl"></i>
-              </div>
-            </div>
-            <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-3">Sesi Berakhir</h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-              Sesi Anda telah berakhir secara otomatis setelah <strong>5 menit</strong> tanpa aktivitas demi keamanan data.
-            </p>
-            <button
-              onClick={() => setShowTimeoutModal(false)}
-              className="w-full py-4 rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/30 transition-all active:scale-95"
-            >
-              Mengerti
-            </button>
-          </div>
-        </div>
-      )}
+ {/* Timeout Notification Modal */}
+ {showTimeoutModal && (
+ <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+ <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm border border-slate-200 dark:border-slate-700 text-center transform animate-in zoom-in-95 duration-300">
+ <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+ <div className="w-12 h-12 bg-rose-500 rounded-full flex items-center justify-center text-white shadow-lg shadow-rose-500/40">
+ <i className="fas fa-clock text-xl"></i>
+ </div>
+ </div>
+ <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-3">Sesi Berakhir</h3>
+ <p className="text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
+ Sesi Anda telah berakhir secara otomatis setelah <strong>5 menit</strong> tanpa aktivitas demi keamanan data.
+ </p>
+ <button
+ onClick={() => setShowTimeoutModal(false)}
+ className="w-full py-4 rounded-2xl font-black bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-500/30 transition-all active:scale-95"
+ >
+ Mengerti
+ </button>
+ </div>
+ </div>
+ )}
 
-      <footer className="py-12 text-center border-t border-slate-200 dark:border-slate-800 bg-transparent transition-colors">
-        <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.2em] uppercase">
-          Diskominfo &copy; 2026 KataKita Kota Serang
-        </p>
-      </footer>
-    </div>
-  );
+ <footer className="py-12 text-center border-t border-slate-200 dark:border-slate-800 bg-transparent transition-colors">
+ <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 tracking-[0.2em] ">
+ Diskominfo &copy; 2026 KataKita Kota Serang
+ </p>
+ </footer>
+ </div>
+ );
 }

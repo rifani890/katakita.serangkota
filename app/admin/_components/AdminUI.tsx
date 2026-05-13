@@ -118,8 +118,8 @@ export function Modal({ show, onClose, title, titleIcon, children, maxWidth = "m
   if (!show) return null;
   return (
     <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-start justify-center py-10">
-      <div className={`bg-white dark:bg-slate-800 w-full ${maxWidth} rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden relative`}>
-        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+      <div className={`bg-white dark:bg-slate-800 w-full ${maxWidth} rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 relative`}>
+        <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 rounded-t-3xl">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             {titleIcon}
             {title}
