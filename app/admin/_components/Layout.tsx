@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Home, Newspaper, Building2, User, Globe, LogOut, Menu, X, Moon, Sun, Shield } from "lucide-react";
+import { Home, Newspaper, Building2, User, Globe, LogOut, Menu, X, Moon, Sun, Shield, Radio } from "lucide-react";
 import { useAuth } from "@/lib/useAuth";
 import { useTheme } from "@/lib/useTheme";
 import { useState } from "react";
@@ -16,7 +16,7 @@ const baseNavItems = [
  { href: "/admin/pejabat", label: "Nama Pejabat", icon: User },
 ];
 
-export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
  const { user, userRole, loading, logout } = useAuth();
  const router = useRouter();
  const pathname = usePathname();
@@ -25,7 +25,11 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
  const [showConfirmLogout, setShowConfirmLogout] = useState(false);
 
  const navItems = userRole === "admin"
- ? [...baseNavItems, { href: "/admin/kelola-admin", label: "Kelola Admin", icon: Shield }]
+ ? [
+ ...baseNavItems,
+ { href: "/admin/media", label: "Kelola Media", icon: Radio },
+ { href: "/admin/kelola-admin", label: "Kelola Admin", icon: Shield }
+ ]
  : baseNavItems;
 
  useEffect(() => {
@@ -104,14 +108,14 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
  >
  <Menu size={20} />
  </button>
- <div className="flex items-center gap-3">
- <div className="w-10 h-10 overflow-hidden flex items-center justify-center">
+ <Link href="/" className="flex items-center gap-3 cursor-pointer group">
+ <div className="w-10 h-10 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
  <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain" />
  </div>
  <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
  KataKita
  </span>
- </div>
+ </Link>
  </div>
 
  <div className="flex items-center gap-2 sm:gap-4">
@@ -220,8 +224,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
  {/* Custom Logout Confirmation Modal */}
  {showConfirmLogout && (
- <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
- <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm border border-slate-200 dark:border-slate-700">
+ <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowConfirmLogout(false)}>
+ <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-xl w-full max-w-sm border border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
  <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Konfirmasi Logout</h3>
  <p className="text-slate-600 dark:text-slate-300 mb-6">Apakah Anda yakin ingin keluar dari sistem?</p>
  <div className="flex gap-3">

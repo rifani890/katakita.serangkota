@@ -1,5 +1,5 @@
-import AdminKelolaAdminClient from "../_components/AdminKelolaAdminClient";
+import KelolaAdmin from "../_components/KelolaAdmin";
 
 export default function KelolaAdminPage() {
-  return <AdminKelolaAdminClient />;
+  return <KelolaAdmin />;
 }

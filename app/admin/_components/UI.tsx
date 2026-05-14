@@ -61,9 +61,10 @@ export function ConfirmDialog({
   const isDelete = type === "delete";
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9990] flex flex-col items-center justify-center px-4">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9990] flex flex-col items-center justify-center px-4" onClick={onCancel}>
       <div
         ref={contentRef}
+        onClick={(e) => e.stopPropagation()}
         className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-sm flex flex-col gap-8 border border-slate-200 dark:border-slate-800 translate-y-4 opacity-0 transition-all duration-300"
       >
         <div className="flex flex-col items-center text-center gap-4">
@@ -117,8 +118,8 @@ interface ModalProps {
 export function Modal({ show, onClose, title, titleIcon, children, maxWidth = "max-w-4xl" }: ModalProps) {
   if (!show) return null;
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-start justify-center py-10">
-      <div className={`bg-white dark:bg-slate-800 w-full ${maxWidth} rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 relative`}>
+    <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-start justify-center py-10" onClick={onClose}>
+      <div className={`bg-white dark:bg-slate-800 w-full ${maxWidth} rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 relative`} onClick={(e) => e.stopPropagation()}>
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 rounded-t-3xl">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             {titleIcon}

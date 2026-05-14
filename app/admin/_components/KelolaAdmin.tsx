@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Shield, UserPlus, Trash2, Search, Users, Crown, UserCheck, AlertTriangle, Pencil, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/lib/useAuth";
 import { useRouter } from "next/navigation";
-import { LoadingOverlay, ConfirmDialog } from "./AdminUI";
+import { LoadingOverlay, ConfirmDialog } from "./UI";
 
 interface UserData {
  id: string;
@@ -15,7 +15,7 @@ interface UserData {
  createdAt?: string;
 }
 
-export default function AdminKelolaAdminClient() {
+export default function KelolaAdmin() {
  const { user, userRole, loading: authLoading } = useAuth();
  const router = useRouter();
  const [users, setUsers] = useState<UserData[]>([]);

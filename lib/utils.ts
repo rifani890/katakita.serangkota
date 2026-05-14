@@ -29,7 +29,7 @@ export const OFFICIAL_ROLE_PRIORITY: Record<(typeof OFFICIAL_ROLE_ORDER)[number]
 };
 
 export const OFFICIAL_ROLE_COLORS: Record<string, string> = {
-  "Walikota Serang": "#3b82f6",
+  "Walikota Serang": "#0ea5e9", // Biru langit
   "Wakil Walikota Serang": "#f59e0b",
   "Sekretaris Daerah Kota Serang": "#8B4513",
   "Pejabat Lainnya": "#64748b",

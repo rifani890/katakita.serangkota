@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000;
+const INACTIVITY_TIMEOUT_MS = 5 * 60 * 1000;
 const AUTH_STORAGE_KEY = "kataKita_user";
 const LAST_ACTIVITY_KEY = "kataKita_lastActivity";
 const AUTH_EVENT_NAME = "katakita-auth-changed";
@@ -19,7 +19,7 @@ export interface AuthState {
   userRole: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: (options?: { redirectToRoot?: boolean }) => Promise<void>;
+  logout: (options?: { redirectToRoot?: boolean; isTimeout?: boolean }) => Promise<void>;
 }
 
 function readCachedUser(): AuthUser | null {
@@ -54,9 +54,9 @@ function isAdminRoute() {
   return typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
 }
 
-function redirectToRoot() {
+function redirectToRoot(isTimeout?: boolean) {
   if (typeof window === "undefined") return;
-  window.location.replace("/");
+  window.location.replace(isTimeout ? "/?timeout=1" : "/");
 }
 
 export function useAuth(): AuthState {
@@ -71,7 +71,7 @@ export function useAuth(): AuthState {
   }, []);
 
   const logout = useCallback(
-    async (options?: { redirectToRoot?: boolean }) => {
+    async (options?: { redirectToRoot?: boolean; isTimeout?: boolean }) => {
       const savedTheme = localStorage.getItem("theme");
 
       try {
@@ -88,12 +88,29 @@ export function useAuth(): AuthState {
       sessionStorage.clear();
       if (savedTheme) localStorage.setItem("theme", savedTheme);
 
+      // Clear browser caches automatically
+      if ('caches' in window) {
+        try {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+        } catch (e) {
+          console.error("Failed to clear cache:", e);
+        }
+      }
+
+      // Clear all accessible cookies
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+
       applyUser(null);
       emitAuthChanged(null);
       setLoading(false);
 
-      if (options?.redirectToRoot || isAdminRoute()) {
-        redirectToRoot();
+      if (options?.redirectToRoot || options?.isTimeout || isAdminRoute()) {
+        redirectToRoot(options?.isTimeout);
       }
     },
     [applyUser]
@@ -189,7 +206,7 @@ export function useAuth(): AuthState {
       if (!lastActivity || !readCachedUser()) return;
 
       if (Date.now() - lastActivity > INACTIVITY_TIMEOUT_MS) {
-        logout({ redirectToRoot: true });
+        logout({ redirectToRoot: true, isTimeout: true });
       }
     };
 

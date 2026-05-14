@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { getSiteUrl } from "@/lib/utils";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -84,6 +85,7 @@ export default function RootLayout({
         <div className="flex-grow">
           {children}
         </div>
+        <ScrollToTopButton />
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-import AdminBeritaCMSClient from "../../_components/AdminBeritaCMSClient";
+import BeritaCMS from "../../_components/BeritaCMS";
 
 interface BeritaCMSPageProps {
   searchParams: {
@@ -7,5 +7,5 @@ interface BeritaCMSPageProps {
 }
 
 export default function BeritaCMSPage({ searchParams }: BeritaCMSPageProps) {
-  return <AdminBeritaCMSClient beritaId={searchParams.id} />;
+  return <BeritaCMS beritaId={searchParams.id} />;
 }

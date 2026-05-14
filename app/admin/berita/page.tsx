@@ -1,5 +1,5 @@
-import AdminBeritaClient from "../_components/AdminBeritaClient";
+import Berita from "../_components/Berita";
 
 export default function AdminBeritaPage() {
-  return <AdminBeritaClient />;
+  return <Berita />;
 }

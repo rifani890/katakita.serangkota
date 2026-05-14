@@ -140,7 +140,7 @@ export default function DetailPage({
 
  return (
  <div className="space-y-8">
- <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border-2 border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 bg-slate-50 dark:bg-slate-800/10">
+ <div className="bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-5 sm:p-6 space-y-6 relative z-10">
  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
  <div className="space-y-1 min-w-0">
  <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 flex-wrap">
@@ -150,9 +150,9 @@ export default function DetailPage({
  </div>
  <button
  onClick={onBack}
- className="self-end sm:self-auto text-sm text-blue-600 dark:text-blue-400 font-semibold hover:underline flex items-center gap-1"
+ className="self-end sm:self-auto py-2.5 px-5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/30 transition-all flex items-center justify-center gap-2 group whitespace-nowrap"
  >
- <ArrowLeft size={14} /> Kembali
+ <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> Kembali
  </button>
  </div>
 
@@ -205,7 +205,7 @@ export default function DetailPage({
  Tidak ada data ditemukan dalam filter ini.
  </div>
  ) : (
- response.items.map((news) => {
+ response.items.map((news, index) => {
  const pejabatArray = Array.isArray(news.pejabat)
  ? news.pejabat
  : news.pejabat
@@ -213,6 +213,7 @@ export default function DetailPage({
  : [];
  const border = getBorderAccent(news.potensi);
  const sentimenClass = getSentimenClass(news.potensi);
+ const seqNumber = (response.page - 1) * response.pageSize + index + 1;
 
  return (
  <div
@@ -224,6 +225,9 @@ export default function DetailPage({
 
  <div className="flex-1 flex flex-col gap-3 pl-1 w-full">
  <div className="flex flex-wrap items-center gap-2">
+ <span className="text-xs font-bold text-slate-400 dark:text-slate-500 mr-1">
+ No.{seqNumber.toString().padStart(2, '0')}
+ </span>
  <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wider scale-90 -ml-1 ${sentimenClass}`}>
  {news.potensi}
  </span>

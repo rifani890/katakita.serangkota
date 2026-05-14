@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { printNews } from "@/lib/print";
 import { formatDate, getBorderAccent, getCardGradient } from "@/lib/utils";
-import { LoadingOverlay, ConfirmDialog } from "./AdminUI";
+import { LoadingOverlay, ConfirmDialog } from "./UI";
 import type { NewsItem, PaginatedNewsResponse } from "@/types";
 
 type SortField = "tanggal_raw" | "judul" | "media" | "potensi";
@@ -32,7 +32,7 @@ const EMPTY_PAGE: PaginatedNewsResponse = {
  totalPages: 1,
 };
 
-export default function AdminBeritaClient() {
+export default function Berita() {
  const router = useRouter();
  const [searchInput, setSearchInput] = useState("");
  const deferredSearch = useDeferredValue(searchInput);
@@ -76,7 +76,7 @@ export default function AdminBeritaClient() {
  }
  } catch (err) {
  if (!isCurrent) return;
- console.error("AdminBeritaClient fetch error:", err);
+ console.error("Berita fetch error:", err);
  setResponse(EMPTY_PAGE);
  } finally {
  if (isCurrent) {

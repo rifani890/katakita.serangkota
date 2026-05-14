@@ -1,110 +1,249 @@
-# KataKita Kota Serang - News Dashboard
+# KataKita Kota Serang — News Monitoring Dashboard
 
-Dashboard monitoring berita modern untuk Pemerintah Kota Serang yang dibangun menggunakan **Next.js 14**, **Tailwind CSS**, dan **MySQL**. Aplikasi ini dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara *real-time*.
+Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dibangun dengan **Next.js 14**, **Tailwind CSS**, dan **MySQL (Railway)**. Dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara *real-time*.
 
-## ✨ Fitur Utama & Keunggulan
-
-### 1. Visual & Premium Dashboard
-- **Dynamic Glassmorphism**: Antarmuka bersih dengan efek kaca transparan dan *mesh gradients* yang memberikan kesan premium dan modern.
-- **Interactive StatCards**: Kartu statistik dengan animasi *glow* dan perubahan warna latar belakang dinamis berdasarkan kategori (Indigo, Teal, Zinc, Rose) saat di-*hover*.
-- **Sentiment Icons**: Visualisasi sentimen yang intuitif menggunakan set ikon wajah (*Smile-beam*, *Meh*, *Frown-open*) untuk memudahkan identifikasi suasana berita.
-
-### 2. Analisis Tren yang Akurat
-- **Synchronized Charts**: Grafik tren media cetak yang mendukung filter **Mingguan** dan **Bulanan** dengan sinkronisasi data yang presisi.
-- **Timezone-Aware Filtering**: Logika filter tanggal yang dioptimalkan untuk zona waktu lokal (WIB), memastikan data di awal/akhir periode tetap terekam dengan benar.
-- **Interactive Data Points**: Klik pada titik grafik untuk langsung melihat daftar berita terfilter untuk media dan periode tersebut.
-
-### 3. Pengalaman Pengguna (UX) yang Konsisten
-- **Unified Pagination**: Sistem navigasi halaman yang terstandarisasi (terpusat/centered) dengan selector jumlah baris (10, 20, 50, 100) di seluruh halaman dashboard dan detail.
-- **Responsive Design**: Tata letak yang adaptif sepenuhnya untuk Desktop, Tablet, hingga Smartphone, termasuk penyesuaian otomatis grafik dan tabel berita.
-- **Sentiment Badges**: Label sentimen berbentuk *pill* (lonjong) dengan *border* tipis yang seragam untuk keterbacaan yang lebih baik.
-
-### 4. Performa & SEO
-- **Server-Side Processing**: Pagination, pencarian, dan pengurutan dilakukan di sisi server (MySQL) menggunakan query yang dioptimalkan (Full-Text Search jika tersedia).
-- **SEO Ready**: URL ramah SEO (`/berita/[id]/[slug]`), Metadata dinamis, Open Graph, JSON-LD NewsArticle, sitemap.xml, dan robots.txt otomatis.
-
-## 🛠️ Teknologi Utama
-
-- **Framework**: Next.js 14 (App Router)
-- **Styling**: Tailwind CSS & Lucide Icons
-- **Chart**: Chart.js with Interactive Plugins
-- **Database**: MySQL with Connection Pooling
-- **Auth**: Secure Cookie-based Authentication
-
-## 📂 Struktur Penting
-
-- `app/`: Routing, API Handlers, dan Admin Components.
-- `components/`: UI Publik (Navbar, StatCards, TrendChart, NewsList, dll).
-- `lib/news.ts`: Logika inti query berita, server-side pagination, dan agregasi statistik.
-- `lib/utils.ts`: Helper untuk format tanggal lokal, normalisasi peran pejabat, dan SEO.
-
-## 📂 Struktur Proyek
-
-Berikut adalah penjelasan mengenai isi dan kegunaan dari setiap folder utama dalam proyek ini:
-
-- **`app/`**: Berisi seluruh logika rute aplikasi menggunakan *Next.js App Router*.
-    - `/admin`: Halaman khusus pengelolaan dashboard admin.
-    - `/api`: Endpoint API server-side untuk interaksi database.
-    - `/berita`: Halaman detail berita yang dioptimalkan untuk SEO.
-    - `globals.css`: Pengaturan gaya global aplikasi.
-- **`components/`**: Komponen UI yang dapat digunakan kembali (*reusable components*).
-    - Berisi elemen seperti `Navbar`, `TrendChart`, `StatCards`, dan `NewsList`.
-- **`lib/`**: Kumpulan fungsi pembantu (*helpers*), *hooks*, dan logika inti.
-    - `server/`: Berisi repository database, helper sesi, dan konfigurasi koneksi MySQL.
-    - `news.ts`: Logika utama untuk query, pagination, dan kalkulasi statistik berita.
-    - `utils.ts`: Helper untuk format tanggal, manipulasi string, dan normalisasi data.
-    - `useAuth.ts`, `useTheme.ts`: Custom hooks untuk manajemen sesi dan tema.
-- **`public/`**: Folder untuk aset statis yang dapat diakses publik.
-    - Menyimpan file seperti `logo.png`, `favicon.ico`, dan aset visual lainnya.
-- **`types/`**: Pusat definisi tipe data (TypeScript Interfaces).
-    - Digunakan untuk memastikan konsistensi data dan fitur *autocompletion* saat pengembangan.
-
-## 🚀 Instalasi & Pengembangan
-
-1. **Clone & Install**
-   ```bash
-   git clone https://github.com/username/katakita.serangkota.git
-   npm install
-   ```
-
-2. **Konfigurasi Environment**
-   Buat file `.env` dan sesuaikan variabel berikut:
-   ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASS=
-   DB_NAME=katakita
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
-   AUTH_SECRET=rahasia_anda
-   ```
-
-3. **Jalankan Aplikasi**
-   ```bash
-   npm run dev
-   ```
-
-## 🛠️ Panduan Kustomisasi & Pengembangan
-
-### 1. Merubah Tampilan (UI Styling)
-Dashboard ini dibangun dengan sistem desain berbasis **Tailwind CSS**. Untuk merubah tampilan:
-- **Warna Aksen**: Edit `tailwind.config.ts` untuk merubah palet warna global atau langsung ubah kelas warna pada komponen (misal: `indigo-600`, `teal-500`).
-- **Efek Glassmorphism**: Gunakan kelas `backdrop-blur-md` dan kombinasi `bg-white/90` (light) atau `bg-dark-card/90` (dark).
-- **Animasi Hover**: Interaksi kartu statistik dikelola di `components/StatCards.tsx` menggunakan objek `hoverBgMap`. Ubah nilai di sana untuk mengganti intensitas warna hover.
-- **Iconography**: Ikon menggunakan **Lucide React** dan **FontAwesome** (untuk wajah sentimen). Anda bisa mengganti ikon di masing-masing file komponen.
-
-### 2. Pengelolaan Database
-Aplikasi ini berinteraksi langsung dengan database MySQL melalui `lib/server/database.ts`.
-- **Menambah Kolom**: Jika Anda menambah kolom di tabel `berita`, pastikan untuk memperbarui interface `NewsDbRow` dan fungsi `mapNewsRow` di `lib/news.ts`.
-- **Mapping Pejabat & Media**: 
-    - Daftar pejabat dikelola melalui `OfficialMapping` di `lib/utils.ts`. 
-    - Logika normalisasi nama media berada di fungsi `normMedia` dan `buildMediaMapping` di `lib/news.ts`.
-- **Optimasi Query**: Fitur pencarian menggunakan MySQL **Full-Text Search**. Pastikan index FTS terpasang pada kolom `judul, isi, media, pejabat, unit` untuk performa maksimal.
-
-## 🔒 Keamanan
-- **Route Guard**: Middleware Next.js untuk memproteksi akses ke area `/admin`.
-- **Session Security**: Cookie `httpOnly` dan `secure` untuk menjaga integritas sesi.
-- **XSS & SQLi Protection**: Sanitasi input otomatis dan *parameterized queries* melalui ORM/Database helper.
+> **Status:** ✅ Lulus Pengujian Penuh (23/23) — Siap Produksi  
+> Lihat laporan lengkap di [PRD.md](./PRD.md)
 
 ---
 
-*Dikembangkan oleh Diskominfo Kota Serang &copy; 2026 KataKita.*
+## ✨ Fitur Utama
+
+| Modul | Deskripsi |
+|-------|-----------|
+| 📊 **Dashboard Publik** | Statistik ringkas, grafik interaktif, daftar berita 2 kolom |
+| 🗞️ **Halaman Detail Berita** | Daftar penuh dengan penomoran No.01, sortir, search, pagination |
+| 📈 **Tren Media (Line Chart)** | Filter Mingguan/Bulanan — klik titik untuk filter berita |
+| 🥧 **Proporsi Pejabat (Pie Chart)** | Klik segmen untuk filter berita per pejabat |
+| 🔐 **Admin Panel** | CRUD berita, pejabat, unit kerja, media (role-based) |
+| 📻 **Kelola Media** | Tambah/edit/hapus media + color picker (khusus Admin) |
+| 🖨️ **Cetak Berita** | Print-friendly layout langsung dari modal atau halaman detail |
+| 🌙 **Dark Mode** | Toggle tema gelap/terang |
+| 📱 **Responsif** | Adaptif untuk Desktop, Tablet, dan Mobile |
+| ⬅️ **Navigasi Back/Forward** | Tombol back/forward browser mempertahankan halaman & scroll position |
+
+---
+
+## 🛠️ Teknologi
+
+- **Framework**: Next.js 14 (App Router, SSR + Client Components)
+- **Styling**: Tailwind CSS + Lucide Icons
+- **Charts**: Chart.js dengan plugin interaktif
+- **Database**: MySQL (Railway Cloud) via `mysql2`
+- **Auth**: Session Cookie (HttpOnly + Secure)
+- **Language**: TypeScript
+
+---
+
+## 📂 Struktur Proyek
+
+```
+katakita.serangkota/
+├── app/
+│   ├── admin/                  # Admin panel (protected)
+│   │   ├── _components/        # Komponen admin (nama singkat)
+│   │   │   ├── Layout.tsx      # Sidebar + navbar admin
+│   │   │   ├── BeritaCMS.tsx   # Editor berita (Rich Text)
+│   │   │   ├── Berita.tsx      # Tabel kelola berita
+│   │   │   ├── Dashboard.tsx   # Halaman utama admin
+│   │   │   ├── KelolaAdmin.tsx # Manajemen akun admin
+│   │   │   ├── Media.tsx       # Kelola media (admin only)
+│   │   │   ├── Pejabat.tsx     # Kelola pejabat
+│   │   │   ├── Unit.tsx        # Kelola unit kerja
+│   │   │   └── UI.tsx          # Komponen UI bersama (modal, confirm, dll)
+│   │   ├── berita/             # Halaman daftar & editor berita
+│   │   ├── kelola-admin/       # Manajemen akun
+│   │   ├── media/              # Halaman kelola media
+│   │   ├── pejabat/            # Halaman kelola pejabat
+│   │   └── unit-kerja/         # Halaman kelola unit
+│   ├── api/                    # Server-side API endpoints
+│   │   ├── auth/               # Login, session, logout
+│   │   ├── berita/             # CRUD berita
+│   │   ├── media/              # CRUD media
+│   │   ├── pejabat/            # CRUD pejabat
+│   │   └── unit/               # CRUD unit kerja
+│   └── berita/[id]/[slug]/     # Halaman publik berita (SSR + SEO)
+├── components/                 # Komponen halaman publik
+│   ├── DashboardClient.tsx     # Orkestrator utama halaman publik
+│   ├── DetailPage.tsx          # Daftar berita detail + penomoran
+│   ├── NewsList.tsx            # Grid 2-kolom berita terbaru
+│   ├── TrendChart.tsx          # Grafik tren media (line)
+│   ├── OfficialChart.tsx       # Grafik proporsi pejabat (pie)
+│   ├── HeroSection.tsx         # Bagian hero atas
+│   ├── StatCards.tsx           # Kartu statistik
+│   ├── Navbar.tsx              # Navigasi atas
+│   ├── NewsModal.tsx           # Modal detail berita
+│   ├── LoginModal.tsx          # Modal login
+│   └── ScrollToTopButton.tsx   # Tombol kembali ke atas
+├── lib/
+│   ├── server/
+│   │   ├── database.ts         # Koneksi MySQL pool
+│   │   ├── session.ts          # Manajemen token sesi
+│   │   └── repositories/       # Fungsi query DB (catalog, news, user)
+│   ├── fetchWithAuth.ts        # Fetch wrapper dengan otentikasi
+│   ├── news.ts                 # Logika pemrosesan & query berita
+│   ├── print.ts                # Fungsi cetak berita
+│   ├── useAuth.ts              # Custom hook manajemen sesi
+│   ├── useDashboardSummary.ts  # Hook agregasi data dashboard
+│   └── utils.ts                # Fungsi utilitas (format, normalisasi)
+├── types/
+│   └── index.ts                # Definisi tipe TypeScript
+├── middleware.ts               # Route guard /admin
+└── public/                     # Aset statis (logo, favicon)
+```
+
+---
+
+## 🚀 Instalasi Lokal
+
+### 1. Clone & Install
+
+```bash
+git clone https://github.com/username/katakita.serangkota.git
+cd katakita.serangkota
+npm install
+```
+
+### 2. Konfigurasi Environment
+
+Buat file `.env.local` di *root* folder:
+
+```env
+# Database (Railway atau lokal)
+DB_HOST=localhost
+DB_USER=root
+DB_PASS=password_anda
+DB_NAME=railway
+DB_PORT=3306
+
+# Atau gunakan URL lengkap
+MYSQL_URL=mysql://user:pass@host:port/database
+```
+
+### 3. Jalankan Server Pengembangan
+
+```bash
+npm run dev
+```
+
+Buka `http://localhost:3000`
+
+---
+
+## 🌍 Deployment
+
+### Opsi A: cPanel (Setup Node.js App)
+
+> *Syarat: Paket hosting harus mendukung fitur "Setup Node.js App" atau "Phusion Passenger"*
+
+1. Build di lokal:
+   ```bash
+   npm run build
+   ```
+2. *Zip* seluruh proyek (sertakan `.next/`, **kecuali** `node_modules/`, `.git/`, `.env.local`)
+3. Upload & ekstrak di folder baru di cPanel (bukan `public_html`)
+4. Buat file `.env.local` di server dan isi konfigurasi database
+5. Di cPanel → **Setup Node.js App** → Create Application:
+   - Node.js version: `18.x` atau `20.x`
+   - Application mode: `Production`
+   - Application root: nama folder yang dibuat
+   - Application startup file: `server.js`
+6. Klik **Run NPM Install** → **Start App**
+
+### Opsi B: VPS dengan PM2 (Disarankan)
+
+```bash
+# 1. Clone & install
+git clone https://github.com/username/katakita.serangkota.git
+cd katakita.serangkota
+npm install
+
+# 2. Buat .env.local dan konfigurasi
+nano .env.local
+
+# 3. Build
+npm run build
+
+# 4. Install PM2 dan jalankan
+npm install -g pm2
+pm2 start npm --name "katakita" -- run start
+pm2 startup   # Agar otomatis jalan saat server restart
+pm2 save
+```
+
+**Konfigurasi Nginx (Reverse Proxy):**
+
+```nginx
+server {
+    listen 80;
+    server_name katakita.serangkota.go.id;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+Pasang HTTPS dengan Certbot:
+```bash
+sudo certbot --nginx -d katakita.serangkota.go.id
+```
+
+---
+
+## 🔒 Keamanan
+
+- **Route Guard**: Middleware Next.js memproteksi semua rute `/admin`
+- **Auto-Logout**: Sesi otomatis diputus setelah 5 menit tidak aktif
+- **Cookie HttpOnly + Secure**: Token sesi tidak bisa diakses oleh JavaScript (XSS protection)
+- **Parameterized Queries**: Semua query menggunakan parameter binding (SQL Injection protection)
+- **Role-Based Access**: Menu dan endpoint tertentu hanya dapat diakses oleh `admin`
+- **Cross-Tab Sync**: Logout di satu tab mematikan sesi di semua tab
+- **Data Sensitif**: File `.env.local` dan `*.sql` tidak pernah masuk ke Git
+
+---
+
+## 👥 Role Pengguna
+
+| Role | Berita | Pejabat | Unit Kerja | Media | Kelola Admin |
+|------|--------|---------|-----------|-------|-------------|
+| **Publik** | Baca | - | - | - | - |
+| **Operator** | CRUD | CRUD | CRUD | - | - |
+| **Admin** | CRUD | CRUD | CRUD | CRUD | CRUD |
+
+---
+
+## 📤 Ekspor Database
+
+Untuk backup database:
+
+```bash
+# Menggunakan mysqldump (jika tersedia)
+mysqldump -h turntable.proxy.rlwy.net -P 34692 -u root -p railway > backup.sql
+
+# Atau gunakan script Node.js yang sudah tersedia
+node -e "require('mysqldump')({connection:{...}, dumpToFile:'backup.sql'})"
+```
+
+> ⚠️ File `.sql` secara otomatis diabaikan oleh Git (sudah ada di `.gitignore`)
+
+---
+
+## 📝 Catatan Perubahan Terbaru (v1.2.0)
+
+- ✅ **Kelola Media**: Halaman baru untuk admin mengelola daftar media + color picker
+- ✅ **Penomoran Berita**: Nomor urut No.01, No.02 di halaman detail (lintas halaman)
+- ✅ **Grid 2 Kolom**: Daftar berita tampil 2 kolom di layar Desktop
+- ✅ **Navigasi Back/Forward**: Tombol back/forward browser berfungsi penuh + scroll position
+- ✅ **Penamaan File Lebih Singkat**: Komponen admin dipersingkat (mis: `AdminBeritaClient.tsx` → `Berita.tsx`)
+- ✅ **Color Picker**: Input warna menggunakan native color picker + text input HEX
+- ✅ **Ekspor Database**: File `katakita_db_export.sql` tersedia di lokal (tidak di-push ke Git)
+
+---
+
+*Dikembangkan oleh Diskominfo Kota Serang © 2026 KataKita*

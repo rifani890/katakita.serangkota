@@ -6,7 +6,7 @@ import { useDashboardSummary } from "@/lib/useDashboardSummary";
 import OfficialChart from "@/components/OfficialChart";
 import TrendChart from "@/components/TrendChart";
 
-export default function AdminDashboardClient() {
+export default function Dashboard() {
   const {
     stats,
     totalOfficials,

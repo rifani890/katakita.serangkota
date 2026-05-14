@@ -32,6 +32,10 @@ export default function TrendChart({
 
   useEffect(() => {
     setMounted(true);
+    const saved = sessionStorage.getItem("katakita_trend_filter");
+    if (saved === "monthly") {
+      setFilterType("monthly");
+    }
   }, []);
 
   useEffect(() => {
@@ -232,17 +236,29 @@ export default function TrendChart({
   };
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 flex flex-col items-start sm:items-stretch">
-      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white text-left">
-          <i className="fas fa-chart-line text-blue-500 text-xl sm:text-2xl"></i>
+    <div className="group relative overflow-hidden bg-white dark:bg-slate-800/60 rounded-[1.5rem] shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 space-y-6 flex flex-col items-start sm:items-stretch transition-all duration-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-black/50 backdrop-blur-xl">
+      
+      {/* Decorative Background Glow */}
+      <div className="absolute -top-16 -left-16 w-48 h-48 bg-indigo-500/10 blur-[60px] rounded-full pointer-events-none transition-opacity duration-500 group-hover:opacity-100"></div>
+
+      <div className="relative z-10 w-full flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-700/50 pb-4">
+        <h3 className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800 dark:text-white text-left tracking-tight">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+            <i className="fas fa-chart-line text-lg"></i>
+          </div>
           Tren Media Cetak
         </h3>
         <div className="flex items-center w-auto self-start sm:self-auto">
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as FilterType)}
-            className="text-[11px] bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-black text-slate-600 dark:text-slate-300 tracking-widest"
+            onChange={(e) => {
+              const val = e.target.value as FilterType;
+              setFilterType(val);
+              if (typeof window !== "undefined") {
+                sessionStorage.setItem("katakita_trend_filter", val);
+              }
+            }}
+            className="text-[11px] bg-slate-100/50 dark:bg-slate-800/50 backdrop-blur-md border border-slate-200/50 dark:border-slate-700/50 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-black text-slate-600 dark:text-slate-300 tracking-widest cursor-pointer hover:bg-slate-200/50 dark:hover:bg-slate-700/50"
           >
             <option value="weekly">Mingguan</option>
             <option value="monthly">Bulanan</option>

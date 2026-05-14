@@ -1,5 +1,5 @@
-import AdminUnitClient from "../_components/AdminUnitClient";
+import Unit from "../_components/Unit";
 
 export default function AdminUnitPage() {
-  return <AdminUnitClient />;
+  return <Unit />;
 }

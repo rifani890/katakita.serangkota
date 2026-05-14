@@ -18,7 +18,6 @@ export default function OfficialChart({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
-
   const { isDark: themeIsDark } = useTheme();
 
   // Set mounted state
@@ -37,6 +36,7 @@ export default function OfficialChart({
 
     const isDark = themeIsDark;
     const textColor = isDark ? "#cbd5e1" : "#475569";
+    const datalabelsColor = isDark ? "#ffffff" : "#1e293b";
     const borderColor = isDark ? "#1e293b" : "#ffffff";
     const tooltipBg = isDark ? "#1e293b" : "#ffffff";
     const tooltipColor = isDark ? "#f8fafc" : "#1e293b";
@@ -51,7 +51,7 @@ export default function OfficialChart({
 
       if (!chartRef.current) {
         chartRef.current = new Chart(canvasRef.current, {
-          type: "doughnut",
+          type: "pie",
           data: {
             labels,
             datasets: [
@@ -79,7 +79,7 @@ export default function OfficialChart({
                 },
               },
               datalabels: {
-                color: "#ffffff",
+                color: datalabelsColor,
                 font: { weight: "900", family: "Poppins", size: 12 },
                 formatter: (value: number) => (value > 0 ? value : ""),
                 display: (context: any) => {
@@ -111,7 +111,7 @@ export default function OfficialChart({
                 },
               },
             },
-            cutout: "60%",
+            cutout: "0%",
             onClick: (_evt: any, elements: any[]) => {
               if (elements.length > 0) {
                 onOfficialClick(labels[elements[0].index]);
@@ -128,6 +128,7 @@ export default function OfficialChart({
 
         // Update theme options
         chart.options.plugins.legend.labels.color = textColor;
+        chart.options.plugins.datalabels.color = datalabelsColor;
         chart.options.plugins.tooltip.backgroundColor = tooltipBg;
         chart.options.plugins.tooltip.titleColor = tooltipColor;
         chart.options.plugins.tooltip.bodyColor = tooltipColor;
@@ -151,24 +152,30 @@ export default function OfficialChart({
 
   if (!mounted) {
     return (
-      <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 h-[400px] animate-pulse">
-        <div className="h-6 w-1/3 bg-slate-200 dark:bg-slate-700 rounded mb-6"></div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="w-48 h-48 rounded-full border-8 border-slate-100 dark:border-slate-800"></div>
+      <div className="bg-slate-200 dark:bg-slate-800 rounded-[1.5rem] border border-slate-300 dark:border-slate-600 p-6 h-[400px] animate-pulse">
+        <div className="h-6 w-1/3 bg-slate-300 dark:bg-slate-700 rounded mb-6"></div>
+        <div className="flex-1 flex items-center justify-center mt-12">
+          <div className="w-48 h-48 rounded-full border-8 border-slate-300 dark:border-slate-700"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-slate-300 dark:border-slate-600 p-4 sm:p-5 space-y-6 flex flex-col items-start sm:items-stretch">
-      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
-        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white text-left">
-          <i className="fas fa-user-tie text-blue-500 text-xl sm:text-2xl"></i>
+    <div className="group relative overflow-hidden bg-white dark:bg-slate-800/60 rounded-[1.5rem] shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 space-y-6 flex flex-col items-start sm:items-stretch transition-all duration-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-black/50 backdrop-blur-xl">
+      
+      {/* Decorative Background Glow */}
+      <div className="absolute -top-16 -right-16 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none transition-opacity duration-500 group-hover:opacity-100"></div>
+
+      <div className="relative z-10 w-full flex flex-col sm:flex-row items-start sm:items-center justify-start sm:justify-between gap-3 border-b border-slate-100 dark:border-slate-700/50 pb-4">
+        <h3 className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800 dark:text-white text-left tracking-tight">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+            <i className="fas fa-user-tie text-lg"></i>
+          </div>
           Nama Pejabat
         </h3>
       </div>
-      <div className="relative h-[280px] sm:h-[300px] w-full flex items-center justify-center">
+      <div className="relative z-10 h-[280px] sm:h-[300px] w-full flex items-center justify-center">
         <canvas ref={canvasRef}></canvas>
       </div>
     </div>

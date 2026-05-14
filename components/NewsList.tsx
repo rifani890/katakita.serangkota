@@ -129,10 +129,12 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
  for (let index = start; index <= end; index++) pageNumbers.push(index);
 
  return (
- <div className="bg-white dark:bg-[#111827]/30 backdrop-blur-sm rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800/60 p-6 sm:p-8 space-y-8 mt-8 sm:mt-16">
- <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
- <h3 className="text-lg sm:text-xl font-bold flex items-center gap-3 text-slate-800 dark:text-white text-left">
- <i className="fas fa-newspaper text-blue-600 text-xl sm:text-2xl"></i>
+ <div className="bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-6 sm:p-8 space-y-8 mt-8 sm:mt-16 relative z-10">
+ <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-700/50 pb-4">
+ <h3 className="text-lg sm:text-xl font-black flex items-center gap-3 text-slate-800 dark:text-white text-left tracking-tight">
+ <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+ <i className="fas fa-newspaper text-lg"></i>
+ </div>
  Daftar Berita Terbaru
  </h3>
  <div className="relative w-full lg:w-72">
@@ -161,17 +163,17 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
  </button>
  </div>
 
- <div className="flex flex-col gap-4">
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
  {loading ? (
- <div className="animate-pulse bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-8 text-center text-slate-500">
+ <div className="lg:col-span-2 animate-pulse bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl p-8 text-center text-slate-500">
  Sedang memuat data...
  </div>
  ) : error ? (
- <div className="p-8 text-center text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl">
+ <div className="lg:col-span-2 p-8 text-center text-rose-500 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl">
  {error}
  </div>
  ) : response.items.length === 0 ? (
- <div className="p-8 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
+ <div className="lg:col-span-2 p-8 text-center text-slate-500 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700/60 rounded-xl">
  Tidak ada berita ditemukan.
  </div>
  ) : (

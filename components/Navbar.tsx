@@ -128,8 +128,8 @@ export default function Navbar() {
  />
 
  {showConfirmLogout && (
- <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
- <div className="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-xl w-full max-w-sm border border-slate-200 dark:border-slate-700">
+ <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onClick={() => setShowConfirmLogout(false)}>
+ <div className="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-xl w-full max-w-sm border border-slate-200 dark:border-slate-700" onClick={(e) => e.stopPropagation()}>
  <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-2">Konfirmasi Logout</h3>
  <p className="text-slate-600 dark:text-slate-300 mb-6">Apakah Anda yakin ingin keluar dari sistem?</p>
  <div className="flex gap-3">
