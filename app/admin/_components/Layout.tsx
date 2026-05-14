@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,6 +38,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
  }
  }, [user, loading, router]);
 
+ const handleLogout = useCallback(async (isAuto = false) => {
+ setShowConfirmLogout(false);
+ await logout();
+ if (isAuto) {
+ router.replace("/?timeout=1");
+ } else {
+ router.replace("/");
+ }
+ }, [logout, router]);
+
  // Auto Logout 5 Menit Inactivity
  useEffect(() => {
  if (!user) return;
@@ -72,17 +82,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
  window.removeEventListener("touchstart", resetTimer);
  window.removeEventListener("click", resetTimer);
  };
- }, [user]);
-
- const handleLogout = async (isAuto = false) => {
- setShowConfirmLogout(false);
- await logout();
- if (isAuto) {
- router.replace("/?timeout=1");
- } else {
- router.replace("/");
- }
- };
+ }, [user, handleLogout]);
 
  if (loading) {
  return (

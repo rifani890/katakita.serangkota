@@ -121,6 +121,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
  if (currentPage !== 1) {
  setCurrentPage(1);
  }
+ // eslint-disable-next-line react-hooks/exhaustive-deps
  }, [deferredSearch, pageSize]);
 
  const pageNumbers: number[] = [];

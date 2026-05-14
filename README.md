@@ -217,8 +217,7 @@ sudo certbot --nginx -d katakita.serangkota.go.id
 - **Parameterized Queries**: Semua query menggunakan parameter binding (SQL Injection protection)
 - **Role-Based Access**: Menu dan endpoint tertentu hanya dapat diakses oleh `admin`
 - **Cross-Tab Sync**: Logout di satu tab mematikan sesi di semua tab
-- **Data Sensitif**: File `.env.local` dan `*.sql` tidak pernah masuk ke Git
-
+- **Data Sensitif**: File `.env.local` dan `*.sql` 
 ---
 
 ## 👥 Role Pengguna
@@ -243,8 +242,6 @@ mysqldump -h turntable.proxy.rlwy.net -P 34692 -u root -p railway > backup.sql
 node -e "require('mysqldump')({connection:{...}, dumpToFile:'backup.sql'})"
 ```
 
-> ⚠️ File `.sql` secara otomatis diabaikan oleh Git (sudah ada di `.gitignore`)
-
 ---
 
 ## 📝 Catatan Perubahan Terbaru (v1.2.0)
@@ -255,7 +252,7 @@ node -e "require('mysqldump')({connection:{...}, dumpToFile:'backup.sql'})"
 - ✅ **Navigasi Back/Forward**: Tombol back/forward browser berfungsi penuh + scroll position
 - ✅ **Penamaan File Lebih Singkat**: Komponen admin dipersingkat (mis: `AdminBeritaClient.tsx` → `Berita.tsx`)
 - ✅ **Color Picker**: Input warna menggunakan native color picker + text input HEX
-- ✅ **Ekspor Database**: File `katakita_db_export.sql` tersedia di lokal (tidak di-push ke Git)
+- ✅ **Ekspor Database**: File `data.sql`
 
 ---
 

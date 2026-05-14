@@ -139,6 +139,7 @@ export default function OfficialChart({
     }
 
     initOrUpdateChart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, orderedCounts, themeIsDark, onOfficialClick]);
 
   useEffect(() => {
