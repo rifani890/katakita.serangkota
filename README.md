@@ -118,7 +118,20 @@ DB_PORT=3306
 
 # Atau gunakan URL lengkap
 MYSQL_URL=mysql://user:pass@host:port/database
+
+# Kunci enkripsi sesi — WAJIB diisi di produksi!
+# Generate dengan: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+AUTH_SECRET=isi_dengan_string_acak_minimal_32_karakter
 ```
+
+> [!IMPORTANT]
+> **`AUTH_SECRET` wajib diisi saat deploy ke server produksi.**
+> Jika tidak diisi, aplikasi akan menggunakan kunci default `dev-only-change-me` yang lemah dan tidak aman.
+> Gunakan perintah berikut untuk membuat kunci acak yang kuat:
+> ```bash
+> node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+> ```
+
 
 ### 3. Jalankan Server Pengembangan
 
