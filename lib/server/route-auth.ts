@@ -1,10 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import {
-  getSessionCookieName,
-  type SessionUser,
-  verifySessionToken,
-} from "@/lib/server/session";
+import { getSessionCookieName, type SessionUser, verifySessionToken } from "@/lib/server/session";
 
 export async function readSessionUser(): Promise<SessionUser | null> {
   const token = cookies().get(getSessionCookieName())?.value;

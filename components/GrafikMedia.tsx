@@ -5,7 +5,7 @@ import type { TrendLegendItem, TrendPoint } from "@/types";
 import { initChart } from "@/lib/chart";
 import { useTheme } from "@/lib/useTheme";
 
-interface TrendChartProps {
+interface GrafikMediaProps {
   weeklyPoints: TrendPoint[];
   monthlyPoints: TrendPoint[];
   mediaLegend: TrendLegendItem[];
@@ -15,13 +15,13 @@ interface TrendChartProps {
 
 type FilterType = "weekly" | "monthly";
 
-export default function TrendChart({
+export default function GrafikMedia({
   weeklyPoints,
   monthlyPoints,
   mediaLegend,
   onMediaTrendClick,
   onFilterByMedia,
-}: TrendChartProps) {
+}: GrafikMediaProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<any>(null);
@@ -80,7 +80,12 @@ export default function TrendChart({
         if (!chartRef.current) return;
         chartRef.current.data.datasets.forEach(
           (
-            dataset: { borderWidth: number; pointRadius: number; pointHoverRadius: number; order?: number },
+            dataset: {
+              borderWidth: number;
+              pointRadius: number;
+              pointHoverRadius: number;
+              order?: number;
+            },
             idx: number
           ) => {
             const isActive = datasetIndex === idx;
@@ -132,7 +137,12 @@ export default function TrendChart({
             scales: {
               x: {
                 display: true,
-                ticks: { color: textColor, font: { size: 10, family: "Plus Jakarta Sans", weight: "bold" }, maxRotation: 0, minRotation: 0 },
+                ticks: {
+                  color: textColor,
+                  font: { size: 10, family: "Plus Jakarta Sans", weight: "bold" },
+                  maxRotation: 0,
+                  minRotation: 0,
+                },
                 grid: { display: false },
               },
               y: {
@@ -179,7 +189,7 @@ export default function TrendChart({
         chart.options.plugins.tooltip.titleColor = tooltipColor;
         chart.options.plugins.tooltip.bodyColor = tooltipColor;
         chart.options.plugins.tooltip.borderColor = tooltipBorder;
-        
+
         // Update onClick handler to use current filterType and points
         chart.options.onClick = (_evt: any, elements: any[]) => {
           if (elements.length === 0) return;
@@ -196,7 +206,15 @@ export default function TrendChart({
     }
 
     initOrUpdateChart();
-  }, [mounted, filterType, mediaLegend, monthlyPoints, onMediaTrendClick, weeklyPoints, themeIsDark]);
+  }, [
+    mounted,
+    filterType,
+    mediaLegend,
+    monthlyPoints,
+    onMediaTrendClick,
+    weeklyPoints,
+    themeIsDark,
+  ]);
 
   useEffect(() => {
     return () => {
@@ -232,12 +250,13 @@ export default function TrendChart({
       );
     }
     chart.update("none");
-    setHoveredDataset(shorthand ? mediaLegend.findIndex((item) => item.shorthand === shorthand) : null);
+    setHoveredDataset(
+      shorthand ? mediaLegend.findIndex((item) => item.shorthand === shorthand) : null
+    );
   };
 
   return (
     <div className="group relative overflow-hidden bg-white dark:bg-slate-800/60 rounded-[1.5rem] shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 space-y-6 flex flex-col items-start sm:items-stretch transition-all duration-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-black/50 backdrop-blur-xl">
-      
       {/* Decorative Background Glow */}
       <div className="absolute -top-16 -left-16 w-48 h-48 bg-indigo-500/10 blur-[60px] rounded-full pointer-events-none transition-opacity duration-500 group-hover:opacity-100"></div>
 

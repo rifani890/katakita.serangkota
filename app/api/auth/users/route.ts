@@ -15,9 +15,7 @@ export async function GET() {
 
   try {
     const users = await listUsers();
-    return NextResponse.json(
-      users.map(({ passwordHash: _passwordHash, ...user }) => user)
-    );
+    return NextResponse.json(users.map(({ passwordHash: _passwordHash, ...user }) => user));
   } catch (err) {
     console.error("/api/auth/users GET error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

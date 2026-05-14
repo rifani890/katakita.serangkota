@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { getSiteUrl } from "@/lib/utils";
-import ScrollToTopButton from "@/components/ScrollToTopButton";
+import ScrollToTopButton from "@/components/ScrollButton";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
 
@@ -54,11 +54,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
@@ -82,9 +78,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${jakarta.className} flex flex-col min-h-screen dark:bg-dark-bg`}>
-        <div className="flex-grow">
-          {children}
-        </div>
+        <div className="flex-grow">{children}</div>
         <ScrollToTopButton />
       </body>
     </html>

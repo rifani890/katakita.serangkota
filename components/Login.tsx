@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { X, Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { useAuth } from "@/lib/useAuth";
 
-interface LoginModalProps {
+interface LoginProps {
   isOpen: boolean;
   onClose: () => void;
   redirectTo?: string;
@@ -17,7 +17,7 @@ function normalizeRedirect(value?: string): string {
   return value;
 }
 
-export default function LoginModal({ isOpen, onClose, redirectTo }: LoginModalProps) {
+export default function Login({ isOpen, onClose, redirectTo }: LoginProps) {
   const { login } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");

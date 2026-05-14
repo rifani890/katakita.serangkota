@@ -23,6 +23,7 @@ import {
   buildDefaultOfficialMapping,
   formatDate,
   getOfficialRolePriority,
+  getOfficialMapping,
   getPrimaryRole,
   getSunday,
   normMedia,
@@ -40,6 +41,7 @@ interface NewsDbRow {
   isi: string;
   media: string;
   pejabat: string | null;
+  tokoh: string | null;
   potensi: string;
   unit: string | null;
   tanggal_raw: string | number | null;
@@ -61,6 +63,7 @@ interface NewsQueryOptions {
   role?: string;
   periodType?: "weekly" | "monthly";
   timeKey?: string;
+  recentDays?: number;
   includeFallback?: boolean;
 }
 
@@ -71,6 +74,7 @@ const NEWS_SELECT = `
     isi,
     media,
     pejabat,
+    tokoh,
     potensi,
     unit,
     segment,
@@ -92,7 +96,6 @@ const DATE_SQL = `COALESCE(tanggal_converted, created_at)`;
  */
 let isFtsAvailable: boolean | null = null;
 
-
 const SORT_FIELD_MAP: Record<string, string> = {
   date: `${DATE_SQL}`,
   tanggal_raw: `${DATE_SQL}`,
@@ -108,11 +111,11 @@ const FALLBACK_NEWS: NewsItem[] = [
     key: "demo-1",
     id: "demo-1",
     judul: "Program Pelayanan Publik Kota Serang Mendapat Respons Positif",
-    isi:
-      "Artikel contoh ini ditampilkan otomatis saat database berita belum memiliki data publik. Berita ini mewakili sentimen positif agar dashboard, filter statistik, detail berita, dan fitur cetak tetap dapat diuji.",
+    isi: "Artikel contoh ini ditampilkan otomatis saat database berita belum memiliki data publik. Berita ini mewakili sentimen positif agar dashboard, filter statistik, detail berita, dan fitur cetak tetap dapat diuji.",
     media: "KataKita",
     mNorm: "KataKita",
     pejabat: ["Pejabat Lainnya"],
+    tokoh: [],
     potensi: "Positif",
     tanggal: "11 Mei 2026",
     tanggal_raw: Date.UTC(2026, 4, 11),
@@ -126,11 +129,11 @@ const FALLBACK_NEWS: NewsItem[] = [
     key: "demo-2",
     id: "demo-2",
     judul: "Agenda Monitoring Media Kota Serang Berjalan Stabil",
-    isi:
-      "Berita contoh netral untuk memastikan daftar berita publik tetap berisi data ketika database masih kosong.",
+    isi: "Berita contoh netral untuk memastikan daftar berita publik tetap berisi data ketika database masih kosong.",
     media: "KataKita",
     mNorm: "KataKita",
     pejabat: ["Pejabat Lainnya"],
+    tokoh: [],
     potensi: "Netral",
     tanggal: "10 Mei 2026",
     tanggal_raw: Date.UTC(2026, 4, 10),
@@ -144,11 +147,11 @@ const FALLBACK_NEWS: NewsItem[] = [
     key: "demo-3",
     id: "demo-3",
     judul: "Catatan Evaluasi Layanan Publik Perlu Ditindaklanjuti",
-    isi:
-      "Berita contoh negatif untuk menjaga filter sentimen negatif tetap dapat diverifikasi di lingkungan tanpa data.",
+    isi: "Berita contoh negatif untuk menjaga filter sentimen negatif tetap dapat diverifikasi di lingkungan tanpa data.",
     media: "KataKita",
     mNorm: "KataKita",
     pejabat: ["Pejabat Lainnya"],
+    tokoh: [],
     potensi: "Negatif",
     tanggal: "09 Mei 2026",
     tanggal_raw: Date.UTC(2026, 4, 9),
@@ -175,6 +178,7 @@ function filterFallbackNews(options: NewsQueryOptions): NewsItem[] {
         item.potensi,
         item.unit,
         Array.isArray(item.pejabat) ? item.pejabat.join(" ") : item.pejabat,
+        Array.isArray(item.tokoh) ? item.tokoh.join(" ") : item.tokoh,
       ]
         .join(" ")
         .toLowerCase();
@@ -216,6 +220,7 @@ function mapNewsRow(row: NewsDbRow): NewsItem {
     isi: row.isi ?? "",
     media: row.media ?? "",
     pejabat: parsePejabatValue(row.pejabat),
+    tokoh: parsePejabatValue(row.tokoh),
     potensi: row.potensi ?? "Netral",
     tanggal: row.tanggal_converted ? formatDate(row.tanggal_converted) : "",
     tanggal_raw: tanggalRaw,
@@ -269,19 +274,28 @@ function buildWhereClause(options: NewsQueryOptions, useFts = true) {
 
     if (useFts) {
       // Use MySQL Full-Text Search for high performance on large datasets
-      // Columns: judul, isi, media, pejabat, unit
-      conditions.push(`MATCH(judul, isi, media, pejabat, unit) AGAINST(? IN NATURAL LANGUAGE MODE)`);
+      // Columns: judul, isi, media, pejabat, unit, tokoh
+      conditions.push(
+        `MATCH(judul, isi, media, pejabat, unit, tokoh) AGAINST(? IN NATURAL LANGUAGE MODE)`
+      );
       values.push(search);
     } else {
       // Fallback to LIKE if FTS index is not available
       const searchPattern = `%${search}%`;
       conditions.push(
-        `(judul LIKE ? OR media LIKE ? OR potensi LIKE ? OR unit LIKE ? OR user_email LIKE ? OR pejabat LIKE ?)`
+        `(judul LIKE ? OR media LIKE ? OR potensi LIKE ? OR unit LIKE ? OR user_email LIKE ? OR pejabat LIKE ? OR tokoh LIKE ?)`
       );
-      values.push(searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern);
+      values.push(
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern,
+        searchPattern
+      );
     }
   }
-
 
   if (options.potensi?.trim()) {
     conditions.push(`potensi = ?`);
@@ -295,15 +309,29 @@ function buildWhereClause(options: NewsQueryOptions, useFts = true) {
 
   const dateRange = createDateRange(options.periodType, options.timeKey);
   if (dateRange) {
-    const startStr = dateRange.start.getFullYear() + "-" + 
-                     String(dateRange.start.getMonth() + 1).padStart(2, '0') + "-" + 
-                     String(dateRange.start.getDate()).padStart(2, '0') + " 00:00:00";
-    const endStr = dateRange.end.getFullYear() + "-" + 
-                   String(dateRange.end.getMonth() + 1).padStart(2, '0') + "-" + 
-                   String(dateRange.end.getDate()).padStart(2, '0') + " 00:00:00";
-    
+    const startStr =
+      dateRange.start.getFullYear() +
+      "-" +
+      String(dateRange.start.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(dateRange.start.getDate()).padStart(2, "0") +
+      " 00:00:00";
+    const endStr =
+      dateRange.end.getFullYear() +
+      "-" +
+      String(dateRange.end.getMonth() + 1).padStart(2, "0") +
+      "-" +
+      String(dateRange.end.getDate()).padStart(2, "0") +
+      " 00:00:00";
+
     conditions.push(`${DATE_SQL} >= ? AND ${DATE_SQL} < ?`);
     values.push(startStr, endStr);
+  }
+
+  if (options.recentDays && options.recentDays > 0) {
+    conditions.push(
+      `${DATE_SQL} >= DATE_SUB(NOW(), INTERVAL ${Math.floor(options.recentDays)} DAY)`
+    );
   }
 
   const whereClause = conditions.length > 0 ? ` WHERE ${conditions.join(" AND ")}` : "";
@@ -404,18 +432,14 @@ async function fetchNewsRowsByIds(ids: number[]): Promise<NewsItem[]> {
   if (ids.length === 0) return [];
 
   const placeholders = ids.map(() => "?").join(", ");
-  const [rows] = await dbPool.execute(
-    `${NEWS_SELECT} WHERE id IN (${placeholders})`,
-    ids
-  );
+  const [rows] = await dbPool.execute(`${NEWS_SELECT} WHERE id IN (${placeholders})`, ids);
 
   const mapped = (rows as NewsDbRow[]).map(mapNewsRow);
   const orderMap = new Map(ids.map((id, index) => [id, index]));
 
   return mapped.sort(
     (a, b) =>
-      (orderMap.get(Number(a.id ?? a.key)) ?? 0) -
-      (orderMap.get(Number(b.id ?? b.key)) ?? 0)
+      (orderMap.get(Number(a.id ?? a.key)) ?? 0) - (orderMap.get(Number(b.id ?? b.key)) ?? 0)
   );
 }
 
@@ -437,7 +461,7 @@ export async function getPaginatedNews(
   if (isFtsAvailable === null && options.search?.trim()) {
     try {
       await dbPool.execute(
-        `SELECT 1 FROM berita WHERE MATCH(judul, isi, media, pejabat, unit) AGAINST('test') LIMIT 0`
+        `SELECT 1 FROM berita WHERE MATCH(judul, isi, media, pejabat, unit, tokoh) AGAINST('test') LIMIT 0`
       );
       isFtsAvailable = true;
     } catch {
@@ -446,7 +470,6 @@ export async function getPaginatedNews(
   }
 
   const { whereClause, values } = buildWhereClause(options, isFtsAvailable !== false);
-
 
   if (options.role?.trim()) {
     const officials = await fetchOfficials();
@@ -458,8 +481,24 @@ export async function getPaginatedNews(
 
     const matchingIds = (roleRows as Array<{ id: number; pejabat: string | null }>)
       .filter((row) => {
-        const primaryRole = getPrimaryRole(parsePejabatValue(row.pejabat), officialMapping);
-        return primaryRole.toLowerCase() === options.role?.trim().toLowerCase();
+        const targetRole = options.role?.trim().toLowerCase() || "";
+        const parsedPejabat = parsePejabatValue(row.pejabat);
+
+        const primaryRole = getPrimaryRole(parsedPejabat, officialMapping);
+        if (primaryRole.toLowerCase() === targetRole) return true;
+
+        for (const p of parsedPejabat) {
+          const name = p.trim();
+          if (name && name !== "Pejabat Lainnya") {
+            const info = getOfficialMapping(name, officialMapping);
+            const jabatan = info?.jabatan || name;
+            if (jabatan.toLowerCase() === targetRole) return true;
+          } else if (name === "Pejabat Lainnya") {
+            if ("pejabat lainnya" === targetRole) return true;
+          }
+        }
+
+        return false;
       })
       .map((row) => row.id);
 
@@ -504,10 +543,9 @@ export async function getPaginatedNews(
 
 export async function getAllNews(limit = 1000): Promise<NewsItem[]> {
   const safeLimit = Math.min(Math.max(limit, 1), 5000);
-  const [rows] = await dbPool.execute(
-    `${NEWS_SELECT} ORDER BY ${DATE_SQL} DESC LIMIT ?`,
-    [safeLimit]
-  );
+  const [rows] = await dbPool.execute(`${NEWS_SELECT} ORDER BY ${DATE_SQL} DESC LIMIT ?`, [
+    safeLimit,
+  ]);
   const mapped = (rows as NewsDbRow[]).map(mapNewsRow);
   return mapped.length > 0 ? mapped : FALLBACK_NEWS.slice(0, safeLimit);
 }
@@ -525,13 +563,18 @@ export async function getNewsSitemapEntries(limit = 50000) {
       [safeLimit]
     );
 
-    return (rows as Array<{ id: number; judul: string; updated_at: string | null; created_at: string | null }>).map(
-      (row) => ({
-        id: String(row.id),
-        judul: row.judul || "",
-        updatedAt: row.updated_at || row.created_at || null,
-      })
-    );
+    return (
+      rows as Array<{
+        id: number;
+        judul: string;
+        updated_at: string | null;
+        created_at: string | null;
+      }>
+    ).map((row) => ({
+      id: String(row.id),
+      judul: row.judul || "",
+      updatedAt: row.updated_at || row.created_at || null,
+    }));
   } catch (err) {
     console.error("getNewsSitemapEntries error:", err);
     return [];
@@ -556,16 +599,16 @@ function buildTrendPoints(
       const label =
         periodType === "monthly"
           ? (() => {
-            const [year, month] = key.split("-").map(Number);
-            const date = new Date(year, (month || 1) - 1, 1);
-            return `${MONTHS_SHORT_ID[date.getMonth()]}`;
-          })()
+              const [year, month] = key.split("-").map(Number);
+              const date = new Date(year, (month || 1) - 1, 1);
+              return `${MONTHS_SHORT_ID[date.getMonth()]}`;
+            })()
           : (() => {
-            const start = new Date(key);
-            const end = new Date(start);
-            end.setDate(end.getDate() + 6);
-            return `${start.getDate()} ${MONTHS_SHORT_ID[start.getMonth()]} - ${end.getDate()} ${MONTHS_SHORT_ID[end.getMonth()]}`;
-          })();
+              const start = new Date(key);
+              const end = new Date(start);
+              end.setDate(end.getDate() + 6);
+              return `${start.getDate()} ${MONTHS_SHORT_ID[start.getMonth()]} - ${end.getDate()} ${MONTHS_SHORT_ID[end.getMonth()]}`;
+            })();
 
       return {
         key,
@@ -579,11 +622,18 @@ function buildTrendPoints(
 }
 
 export async function getDashboardSummary(): Promise<DashboardSummary> {
-  const [statsRows, officials, mediaCounts, officialRoleRows, trendRows, totalUnitsRows] =
-    await Promise.all([
-      dbPool
-        .execute(
-          `
+  const [
+    statsRows,
+    officials,
+    mediaCounts,
+    officialRoleRows,
+    trendRows,
+    totalUnitsRows,
+    weeklyRows,
+  ] = await Promise.all([
+    dbPool
+      .execute(
+        `
             SELECT
               COUNT(*) AS total,
               SUM(CASE WHEN potensi = 'Positif' THEN 1 ELSE 0 END) AS positive,
@@ -591,38 +641,51 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
               SUM(CASE WHEN potensi = 'Negatif' THEN 1 ELSE 0 END) AS negative
             FROM berita
           `
-        )
-        .then(([rows]) => rows as Array<{ total: number; positive: number; neutral: number; negative: number }>)
-        .catch(() => [{ total: 0, positive: 0, neutral: 0, negative: 0 }]),
-      fetchOfficials(),
-      buildMediaMapping(),
-      dbPool
-        .execute(`SELECT pejabat FROM berita`)
-        .then(([rows]) => rows as Array<{ pejabat: string | null }>)
-        .catch(() => []),
-      dbPool
-        .execute(
-          `
+      )
+      .then(
+        ([rows]) =>
+          rows as Array<{ total: number; positive: number; neutral: number; negative: number }>
+      )
+      .catch(() => [{ total: 0, positive: 0, neutral: 0, negative: 0 }]),
+    fetchOfficials(),
+    buildMediaMapping(),
+    dbPool
+      .execute(`SELECT pejabat FROM berita`)
+      .then(([rows]) => rows as Array<{ pejabat: string | null }>)
+      .catch(() => []),
+    dbPool
+      .execute(
+        `
             SELECT media, DATE(${DATE_SQL}) AS bucket_date, COUNT(*) AS total
             FROM berita
             WHERE media IS NOT NULL AND TRIM(media) <> ''
             GROUP BY media, DATE(${DATE_SQL})
             ORDER BY bucket_date ASC
           `
-        )
-        .then(([rows]) => rows as Array<{ media: string; bucket_date: string; total: number }>)
-        .catch(() => []),
-      dbPool
-        .execute(
-          `
+      )
+      .then(([rows]) => rows as Array<{ media: string; bucket_date: string; total: number }>)
+      .catch(() => []),
+    dbPool
+      .execute(
+        `
             SELECT
               (SELECT COUNT(*) FROM unit_kerja) AS totalUnits,
               (SELECT COUNT(*) FROM media) AS totalMedia
           `
-        )
-        .then(([rows]) => rows as Array<{ totalUnits: number; totalMedia: number }>)
-        .catch(() => [{ totalUnits: 0, totalMedia: 0 }]),
-    ]);
+      )
+      .then(([rows]) => rows as Array<{ totalUnits: number; totalMedia: number }>)
+      .catch(() => [{ totalUnits: 0, totalMedia: 0 }]),
+    dbPool
+      .execute(
+        `
+            SELECT pejabat, unit 
+            FROM berita 
+            WHERE COALESCE(tanggal_converted, created_at) >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+          `
+      )
+      .then(([rows]) => rows as Array<{ pejabat: string | null; unit: string | null }>)
+      .catch(() => []),
+  ]);
 
   const officialMapping = buildOfficialMapping(officials);
   const { mediaMapping, mediaLegend } = mediaCounts;
@@ -687,6 +750,46 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     negative: FALLBACK_NEWS.filter((item) => item.potensi === "Negatif").length,
   };
 
+  const weeklyOfficialsMap = new Map<string, number>();
+  const weeklyUnitsMap = new Map<string, number>();
+
+  for (const row of weeklyRows) {
+    if (row.pejabat) {
+      const parsed = parsePejabatValue(row.pejabat);
+      const seenJabatan = new Set<string>();
+      for (const p of parsed) {
+        const name = p.trim();
+        if (name && name !== "Pejabat Lainnya") {
+          const info = getOfficialMapping(name, officialMapping);
+          const jabatan = info?.jabatan || name;
+          if (!seenJabatan.has(jabatan)) {
+            seenJabatan.add(jabatan);
+            weeklyOfficialsMap.set(jabatan, (weeklyOfficialsMap.get(jabatan) || 0) + 1);
+          }
+        } else if (name === "Pejabat Lainnya" && !seenJabatan.has(name)) {
+          seenJabatan.add(name);
+          weeklyOfficialsMap.set(name, (weeklyOfficialsMap.get(name) || 0) + 1);
+        }
+      }
+    }
+    if (row.unit) {
+      const u = row.unit.trim();
+      if (u) {
+        weeklyUnitsMap.set(u, (weeklyUnitsMap.get(u) || 0) + 1);
+      }
+    }
+  }
+
+  const weeklyTopOfficials = Array.from(weeklyOfficialsMap.entries())
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10);
+
+  const weeklyTopUnits = Array.from(weeklyUnitsMap.entries())
+    .map(([name, total]) => ({ name, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10);
+
   return {
     stats: {
       total: hasDbNews ? Number(stats.total || 0) : fallbackStats.total,
@@ -705,5 +808,7 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
     totalOfficials: officials.length,
     totalUnits: Number(totals.totalUnits || 0),
     totalMedia: Number(totals.totalMedia || 0),
+    weeklyTopOfficials,
+    weeklyTopUnits,
   };
 }

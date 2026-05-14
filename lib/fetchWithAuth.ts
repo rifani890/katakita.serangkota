@@ -2,10 +2,7 @@
  * Wrapper around fetch that always includes credentials (cookies)
  * and handles 401 by redirecting to the login page.
  */
-export async function fetchWithAuth(
-  url: string,
-  options: RequestInit = {}
-): Promise<Response> {
+export async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
   const res = await fetch(url, {
     ...options,
     credentials: "include",

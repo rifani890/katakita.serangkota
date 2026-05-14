@@ -1,18 +1,36 @@
 import type { OfficialMapping, MediaMapping, NewsItem } from "@/types";
 
 export const MONTHS_ID = [
-  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ];
 
 export const MONTHS_SHORT_ID = [
-  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sep",
+  "Okt",
+  "Nov",
+  "Des",
 ];
 
-export const DAYS_ID = [
-  "Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu",
-];
+export const DAYS_ID = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
 
 export const OFFICIAL_ROLE_ORDER = [
   "Walikota Serang",
@@ -82,7 +100,10 @@ export function formatDateISO(dateVal: string | number | undefined): string {
 }
 
 export function getSiteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, "");
+  return (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || DEFAULT_SITE_URL).replace(
+    /\/+$/,
+    ""
+  );
 }
 
 export function normMedia(m: string | undefined): string {
@@ -96,7 +117,8 @@ export function normMedia(m: string | undefined): string {
 
 export function getSentimenClass(sentimen: string): string {
   const s = (sentimen || "").toLowerCase().trim();
-  if (s === "positif") return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
+  if (s === "positif")
+    return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
   if (s === "negatif") return "bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400";
   return "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300";
 }
@@ -111,9 +133,12 @@ export function getBorderAccent(potensi: string): string {
 
 export function getCardGradient(potensi: string): string {
   const p = (potensi || "").toLowerCase().trim();
-  if (p === "positif") return "bg-gradient-to-r from-emerald-500/20 via-emerald-500/5 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5";
-  if (p === "negatif") return "bg-gradient-to-r from-rose-500/20 via-rose-500/5 to-transparent dark:from-rose-500/10 dark:via-rose-500/5";
-  if (p === "netral") return "bg-gradient-to-r from-slate-500/20 via-slate-500/5 to-transparent dark:from-slate-500/10 dark:via-slate-500/5";
+  if (p === "positif")
+    return "bg-gradient-to-r from-emerald-500/20 via-emerald-500/5 to-transparent dark:from-emerald-500/10 dark:via-emerald-500/5";
+  if (p === "negatif")
+    return "bg-gradient-to-r from-rose-500/20 via-rose-500/5 to-transparent dark:from-rose-500/10 dark:via-rose-500/5";
+  if (p === "netral")
+    return "bg-gradient-to-r from-slate-500/20 via-slate-500/5 to-transparent dark:from-slate-500/10 dark:via-slate-500/5";
   return "bg-gradient-to-r from-blue-500/20 via-blue-500/5 to-transparent dark:from-blue-500/10 dark:via-blue-500/5";
 }
 
@@ -138,7 +163,11 @@ export function getPrimaryRole(
 }
 
 export function normalizeOfficialRole(role: string | undefined): string {
-  const normalized = (role || "").trim().replace(/^['"]+|['"]+$/g, "").trim().toLowerCase();
+  const normalized = (role || "")
+    .trim()
+    .replace(/^['"]+|['"]+$/g, "")
+    .trim()
+    .toLowerCase();
   const compact = normalized.replace(/\s+/g, "");
   if (!normalized) return "Pejabat Lainnya";
 
@@ -176,7 +205,10 @@ export function slugify(value: string): string {
 }
 
 export function stripHtml(value: string): string {
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  return value
+    .replace(/<[^>]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function truncateText(value: string, maxLength: number): string {
@@ -199,17 +231,31 @@ export function getNewsExcerpt(news: Pick<NewsItem, "isi" | "judul">, maxLength 
 
 export function parsePejabatValue(pejabat: unknown): string[] {
   if (Array.isArray(pejabat)) {
-    return pejabat.map(String).flatMap(s => s.split(',')).map(s => s.trim()).filter(Boolean);
+    return pejabat
+      .map(String)
+      .flatMap((s) => s.split(","))
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   if (typeof pejabat !== "string" || !pejabat.trim()) return [];
   try {
     const parsed = JSON.parse(pejabat);
     if (Array.isArray(parsed)) {
-      return parsed.map(String).flatMap(s => s.split(',')).map(s => s.trim()).filter(Boolean);
+      return parsed
+        .map(String)
+        .flatMap((s) => s.split(","))
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
-    return String(parsed).split(',').map(s => s.trim()).filter(Boolean);
+    return String(parsed)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   } catch {
-    return pejabat.split(',').map(s => s.trim()).filter(Boolean);
+    return pejabat
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
 }
 
@@ -225,7 +271,10 @@ export function getOfficialMapping(
 
   const lowerClean = cleanName.toLowerCase();
   for (const [key, val] of Object.entries(officialMapping)) {
-    const cleanKey = key.trim().replace(/^['"]+|['"]+$/g, "").toLowerCase();
+    const cleanKey = key
+      .trim()
+      .replace(/^['"]+|['"]+$/g, "")
+      .toLowerCase();
     if (cleanKey === lowerClean) return val;
   }
   return null;
@@ -262,16 +311,14 @@ export function buildDefaultMediaMapping(): MediaMapping {
 export function searchNews(news: NewsItem[], query: string): NewsItem[] {
   const q = query.toLowerCase();
   if (!q) return news;
-  return news.filter((n) =>
-    (n.judul || "").toLowerCase().includes(q) ||
-    (n.media || "").toLowerCase().includes(q) ||
-    (n.potensi || "").toLowerCase().includes(q) ||
-    (n.tanggal || "").toLowerCase().includes(q) ||
-    (n.unit || "").toLowerCase().includes(q) ||
-    (n.userEmail || "").toLowerCase().includes(q) ||
-    (Array.isArray(n.pejabat)
-      ? n.pejabat.join(" ")
-      : n.pejabat || ""
-    ).toLowerCase().includes(q)
+  return news.filter(
+    (n) =>
+      (n.judul || "").toLowerCase().includes(q) ||
+      (n.media || "").toLowerCase().includes(q) ||
+      (n.potensi || "").toLowerCase().includes(q) ||
+      (n.tanggal || "").toLowerCase().includes(q) ||
+      (n.unit || "").toLowerCase().includes(q) ||
+      (n.userEmail || "").toLowerCase().includes(q) ||
+      (Array.isArray(n.pejabat) ? n.pejabat.join(" ") : n.pejabat || "").toLowerCase().includes(q)
   );
 }

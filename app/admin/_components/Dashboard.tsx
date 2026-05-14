@@ -3,8 +3,9 @@
 import { BarChart2, Building2, Newspaper, TrendingUp, User } from "lucide-react";
 import Link from "next/link";
 import { useDashboardSummary } from "@/lib/useDashboardSummary";
-import OfficialChart from "@/components/OfficialChart";
-import TrendChart from "@/components/TrendChart";
+import GrafikPejabat from "@/components/GrafikPejabat";
+import GrafikMedia from "@/components/GrafikMedia";
+import GrafikMingguan from "@/components/GrafikMingguan";
 
 export default function Dashboard() {
   const {
@@ -15,21 +16,37 @@ export default function Dashboard() {
     officialCounts,
     trend,
     mediaLegend,
+    weeklyTopOfficials,
     loading,
   } = useDashboardSummary();
 
   const cards = [
-    { label: "Total Berita", value: stats.total, icon: Newspaper, color: "blue", href: "/admin/berita" },
+    {
+      label: "Total Berita",
+      value: stats.total,
+      icon: Newspaper,
+      color: "blue",
+      href: "/admin/berita",
+    },
     { label: "Pejabat", value: totalOfficials, icon: User, color: "amber", href: "/admin/pejabat" },
-    { label: "Unit Kerja", value: totalUnits, icon: Building2, color: "emerald", href: "/admin/unit" },
+    {
+      label: "Unit Kerja",
+      value: totalUnits,
+      icon: Building2,
+      color: "emerald",
+      href: "/admin/unit",
+    },
     { label: "Media", value: totalMedia, icon: TrendingUp, color: "indigo", href: "/admin/berita" },
   ];
 
   const colorMap: Record<string, string> = {
     blue: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800",
-    amber: "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-    emerald: "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
-    indigo: "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800",
+    amber:
+      "bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+    emerald:
+      "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800",
+    indigo:
+      "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800",
   };
 
   return (
@@ -61,26 +78,30 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-          <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
-            <User size={18} className="text-blue-500" />
-            Proporsi Pejabat
-          </h4>
-          <OfficialChart roleCounts={officialCounts} onOfficialClick={() => {}} />
-        </div>
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6">
-          <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
-            <TrendingUp size={18} className="text-indigo-500" />
-            Tren Publikasi Media
-          </h4>
-          <TrendChart
-            weeklyPoints={trend.weekly}
-            monthlyPoints={trend.monthly}
-            mediaLegend={mediaLegend}
-            onMediaTrendClick={() => {}}
-            onFilterByMedia={() => {}}
-          />
+      <div className="space-y-8">
+        <GrafikMingguan topOfficials={weeklyTopOfficials} />
+
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6 transition-all duration-500 hover:shadow-xl backdrop-blur-xl">
+            <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+              <User size={18} className="text-blue-500" />
+              Proporsi Pejabat
+            </h4>
+            <GrafikPejabat roleCounts={officialCounts} onOfficialClick={() => {}} />
+          </div>
+          <div className="bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6 transition-all duration-500 hover:shadow-xl backdrop-blur-xl">
+            <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2 mb-4">
+              <TrendingUp size={18} className="text-indigo-500" />
+              Tren Publikasi Media
+            </h4>
+            <GrafikMedia
+              weeklyPoints={trend.weekly}
+              monthlyPoints={trend.monthly}
+              mediaLegend={mediaLegend}
+              onMediaTrendClick={() => {}}
+              onFilterByMedia={() => {}}
+            />
+          </div>
         </div>
       </div>
 
@@ -93,7 +114,9 @@ export default function Dashboard() {
             <Newspaper className="text-indigo-500" size={22} />
           </div>
           <div>
-            <div className="font-bold text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">Kelola Berita</div>
+            <div className="font-bold text-slate-800 dark:text-white group-hover:text-indigo-600 transition-colors">
+              Kelola Berita
+            </div>
             <div className="text-xs text-slate-400">Tambah, edit, hapus berita</div>
           </div>
         </Link>
@@ -105,7 +128,9 @@ export default function Dashboard() {
             <User className="text-amber-500" size={22} />
           </div>
           <div>
-            <div className="font-bold text-slate-800 dark:text-white group-hover:text-amber-600 transition-colors">Nama Pejabat</div>
+            <div className="font-bold text-slate-800 dark:text-white group-hover:text-amber-600 transition-colors">
+              Nama Pejabat
+            </div>
             <div className="text-xs text-slate-400">Master data pejabat</div>
           </div>
         </Link>
@@ -117,7 +142,9 @@ export default function Dashboard() {
             <Building2 className="text-emerald-500" size={22} />
           </div>
           <div>
-            <div className="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 transition-colors">Unit Kerja</div>
+            <div className="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 transition-colors">
+              Unit Kerja
+            </div>
             <div className="text-xs text-slate-400">Kelola unit kerja</div>
           </div>
         </Link>

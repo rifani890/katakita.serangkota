@@ -68,18 +68,12 @@ if (process.env.NODE_ENV !== "production") {
   globalForDb.dbPool = dbPool;
 }
 
-export async function queryRows<T>(
-  sql: string,
-  params: unknown[] = []
-): Promise<T[]> {
+export async function queryRows<T>(sql: string, params: unknown[] = []): Promise<T[]> {
   const [rows] = await dbPool.execute(sql, params as any[]);
   return rows as T[];
 }
 
-export async function queryFirst<T>(
-  sql: string,
-  params: unknown[] = []
-): Promise<T | null> {
+export async function queryFirst<T>(sql: string, params: unknown[] = []): Promise<T | null> {
   const rows = await queryRows<T>(sql, params);
   return rows[0] ?? null;
 }

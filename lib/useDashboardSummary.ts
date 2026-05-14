@@ -21,6 +21,8 @@ const EMPTY_SUMMARY: DashboardSummary = {
   totalOfficials: 0,
   totalUnits: 0,
   totalMedia: 0,
+  weeklyTopOfficials: [],
+  weeklyTopUnits: [],
 };
 
 export function useDashboardSummary() {

@@ -6,15 +6,12 @@ import { initChart } from "@/lib/chart";
 import { getOfficialRolePriority } from "@/lib/utils";
 import { useTheme } from "@/lib/useTheme";
 
-interface OfficialChartProps {
+interface GrafikPejabatProps {
   roleCounts: OfficialCountItem[];
   onOfficialClick: (roleName: string) => void;
 }
 
-export default function OfficialChart({
-  roleCounts,
-  onOfficialClick,
-}: OfficialChartProps) {
+export default function GrafikPejabat({ roleCounts, onOfficialClick }: GrafikPejabatProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<any>(null);
   const [mounted, setMounted] = useState(false);
@@ -164,7 +161,6 @@ export default function OfficialChart({
 
   return (
     <div className="group relative overflow-hidden bg-white dark:bg-slate-800/60 rounded-[1.5rem] shadow-sm border border-slate-200/80 dark:border-slate-700/80 p-5 sm:p-6 space-y-6 flex flex-col items-start sm:items-stretch transition-all duration-500 hover:shadow-xl hover:shadow-slate-300/50 dark:hover:shadow-black/50 backdrop-blur-xl">
-      
       {/* Decorative Background Glow */}
       <div className="absolute -top-16 -right-16 w-48 h-48 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none transition-opacity duration-500 group-hover:opacity-100"></div>
 

@@ -89,10 +89,10 @@ export function useAuth(): AuthState {
       if (savedTheme) localStorage.setItem("theme", savedTheme);
 
       // Clear browser caches automatically
-      if ('caches' in window) {
+      if ("caches" in window) {
         try {
           const cacheNames = await caches.keys();
-          await Promise.all(cacheNames.map(name => caches.delete(name)));
+          await Promise.all(cacheNames.map((name) => caches.delete(name)));
         } catch (e) {
           console.error("Failed to clear cache:", e);
         }
@@ -136,7 +136,7 @@ export function useAuth(): AuthState {
 
         const data = await res.json();
         const nextUser = data.user as AuthUser | null;
-        
+
         if (!nextUser) {
           applyUser(null);
           emitAuthChanged(null);
@@ -246,9 +246,7 @@ export function useAuth(): AuthState {
 
     return () => {
       window.clearInterval(interval);
-      activityEvents.forEach((eventName) =>
-        window.removeEventListener(eventName, updateActivity)
-      );
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, updateActivity));
       window.removeEventListener("storage", handleStorageSync);
       window.removeEventListener(AUTH_EVENT_NAME, handleAuthSync);
       window.removeEventListener("focus", handleVisibilityChange);

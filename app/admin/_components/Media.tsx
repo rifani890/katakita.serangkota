@@ -67,15 +67,22 @@ export default function Media() {
   };
 
   const handleSave = () => {
-    if (!formNama.trim()) { alert("Nama media wajib diisi."); return; }
+    if (!formNama.trim()) {
+      alert("Nama media wajib diisi.");
+      return;
+    }
     const action = activeKey ? "memperbarui" : "menambahkan";
-    
+
     askConfirm("Konfirmasi", `Apakah Anda yakin ingin ${action} media ini?`, "info", async () => {
       setConfirmOpen(false);
       setSavingText("Menyimpan...");
       setSaving(true);
       try {
-        const payload = { nama: formNama.trim(), shorthand: formShorthand.trim(), color: formColor.trim() };
+        const payload = {
+          nama: formNama.trim(),
+          shorthand: formShorthand.trim(),
+          color: formColor.trim(),
+        };
         const res = await fetchWithAuth("/api/media", {
           method: activeKey ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
@@ -149,7 +156,9 @@ export default function Media() {
             />
           </div>
           <div>
-            <label className="block text-xs font-black text-slate-400 tracking-widest mb-2">Shorthand / Singkatan</label>
+            <label className="block text-xs font-black text-slate-400 tracking-widest mb-2">
+              Shorthand / Singkatan
+            </label>
             <input
               type="text"
               value={formShorthand}
@@ -159,7 +168,9 @@ export default function Media() {
             />
           </div>
           <div>
-            <label className="block text-xs font-black text-slate-400 tracking-widest mb-2">Warna Kustom</label>
+            <label className="block text-xs font-black text-slate-400 tracking-widest mb-2">
+              Warna Kustom
+            </label>
             <div className="flex items-center gap-3">
               <input
                 type="color"
@@ -221,46 +232,58 @@ export default function Media() {
             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-slate-400">Memuat data...</td>
+                  <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                    Memuat data...
+                  </td>
                 </tr>
               ) : data.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-slate-400">Belum ada data media.</td>
+                  <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                    Belum ada data media.
+                  </td>
                 </tr>
               ) : (
                 data.map((m, i) => {
                   const nama = m.nama || m.name || "";
                   return (
-                  <tr key={m.key} className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td className="px-6 py-4 text-center text-slate-500 text-sm">{i + 1}</td>
-                    <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
+                    <tr
+                      key={m.key}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-center text-slate-500 text-sm">{i + 1}</td>
+                      <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
                         <div className="flex items-center gap-2">
-                            {m.color && (
-                                <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: m.color }} />
-                            )}
-                            {nama}
+                          {m.color && (
+                            <div
+                              className="w-3 h-3 rounded-full shadow-sm"
+                              style={{ backgroundColor: m.color }}
+                            />
+                          )}
+                          {nama}
                         </div>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 text-sm">{m.shorthand || "-"}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => openModal(m.key)}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 transition-all"
-                          title="Edit"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(m.key, nama)}
-                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-900/30 dark:text-rose-400 transition-all"
-                          title="Hapus"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 dark:text-slate-300 text-sm">
+                        {m.shorthand || "-"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            onClick={() => openModal(m.key)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 transition-all"
+                            title="Edit"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(m.key, nama)}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-900/30 dark:text-rose-400 transition-all"
+                            title="Hapus"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
                   );
                 })
               )}
@@ -281,27 +304,42 @@ export default function Media() {
             data.map((m, i) => {
               const nama = m.nama || m.name || "";
               return (
-              <div key={m.key} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-3">
-                <div className="flex justify-between items-start gap-4">
-                  <div>
-                    <span className="text-xs font-bold text-slate-400 mb-1 block">#{i + 1}</span>
-                    <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                        {m.color && <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: m.color }} />}
+                <div
+                  key={m.key}
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 space-y-3"
+                >
+                  <div className="flex justify-between items-start gap-4">
+                    <div>
+                      <span className="text-xs font-bold text-slate-400 mb-1 block">#{i + 1}</span>
+                      <h4 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        {m.color && (
+                          <div
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{ backgroundColor: m.color }}
+                          />
+                        )}
                         {nama}
-                    </h4>
-                    {m.shorthand && <p className="text-sm text-slate-500 mt-1">{m.shorthand}</p>}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => openModal(m.key)} className="p-2 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                      <Pencil size={14} />
-                    </button>
-                    <button onClick={() => handleDelete(m.key, nama)} className="p-2 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
-                      <Trash2 size={14} />
-                    </button>
+                      </h4>
+                      {m.shorthand && <p className="text-sm text-slate-500 mt-1">{m.shorthand}</p>}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => openModal(m.key)}
+                        className="p-2 rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(m.key, nama)}
+                        className="p-2 rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )})
+              );
+            })
           )}
         </div>
       </div>

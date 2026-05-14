@@ -61,7 +61,10 @@ export function ConfirmDialog({
   const isDelete = type === "delete";
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9990] flex flex-col items-center justify-center px-4" onClick={onCancel}>
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[9990] flex flex-col items-center justify-center px-4"
+      onClick={onCancel}
+    >
       <div
         ref={contentRef}
         onClick={(e) => e.stopPropagation()}
@@ -75,7 +78,11 @@ export function ConfirmDialog({
                 : "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400"
             }`}
           >
-            {isDelete ? <Trash2 size={32} className="animate-bounce" /> : <CheckCircle size={32} className="animate-bounce" />}
+            {isDelete ? (
+              <Trash2 size={32} className="animate-bounce" />
+            ) : (
+              <CheckCircle size={32} className="animate-bounce" />
+            )}
           </div>
           <div>
             <h3 className="text-2xl font-black text-slate-800 dark:text-white">{title}</h3>
@@ -115,11 +122,24 @@ interface ModalProps {
   maxWidth?: string;
 }
 
-export function Modal({ show, onClose, title, titleIcon, children, maxWidth = "max-w-4xl" }: ModalProps) {
+export function Modal({
+  show,
+  onClose,
+  title,
+  titleIcon,
+  children,
+  maxWidth = "max-w-4xl",
+}: ModalProps) {
   if (!show) return null;
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-start justify-center py-10" onClick={onClose}>
-      <div className={`bg-white dark:bg-slate-800 w-full ${maxWidth} rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 relative`} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-[60] bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-start justify-center py-10"
+      onClick={onClose}
+    >
+      <div
+        className={`bg-white dark:bg-slate-800 w-full ${maxWidth} rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 relative`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50 rounded-t-3xl">
           <h3 className="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-3">
             {titleIcon}

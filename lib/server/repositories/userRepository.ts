@@ -81,17 +81,22 @@ export async function updateUser(input: {
     );
   }
 
-  return executeStatement(
-    "UPDATE users SET email = ?, name = ?, role = ? WHERE id = ?",
-    [input.email.trim(), input.nama?.trim() || "", input.role, input.id]
-  );
+  return executeStatement("UPDATE users SET email = ?, name = ?, role = ? WHERE id = ?", [
+    input.email.trim(),
+    input.nama?.trim() || "",
+    input.role,
+    input.id,
+  ]);
 }
 
 export async function deleteUser(id: string | number) {
   return executeStatement("DELETE FROM users WHERE id = ?", [id]);
 }
 
-export async function verifyUserPassword(email: string, password: string): Promise<UserRecord | null> {
+export async function verifyUserPassword(
+  email: string,
+  password: string
+): Promise<UserRecord | null> {
   const user = await findUserByEmail(email);
   if (!user) return null;
 

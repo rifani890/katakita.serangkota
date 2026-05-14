@@ -6,6 +6,7 @@ export interface NewsItem {
   media: string;
   mNorm: string;
   pejabat: string | string[];
+  tokoh?: string | string[];
   potensi: "Positif" | "Netral" | "Negatif" | string;
   tanggal: string;
   tanggal_raw: string | number;
@@ -41,6 +42,13 @@ export interface OfficialItem {
   role?: string;
   color?: string;
   priority?: number;
+}
+
+export interface TokohItem {
+  id?: string | number;
+  nama: string;
+  jenis_kelamin?: string;
+  jabatan?: string;
 }
 
 export interface MediaItem {
@@ -90,6 +98,11 @@ export interface TrendPoint {
   counts: Record<string, number>;
 }
 
+export interface TopEntityCount {
+  name: string;
+  total: number;
+}
+
 export interface DashboardSummary {
   stats: {
     total: number;
@@ -102,6 +115,8 @@ export interface DashboardSummary {
     weekly: TrendPoint[];
     monthly: TrendPoint[];
   };
+  weeklyTopOfficials: TopEntityCount[];
+  weeklyTopUnits: TopEntityCount[];
   officialMapping: OfficialMapping;
   mediaMapping: MediaMapping;
   mediaLegend: TrendLegendItem[];
@@ -110,4 +125,4 @@ export interface DashboardSummary {
   totalMedia: number;
 }
 
-export * from './db';
+export * from "./db";

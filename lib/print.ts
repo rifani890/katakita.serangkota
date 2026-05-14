@@ -2,11 +2,20 @@ import type { NewsItem } from "@/types";
 import { formatDate } from "@/lib/utils";
 
 export function printNews(news: NewsItem): void {
-  const displayPejabat = Array.isArray(news.pejabat)
-    ? news.pejabat.join(", ")
-    : news.pejabat || "-";
   const displayUnit = news.unit || "-";
   const fullDateStr = formatDate(news.tanggal_raw);
+
+  const pejabatList: string[] = Array.isArray(news.pejabat)
+    ? news.pejabat
+    : news.pejabat
+      ? [news.pejabat]
+      : [];
+
+  const tokohList: string[] = Array.isArray(news.tokoh)
+    ? news.tokoh
+    : news.tokoh
+      ? [news.tokoh]
+      : [];
 
   const printWindow = window.open("", "_blank");
   if (!printWindow) {
@@ -25,8 +34,12 @@ export function printNews(news: NewsItem): void {
           .top-header { text-align: center; font-size: 26px; font-weight: 800; font-family: 'Montserrat', sans-serif; margin-bottom: 12px; color: #000; }
           hr.thick { border: none; border-bottom: 3px solid #0f172a; margin-bottom: 25px; }
           .title { font-size: 22px; font-weight: 800; font-family: 'Montserrat', sans-serif; color: #000; margin-bottom: 12px; line-height: 1.4; }
-          .meta-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; color: #334155; margin-bottom: 25px; flex-wrap: wrap; }
+          .meta-row { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; color: #334155; margin-bottom: 10px; flex-wrap: wrap; }
           .meta-divider { color: #cbd5e1; margin: 0 4px; }
+          .tags-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+          .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+          .badge-pejabat { background: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; }
+          .badge-tokoh { background: #ffedd5; color: #9a3412; border: 1px solid #fdba74; }
           .content { white-space: pre-wrap; font-size: 14px; text-align: justify; line-height: 1.8; color: #1e293b; }
           @page { size: A4; margin: 20mm; }
           @media print { body { padding: 0; } }
@@ -41,18 +54,20 @@ export function printNews(news: NewsItem): void {
           <span class="meta-divider">|</span>
           <i class="fas fa-desktop"></i> ${news.media}
           <span class="meta-divider">|</span>
-          <i class="fas fa-user"></i> ${displayPejabat}
-          <span class="meta-divider">|</span>
           Unit: ${displayUnit}
           <span class="meta-divider">|</span>
           Potensi: ${news.potensi || "Netral"}
+        </div>
+        <div class="tags-row">
+          ${pejabatList.map((p) => `<span class="badge badge-pejabat"><i class="fas fa-user" style="font-size:9px;color:#3b82f6;"></i> ${p}</span>`).join("")}
+          ${tokohList.map((t) => `<span class="badge badge-tokoh"><i class="fas fa-user" style="font-size:9px;color:#f97316;"></i> ${t}</span>`).join("")}
         </div>
         <div class="content">${news.isi}</div>
         <script>
           window.onload = function() {
             setTimeout(() => { window.print(); }, 800);
           };
-        <\/script>
+        </script>
       </body>
     </html>
   `);

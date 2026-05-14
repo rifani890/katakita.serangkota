@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import DashboardClient from "@/components/DashboardClient";
+import Home from "@/components/Home";
 
 export const metadata: Metadata = {
   title: "Dashboard Monitoring Berita Kota Serang",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <DashboardClient />;
+  return <Home />;
 }

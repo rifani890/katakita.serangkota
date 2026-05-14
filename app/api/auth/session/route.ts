@@ -20,11 +20,7 @@ export async function GET() {
 
     const refreshedToken = await createSessionToken(user);
     const response = NextResponse.json({ user });
-    response.cookies.set(
-      getSessionCookieName(),
-      refreshedToken,
-      getSessionCookieOptions()
-    );
+    response.cookies.set(getSessionCookieName(), refreshedToken, getSessionCookieOptions());
 
     return response;
   } catch (err) {

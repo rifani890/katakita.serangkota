@@ -13,10 +13,7 @@ interface SessionPayload extends SessionUser {
 }
 
 function toBase64Url(input: string): string {
-  return btoa(input)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+  return btoa(input).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function fromBase64Url(input: string): string {
@@ -31,10 +28,7 @@ function bytesToBase64Url(bytes: Uint8Array): string {
     binary += String.fromCharCode(bytes[index]);
   }
 
-  return btoa(binary)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 
 function getAuthSecret(): string {
@@ -53,11 +47,7 @@ async function importSecretKey() {
 
 async function signValue(value: string): Promise<string> {
   const key = await importSecretKey();
-  const signatureBuffer = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(value)
-  );
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(value));
 
   return bytesToBase64Url(new Uint8Array(signatureBuffer));
 }
@@ -74,7 +64,9 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
   return `${encodedPayload}.${signature}`;
 }
 
-export async function verifySessionToken(token: string | undefined | null): Promise<SessionUser | null> {
+export async function verifySessionToken(
+  token: string | undefined | null
+): Promise<SessionUser | null> {
   if (!token) return null;
 
   const [payloadPart, signaturePart] = token.split(".");

@@ -41,10 +41,11 @@ export async function createMedia(input: {
   shorthand?: string | null;
   color?: string | null;
 }) {
-  return executeStatement(
-    "INSERT INTO media (nama, shorthand, color) VALUES (?, ?, ?)",
-    [input.nama.trim(), input.shorthand?.trim() || null, input.color || null]
-  );
+  return executeStatement("INSERT INTO media (nama, shorthand, color) VALUES (?, ?, ?)", [
+    input.nama.trim(),
+    input.shorthand?.trim() || null,
+    input.color || null,
+  ]);
 }
 
 export async function updateMedia(input: {
@@ -53,10 +54,12 @@ export async function updateMedia(input: {
   shorthand?: string | null;
   color?: string | null;
 }) {
-  return executeStatement(
-    "UPDATE media SET nama = ?, shorthand = ?, color = ? WHERE id = ?",
-    [input.nama.trim(), input.shorthand?.trim() || null, input.color || null, input.id]
-  );
+  return executeStatement("UPDATE media SET nama = ?, shorthand = ?, color = ? WHERE id = ?", [
+    input.nama.trim(),
+    input.shorthand?.trim() || null,
+    input.color || null,
+    input.id,
+  ]);
 }
 
 export async function deleteMedia(id: string | number) {
@@ -64,9 +67,7 @@ export async function deleteMedia(id: string | number) {
 }
 
 export async function listUnits(): Promise<UnitItem[]> {
-  const rows = await queryRows<UnitRow>(
-    "SELECT id, nama FROM unit_kerja ORDER BY nama ASC"
-  );
+  const rows = await queryRows<UnitRow>("SELECT id, nama FROM unit_kerja ORDER BY nama ASC");
 
   return rows.map((row) => ({
     key: String(row.id),
@@ -106,8 +107,7 @@ export async function listOfficials(): Promise<OfficialItem[]> {
       priority: getOfficialRolePriority(normalizeOfficialRole(row.jabatan ?? undefined)),
     }))
     .sort((a, b) => {
-      const priorityDiff =
-        getOfficialRolePriority(a.jabatan) - getOfficialRolePriority(b.jabatan);
+      const priorityDiff = getOfficialRolePriority(a.jabatan) - getOfficialRolePriority(b.jabatan);
       if (priorityDiff !== 0) return priorityDiff;
       return (a.nama || "").localeCompare(b.nama || "");
     });
@@ -118,10 +118,11 @@ export async function createOfficial(input: {
   jabatan?: string | null;
   color?: string | null;
 }) {
-  return executeStatement(
-    "INSERT INTO pejabat (nama, jabatan, color) VALUES (?, ?, ?)",
-    [input.nama.trim(), input.jabatan?.trim() || null, input.color || null]
-  );
+  return executeStatement("INSERT INTO pejabat (nama, jabatan, color) VALUES (?, ?, ?)", [
+    input.nama.trim(),
+    input.jabatan?.trim() || null,
+    input.color || null,
+  ]);
 }
 
 export async function updateOfficial(input: {
@@ -130,10 +131,12 @@ export async function updateOfficial(input: {
   jabatan?: string | null;
   color?: string | null;
 }) {
-  return executeStatement(
-    "UPDATE pejabat SET nama = ?, jabatan = ?, color = ? WHERE id = ?",
-    [input.nama.trim(), input.jabatan?.trim() || null, input.color || null, input.id]
-  );
+  return executeStatement("UPDATE pejabat SET nama = ?, jabatan = ?, color = ? WHERE id = ?", [
+    input.nama.trim(),
+    input.jabatan?.trim() || null,
+    input.color || null,
+    input.id,
+  ]);
 }
 
 export async function deleteOfficial(id: string | number) {
