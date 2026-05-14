@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: "%s | KataKita Kota Serang",
   },
   description:
-    "Dashboard pemantauan berita Kota Serang dengan visualisasi statistik, tren media, dan halaman berita yang ramah SEO.",
+    "Aplikasi pemantauan berita Kota Serang dengan visualisasi statistik, tren media, dan halaman berita yang ramah.",
   keywords: [
     "KataKita",
     "Kota Serang",
@@ -39,14 +39,14 @@ export const metadata: Metadata = {
     url: "/",
     title: "KataKita Kota Serang",
     description:
-      "Dashboard pemantauan berita Kota Serang dengan visualisasi statistik, tren media, dan halaman berita yang ramah SEO.",
+      "Aplikasi pemantauan berita Kota Serang dengan visualisasi statistik, tren media, dan halaman berita yang ramah.",
     siteName: "KataKita Kota Serang",
   },
   twitter: {
     card: "summary_large_image",
     title: "KataKita Kota Serang",
     description:
-      "Dashboard pemantauan berita Kota Serang dengan visualisasi statistik, tren media, dan halaman berita yang ramah SEO.",
+      "Aplikasi pemantauan berita Kota Serang dengan visualisasi statistik, tren media, dan halaman berita yang ramah.",
   },
   robots: {
     index: true,
