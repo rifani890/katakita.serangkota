@@ -70,11 +70,7 @@ export default function Navbar({ onHomeClick }: NavbarProps = {}) {
               }}
             >
               <div className="w-10 h-10 overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
-                <img
-                  src="/logo.png"
-                  alt="Logo KataKita"
-                  className="w-10 h-10 object-contain"
-                />
+                <img src="/logo.png" alt="Logo KataKita" className="w-10 h-10 object-contain" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent leading-none">

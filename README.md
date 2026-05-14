@@ -2,7 +2,8 @@
 
 Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dibangun dengan **Next.js 14**, **Tailwind CSS**, dan **MySQL**. Dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara _real-time_.
 
-> **Status:** ✅ Lulus Pengujian Penuh (23/23) — Siap Produksi  
+> **Status:** ✅ Lulus Pengujian Penuh (23/23) — Siap Produksi
+
 ---
 
 ## ✨ Fitur Utama
@@ -20,7 +21,6 @@ Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dib
 | 🌙 **Dark Mode**                       | Toggle tema gelap/terang                                                                       |
 | 📱 **Responsif**                       | Adaptif untuk Desktop, Tablet, dan Mobile (backdrop overlay menu)                              |
 | ⬅️ **Navigasi Back/Forward**           | Tombol back/forward browser mempertahankan halaman & scroll position                           |
-
 
 ---
 

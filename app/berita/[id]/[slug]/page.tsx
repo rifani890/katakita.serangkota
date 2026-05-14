@@ -103,7 +103,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      
+
       <Navbar />
 
       <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-24 pb-12">
