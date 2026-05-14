@@ -23,13 +23,13 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { nama } = body;
+    const { nama, pimpinan } = body;
 
     if (!nama || !nama.trim()) {
       return NextResponse.json({ error: "Nama unit tidak boleh kosong" }, { status: 400 });
     }
 
-    await createUnit(nama);
+    await createUnit(nama, pimpinan);
     return NextResponse.json({ message: "Unit berhasil ditambahkan" });
   } catch (err: any) {
     console.error("/api/unit POST error:", err);
@@ -46,13 +46,13 @@ export async function PUT(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, nama } = body;
+    const { id, nama, pimpinan } = body;
 
     if (!id || !nama || !nama.trim()) {
       return NextResponse.json({ error: "ID dan nama harus diisi" }, { status: 400 });
     }
 
-    await updateUnit(id, nama);
+    await updateUnit(id, nama, pimpinan);
     return NextResponse.json({ message: "Unit berhasil diupdate" });
   } catch (err: any) {
     console.error("/api/unit PUT error:", err);

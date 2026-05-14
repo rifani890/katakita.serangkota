@@ -12,6 +12,7 @@ import {
 } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import DOMPurify from "isomorphic-dompurify";
+import Navbar from "@/components/Navbar";
 
 interface NewsDetailPageProps {
   params: {
@@ -97,13 +98,15 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-dark-bg text-slate-900 dark:text-dark-text">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
+      
+      <Navbar />
 
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 pt-24 pb-12">
         <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-slate-200 bg-slate-50 px-5 sm:px-8 py-4">
             <Link
@@ -151,12 +154,12 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             </div>
 
             <div
-              className="prose prose-slate max-w-none text-sm sm:text-base leading-relaxed"
+              className="prose prose-slate max-w-none text-sm sm:text-base leading-relaxed text-justify whitespace-pre-line prose-p:mb-5"
               dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(news.isi || "") }}
             />
           </article>
         </div>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

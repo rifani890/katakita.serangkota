@@ -760,7 +760,7 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
                     role="textbox"
                     aria-multiline="true"
                     data-placeholder="Mulai tulis isi berita di sini..."
-                    className="w-full min-h-[400px] bg-white px-4 py-4 outline-none text-slate-900 leading-relaxed resize-y prose max-w-full"
+                    className="w-full min-h-[400px] max-h-[600px] overflow-y-auto bg-white px-4 py-4 outline-none text-slate-900 leading-relaxed resize-y prose max-w-full"
                   />
                 </div>
               </div>

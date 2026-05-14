@@ -12,12 +12,14 @@ interface MediaRow {
 interface UnitRow {
   id: number;
   nama: string;
+  pimpinan: string | null;
 }
 
 interface OfficialRow {
   id: number;
   nama: string;
   jabatan: string | null;
+  jenis_kelamin: string | null;
   color: string | null;
 }
 
@@ -67,22 +69,30 @@ export async function deleteMedia(id: string | number) {
 }
 
 export async function listUnits(): Promise<UnitItem[]> {
-  const rows = await queryRows<UnitRow>("SELECT id, nama FROM unit_kerja ORDER BY nama ASC");
+  const rows = await queryRows<UnitRow>("SELECT id, nama, pimpinan FROM unit_kerja ORDER BY nama ASC");
 
   return rows.map((row) => ({
     key: String(row.id),
     id: row.id,
     unit: row.nama,
     nama: row.nama,
+    pimpinan: row.pimpinan ?? undefined,
   }));
 }
 
-export async function createUnit(nama: string) {
-  return executeStatement("INSERT INTO unit_kerja (nama) VALUES (?)", [nama.trim()]);
+export async function createUnit(nama: string, pimpinan?: string | null) {
+  return executeStatement("INSERT INTO unit_kerja (nama, pimpinan) VALUES (?, ?)", [
+    nama.trim(),
+    pimpinan?.trim() || null,
+  ]);
 }
 
-export async function updateUnit(id: string | number, nama: string) {
-  return executeStatement("UPDATE unit_kerja SET nama = ? WHERE id = ?", [nama.trim(), id]);
+export async function updateUnit(id: string | number, nama: string, pimpinan?: string | null) {
+  return executeStatement("UPDATE unit_kerja SET nama = ?, pimpinan = ? WHERE id = ?", [
+    nama.trim(),
+    pimpinan?.trim() || null,
+    id,
+  ]);
 }
 
 export async function deleteUnit(id: string | number) {
@@ -91,7 +101,7 @@ export async function deleteUnit(id: string | number) {
 
 export async function listOfficials(): Promise<OfficialItem[]> {
   const rows = await queryRows<OfficialRow>(
-    "SELECT id, nama, jabatan, color FROM pejabat ORDER BY nama ASC"
+    "SELECT id, nama, jabatan, jenis_kelamin, color FROM pejabat ORDER BY nama ASC"
   );
 
   return rows
@@ -103,6 +113,7 @@ export async function listOfficials(): Promise<OfficialItem[]> {
       nama_pejabat: row.nama,
       jabatan: row.jabatan ?? undefined,
       role: row.jabatan ?? undefined,
+      jenis_kelamin: row.jenis_kelamin ?? undefined,
       color: row.color ?? undefined,
       priority: getOfficialRolePriority(normalizeOfficialRole(row.jabatan ?? undefined)),
     }))
@@ -116,11 +127,13 @@ export async function listOfficials(): Promise<OfficialItem[]> {
 export async function createOfficial(input: {
   nama: string;
   jabatan?: string | null;
+  jenis_kelamin?: string | null;
   color?: string | null;
 }) {
-  return executeStatement("INSERT INTO pejabat (nama, jabatan, color) VALUES (?, ?, ?)", [
+  return executeStatement("INSERT INTO pejabat (nama, jabatan, jenis_kelamin, color) VALUES (?, ?, ?, ?)", [
     input.nama.trim(),
     input.jabatan?.trim() || null,
+    input.jenis_kelamin?.trim() || null,
     input.color || null,
   ]);
 }
@@ -129,11 +142,13 @@ export async function updateOfficial(input: {
   id: string | number;
   nama: string;
   jabatan?: string | null;
+  jenis_kelamin?: string | null;
   color?: string | null;
 }) {
-  return executeStatement("UPDATE pejabat SET nama = ?, jabatan = ?, color = ? WHERE id = ?", [
+  return executeStatement("UPDATE pejabat SET nama = ?, jabatan = ?, jenis_kelamin = ?, color = ? WHERE id = ?", [
     input.nama.trim(),
     input.jabatan?.trim() || null,
+    input.jenis_kelamin?.trim() || null,
     input.color || null,
     input.id,
   ]);

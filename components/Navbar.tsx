@@ -19,7 +19,11 @@ import { useTheme } from "@/lib/useTheme";
 import { useAuth } from "@/lib/useAuth";
 import Login from "./Login";
 
-export default function Navbar() {
+interface NavbarProps {
+  onHomeClick?: () => void;
+}
+
+export default function Navbar({ onHomeClick }: NavbarProps = {}) {
   const { isDark, toggleTheme } = useTheme();
   const { user, loading: authLoading, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
@@ -55,14 +59,21 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between min-h-16 py-3 items-center gap-3">
             {/* Logo — always a root link */}
-            <Link href="/" className="flex items-center gap-3 min-w-0 group cursor-pointer">
+            <Link
+              href="/"
+              className="flex items-center gap-3 min-w-0 group cursor-pointer"
+              onClick={(e) => {
+                if (onHomeClick) {
+                  e.preventDefault();
+                  onHomeClick();
+                }
+              }}
+            >
               <div className="w-10 h-10 overflow-hidden flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-105">
-                <Image
+                <img
                   src="/logo.png"
                   alt="Logo KataKita"
-                  width={40}
-                  height={40}
-                  className="object-contain"
+                  className="w-10 h-10 object-contain"
                 />
               </div>
               <div className="flex flex-col">
@@ -80,6 +91,12 @@ export default function Navbar() {
               <Link
                 href="/"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 transition-all"
+                onClick={(e) => {
+                  if (onHomeClick) {
+                    e.preventDefault();
+                    onHomeClick();
+                  }
+                }}
               >
                 <HomeIcon size={16} />
                 Home

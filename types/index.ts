@@ -30,6 +30,7 @@ export interface UnitItem {
   key: string;
   unit?: string;
   nama?: string;
+  pimpinan?: string;
 }
 
 export interface OfficialItem {
@@ -40,6 +41,7 @@ export interface OfficialItem {
   nama_pejabat?: string;
   jabatan?: string;
   role?: string;
+  jenis_kelamin?: string;
   color?: string;
   priority?: number;
 }

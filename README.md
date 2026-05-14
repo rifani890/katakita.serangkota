@@ -1,10 +1,8 @@
 # KataKita Kota Serang — News Monitoring Dashboard
 
-Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dibangun dengan **Next.js 14**, **Tailwind CSS**, dan **MySQL (Railway)**. Dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara _real-time_.
+Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dibangun dengan **Next.js 14**, **Tailwind CSS**, dan **MySQL**. Dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara _real-time_.
 
 > **Status:** ✅ Lulus Pengujian Penuh (23/23) — Siap Produksi  
-> Lihat laporan lengkap di [PRD.md](./PRD.md)
-
 ---
 
 ## ✨ Fitur Utama
@@ -22,7 +20,7 @@ Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dib
 | 🌙 **Dark Mode**                       | Toggle tema gelap/terang                                                                       |
 | 📱 **Responsif**                       | Adaptif untuk Desktop, Tablet, dan Mobile (backdrop overlay menu)                              |
 | ⬅️ **Navigasi Back/Forward**           | Tombol back/forward browser mempertahankan halaman & scroll position                           |
-| 🛡️ **Keamanan Ekstra**                 | Parameterized SQL query, HTTPS Cookie Session (Lax, HttpOnly), & enkripsi Bcrypt               |
+
 
 ---
 
@@ -188,7 +186,7 @@ Buka `http://localhost:3000`
    - Application startup file: `server.js`
 6. Klik **Run NPM Install** → **Start App**
 
-### Opsi B: VPS dengan PM2 (Disarankan)
+### Opsi B: VPS dengan PM2
 
 ```bash
 # 1. Clone & install

@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { nama, color } = body;
+    const { nama, color, jenis_kelamin } = body;
 
     if (!nama || !nama.trim()) {
       return NextResponse.json({ error: "Nama pejabat tidak boleh kosong" }, { status: 400 });
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     const jabatan = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
 
-    await createOfficial({ nama, jabatan, color });
+    await createOfficial({ nama, jabatan, color, jenis_kelamin });
     return NextResponse.json({ message: "Pejabat berhasil ditambahkan" });
   } catch (err: any) {
     console.error("/api/pejabat POST error:", err);
@@ -49,7 +49,7 @@ export async function PUT(req: Request) {
 
   try {
     const body = await req.json();
-    const { id, nama, color } = body;
+    const { id, nama, color, jenis_kelamin } = body;
 
     if (!id || !nama || !nama.trim()) {
       return NextResponse.json({ error: "ID dan nama harus diisi" }, { status: 400 });
@@ -57,7 +57,7 @@ export async function PUT(req: Request) {
 
     const jabatan = (body.jabatan as string | undefined)?.trim() || "Pejabat Lainnya";
 
-    await updateOfficial({ id, nama, jabatan, color });
+    await updateOfficial({ id, nama, jabatan, color, jenis_kelamin });
     return NextResponse.json({ message: "Pejabat berhasil diupdate" });
   } catch (err: any) {
     console.error("/api/pejabat PUT error:", err);

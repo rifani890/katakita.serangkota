@@ -86,7 +86,7 @@ export default function Unit() {
         setSavingText("Menyimpan...");
         setSaving(true);
         try {
-          const payload = { nama: formUnit.trim() };
+          const payload = { nama: formUnit.trim(), pimpinan: formPimpinan.trim() };
           const res = await fetchWithAuth("/api/unit", {
             method: activeKey ? "PUT" : "POST",
             headers: { "Content-Type": "application/json" },

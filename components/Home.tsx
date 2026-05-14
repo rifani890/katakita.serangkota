@@ -216,7 +216,7 @@ export default function Home() {
       <div className="fixed bottom-1/4 right-1/4 w-96 h-96 bg-blue-400/20 dark:bg-blue-500/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen pointer-events-none z-0"></div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navbar />
+        <Navbar onHomeClick={handleBackToDashboard} />
         <main
           className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-0 transition-opacity duration-300 ${mounted ? "opacity-100" : "opacity-0"}`}
         >

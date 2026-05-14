@@ -100,7 +100,7 @@ export default function NewsModal({
         <div className="p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 overflow-hidden flex items-center justify-center">
-              <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain" />
+              <img src="/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
             </div>
             <div className="hidden sm:block">
               <p className="text-sm font-bold text-slate-800 dark:text-white">Pratinjau Berita</p>
@@ -167,8 +167,8 @@ export default function NewsModal({
               </div>
 
               <div
-                className="prose prose-slate dark:prose-invert max-w-none 
-                prose-p:leading-relaxed prose-p:text-slate-600 dark:prose-p:text-slate-300 
+                className="prose prose-slate dark:prose-invert max-w-none text-justify whitespace-pre-line
+                prose-p:leading-relaxed prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-p:mb-5
                 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline
                 prose-headings:text-slate-800 dark:prose-headings:text-white prose-headings:font-bold
                 prose-img:rounded-xl prose-img:shadow-md mt-6"

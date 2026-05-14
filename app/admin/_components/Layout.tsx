@@ -128,14 +128,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <Menu size={20} />
               </button>
-              <Link href="/" className="flex items-center gap-3 cursor-pointer group">
+              <Link href="/admin" className="flex items-center gap-3 cursor-pointer group">
                 <div className="w-10 h-10 overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105">
-                  <Image
+                  <img
                     src="/logo.png"
                     alt="Logo"
-                    width={40}
-                    height={40}
-                    className="object-contain"
+                    className="w-10 h-10 object-contain"
                   />
                 </div>
                 <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">

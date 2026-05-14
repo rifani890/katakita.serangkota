@@ -4,7 +4,7 @@ import "./globals.css";
 import { getSiteUrl } from "@/lib/utils";
 import ScrollToTopButton from "@/components/ScrollButton";
 
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"] });
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     "berita Kota Serang",
     "dashboard media",
     "monitoring berita",
-    "SEO berita",
+    "berita",
   ],
   applicationName: "KataKita Kota Serang",
   authors: [{ name: "KataKita Kota Serang" }],
