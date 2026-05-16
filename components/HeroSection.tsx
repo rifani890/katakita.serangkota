@@ -20,7 +20,7 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
       try {
         // Ambil berita negatif terbaru untuk mengetahui tanggal data terakhir
         const res = await fetch(
-          "/api/berita?potensi=Negatif&pageSize=10&sortField=date&sortOrder=desc"
+          "/api/berita?potensi=Positif&pageSize=10&sortField=date&sortOrder=desc"
         );
         if (res.ok) {
           const data = await res.json();
