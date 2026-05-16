@@ -99,11 +99,11 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
         {/* Left Side: Typography */}
         <div className="flex-1 text-center lg:text-left space-y-8">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 dark:from-blue-200 dark:via-indigo-200 dark:to-purple-200 tracking-tight leading-tight">
-            Memahami Berita Lebih Dalam dengan Visual Data
+            Memahami Berita Lebih Dalam dengan Data
           </h1>
           <p className="text-lg md:text-xl text-slate-600 dark:text-blue-100/70 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
             Katakita membantu Anda melihat keterkaitan antar tokoh, isu, dan peristiwa melalui
-            analisis berita media cetak berbasis data dan visualisasi interaktif.
+            analisis berita media cetak berbasis data yang interaktif.
           </p>
         </div>
 
