@@ -34,7 +34,7 @@ export default function GrafikMingguan({ topOfficials, onOfficialClick }: Grafik
         <div className="space-y-3 relative z-10">
           {topOfficials.length === 0 ? (
             <p className="text-slate-500 dark:text-slate-400 text-sm text-center py-4">
-              Data Tidak Ada ( Kodosmg )
+              Data Tidak Ada ( Kosong )
             </p>
           ) : (
             topOfficials.map((item, idx) => {
