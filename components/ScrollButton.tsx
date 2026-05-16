@@ -7,6 +7,7 @@ type ButtonState = "hide-up" | "hide-down" | "show";
 
 export default function ScrollButton() {
   const [buttonState, setButtonState] = useState<ButtonState>("hide-up");
+  const [modalOpen, setModalOpen] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -34,6 +35,16 @@ export default function ScrollButton() {
       }
     };
 
+    // Deteksi modal terbuka via MutationObserver pada body.style.overflow
+    const observer = new MutationObserver(() => {
+      setModalOpen(document.body.style.overflow === "hidden");
+    });
+
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     // Pengecekan awal saat pertama dimuat
@@ -42,6 +53,7 @@ export default function ScrollButton() {
     // Membersihkan event listener saat komponen unmount
     return () => {
       window.removeEventListener("scroll", handleScroll);
+      observer.disconnect();
     };
   }, []);
 
@@ -51,6 +63,7 @@ export default function ScrollButton() {
 
   // Menentukan class berdasarkan state animasi
   const getDynamicStyles = () => {
+    if (modalOpen) return "opacity-0 pointer-events-none scale-75";
     switch (buttonState) {
       case "hide-up":
         return "-translate-y-[200px] scale-50 opacity-0 pointer-events-none";

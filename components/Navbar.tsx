@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import {
   Moon,
@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/lib/useTheme";
 import { useAuth } from "@/lib/useAuth";
+import { usePathname } from "next/navigation";
 import Login from "./Login";
 
 interface NavbarProps {
@@ -24,11 +25,41 @@ interface NavbarProps {
 }
 
 export default function Navbar({ onHomeClick }: NavbarProps = {}) {
+  const pathname = usePathname();
   const { isDark, toggleTheme } = useTheme();
   const { user, loading: authLoading, logout } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [loginRedirect, setLoginRedirect] = useState("/admin");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [navState, setNavState] = useState<"show" | "hide">("show");
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < 50) {
+        setNavState("show");
+        lastScrollY.current = currentScrollY;
+        return;
+      }
+
+      const diff = currentScrollY - lastScrollY.current;
+
+      if (diff > 15) {
+        setNavState("hide");
+        lastScrollY.current = currentScrollY;
+      } else if (diff < -15) {
+        setNavState("show");
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const isLoggedIn = Boolean(user);
 
@@ -130,10 +161,10 @@ export default function Navbar({ onHomeClick }: NavbarProps = {}) {
               {showAdminBtn && (
                 <a
                   href="/admin"
-                  className="hidden md:inline-flex btn text-sm border-0 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 transition-colors items-center gap-2 px-3 sm:px-4 py-2 font-bold rounded-lg cursor-pointer"
+                  className="inline-flex btn text-sm border-0 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 transition-colors items-center gap-2 px-3 sm:px-4 py-2 font-bold rounded-lg cursor-pointer"
                 >
                   <LayoutDashboard size={16} />
-                  <span>Admin</span>
+                  <span className="hidden sm:inline">Admin</span>
                 </a>
               )}
 
@@ -141,10 +172,10 @@ export default function Navbar({ onHomeClick }: NavbarProps = {}) {
                 <button
                   type="button"
                   onClick={() => setShowConfirmLogout(true)}
-                  className="hidden md:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:hover:bg-rose-900/50 transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium bg-rose-100 text-rose-700 hover:bg-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:hover:bg-rose-900/50 transition-colors"
                 >
                   <LogOut size={16} />
-                  <span>Logout</span>
+                  <span className="hidden sm:inline">Logout</span>
                 </button>
               )}
 
@@ -155,95 +186,93 @@ export default function Navbar({ onHomeClick }: NavbarProps = {}) {
                     setLoginRedirect("/admin");
                     setShowLogin(true);
                   }}
-                  className="hidden md:flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors"
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 dark:hover:bg-blue-900/50 transition-colors"
                 >
                   <LogIn size={16} />
-                  <span>Login</span>
+                  <span className="hidden sm:inline">Login</span>
                 </button>
               )}
-
-              {/* Mobile hamburger */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                aria-label="Toggle Menu"
-              >
-                {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
             </div>
           </div>
         </div>
-
-        {/* Backdrop — click to close menu */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 z-40 md:hidden"
-            onClick={() => setIsMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-
-        {/* Mobile dropdown */}
-        {isMobileMenuOpen && (
-          <div className="relative z-50 md:hidden border-t border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-dark-card/95 backdrop-blur-xl px-4 py-4 space-y-2 shadow-lg">
-            <Link
-              href="/"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            >
-              <HomeIcon size={18} className="text-indigo-500" />
-              Home
-            </Link>
-            <Link
-              href="/grafik"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-            >
-              <BarChart2 size={18} className="text-blue-500" />
-              Grafik
-            </Link>
-
-            <div className="border-t border-slate-200/50 dark:border-slate-700/50 my-2"></div>
-
-            {showAdminBtn && (
-              <a
-                href="/admin"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-              >
-                <LayoutDashboard size={18} />
-                Admin
-              </a>
-            )}
-
-            {showLogoutBtn && (
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setShowConfirmLogout(true);
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 font-bold hover:bg-rose-100 dark:hover:bg-rose-900/50 transition-colors"
-              >
-                <LogOut size={18} />
-                Logout
-              </button>
-            )}
-
-            {showLoginBtn && (
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  setLoginRedirect("/admin");
-                  setShowLogin(true);
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 font-bold hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-              >
-                <LogIn size={18} />
-                Login
-              </button>
-            )}
-          </div>
-        )}
       </nav>
+
+      {/* Mobile Bottom Navigation - Premium Glassmorphism Theme */}
+      <div
+        className={`md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] flex items-center p-1.5 rounded-[1.25rem] bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(30,58,138,0.15)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.5)] border border-white/50 dark:border-slate-700/50 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          navState === "hide"
+            ? "translate-y-[150px] opacity-0 pointer-events-none scale-90"
+            : "translate-y-0 opacity-100 pointer-events-auto scale-100"
+        }`}
+      >
+        <Link
+          href="/"
+          className={`relative flex flex-col items-center justify-center w-[5rem] h-14 rounded-2xl transition-all duration-300 group overflow-hidden ${
+            pathname === "/"
+              ? "bg-gradient-to-tr from-indigo-500/10 to-blue-500/10 dark:from-indigo-500/20 dark:to-blue-500/20"
+              : "hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
+          }`}
+          onClick={(e) => {
+            if (onHomeClick && pathname === "/") {
+              e.preventDefault();
+              onHomeClick();
+            }
+          }}
+        >
+          {pathname === "/" && (
+            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/5 to-blue-500/5 dark:from-indigo-400/10 dark:to-blue-400/10 border border-indigo-200 dark:border-indigo-500/30 rounded-2xl"></div>
+          )}
+          <HomeIcon
+            size={22}
+            className={`mb-1 transition-all duration-300 ${
+              pathname === "/"
+                ? "text-indigo-600 dark:text-indigo-400 drop-shadow-sm scale-110"
+                : "text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 group-hover:-translate-y-0.5"
+            }`}
+          />
+          <span
+            className={`text-[10px] font-bold tracking-wide transition-all ${
+              pathname === "/"
+                ? "text-indigo-700 dark:text-indigo-300"
+                : "text-slate-500 dark:text-slate-400"
+            }`}
+          >
+            Home
+          </span>
+        </Link>
+
+        <div className="w-[1px] h-8 bg-slate-200/60 dark:bg-slate-700/60 mx-1 rounded-full"></div>
+
+        <Link
+          href="/grafik"
+          className={`relative flex flex-col items-center justify-center w-[5rem] h-14 rounded-2xl transition-all duration-300 group overflow-hidden ${
+            pathname === "/grafik"
+              ? "bg-gradient-to-tr from-blue-500/10 to-cyan-500/10 dark:from-blue-500/20 dark:to-cyan-500/20"
+              : "hover:bg-slate-100/50 dark:hover:bg-slate-800/50"
+          }`}
+        >
+          {pathname === "/grafik" && (
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-600/5 to-cyan-500/5 dark:from-blue-400/10 dark:to-cyan-400/10 border border-blue-200 dark:border-blue-500/30 rounded-2xl"></div>
+          )}
+          <BarChart2
+            size={22}
+            className={`mb-1 transition-all duration-300 ${
+              pathname === "/grafik"
+                ? "text-blue-600 dark:text-blue-400 drop-shadow-sm scale-110"
+                : "text-slate-500 dark:text-slate-400 group-hover:text-blue-500 group-hover:-translate-y-0.5"
+            }`}
+          />
+          <span
+            className={`text-[10px] font-bold tracking-wide transition-all ${
+              pathname === "/grafik"
+                ? "text-blue-700 dark:text-blue-300"
+                : "text-slate-500 dark:text-slate-400"
+            }`}
+          >
+            Grafik
+          </span>
+        </Link>
+      </div>
 
       <Login isOpen={showLogin} onClose={() => setShowLogin(false)} redirectTo={loginRedirect} />
 

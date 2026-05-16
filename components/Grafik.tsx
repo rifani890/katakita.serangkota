@@ -6,7 +6,7 @@ import { useDashboardSummary } from "@/lib/useDashboardSummary";
 import Navbar from "@/components/Navbar";
 import GrafikPejabat from "@/components/GrafikPejabat";
 import GrafikMedia from "@/components/GrafikMedia";
-import GrafikMingguan from "@/components/GrafikMingguan";
+import StatCards from "@/components/StatCards";
 import DetailPage, { type DetailPageQuery } from "@/components/DetailPage";
 import NewsModal from "@/components/NewsModal";
 import { printNews } from "@/lib/print";
@@ -20,6 +20,7 @@ interface FilterLabel {
 
 export default function Grafik() {
   const {
+    stats,
     officialCounts,
     trend,
     officialMapping,
@@ -112,17 +113,22 @@ export default function Grafik() {
     [officialCounts, openDetailPage]
   );
 
-  const handleTopOfficialClick = useCallback(
-    (name: string) => {
-      // Resolve name → role via officialMapping; fall back to name itself
-      const mapped = (officialMapping as Record<string, { role?: string; color?: string }>)[name];
-      const role = mapped?.role || name;
-      const color = mapped?.color || "#f59e0b";
+  const handleStatFilter = useCallback(
+    (type: "total" | "positive" | "neutral" | "negative") => {
+      if (type === "total") {
+        openDetailPage({}, "Semua Berita", "#3b82f6");
+        return;
+      }
 
-      // Use recentDays: 7 to match the exact same SQL as GrafikMingguan
-      openDetailPage({ role, recentDays: 7 }, `${name} • Minggu Ini`, color);
+      const config = {
+        positive: { label: "Positif", color: "#10b981", potensi: "Positif" },
+        neutral: { label: "Netral", color: "#94a3b8", potensi: "Netral" },
+        negative: { label: "Negatif", color: "#f43f5e", potensi: "Negatif" },
+      }[type];
+
+      openDetailPage({ potensi: config.potensi }, config.label, config.color);
     },
-    [officialMapping, openDetailPage]
+    [openDetailPage]
   );
 
   const handleMediaTrendClick = useCallback(
@@ -218,10 +224,9 @@ export default function Grafik() {
                 </div>
               ) : (
                 <>
-                  <GrafikMingguan
-                    topOfficials={weeklyTopOfficials}
-                    onOfficialClick={handleTopOfficialClick}
-                  />
+                  <div className="mb-8">
+                    <StatCards stats={stats} loading={loading} onFilter={handleStatFilter} />
+                  </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-start">
                     <GrafikPejabat

@@ -153,7 +153,7 @@ export default function DetailPage({
           </div>
           <button
             onClick={onBack}
-            className="self-end sm:self-auto py-2.5 px-5 rounded-xl text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/30 transition-all flex items-center justify-center gap-2 group whitespace-nowrap"
+            className="self-end sm:self-auto py-2.5 px-5 rounded-xl text-sm font-bold bg-red-500 hover:bg-blue-700 text-white shadow-md shadow-blue-500/30 transition-all flex items-center justify-center gap-2 group whitespace-nowrap"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />{" "}
             Kembali
@@ -167,7 +167,7 @@ export default function DetailPage({
               type="text"
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
-              placeholder="Cari berdasarkan semua informasi..."
+              placeholder="Telusuri Berita..."
               className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
             />
           </div>
@@ -268,13 +268,16 @@ export default function DetailPage({
                           >
                             <Printer size={16} />
                           </button>
-                          <Link
-                            href={buildNewsPath(news)}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (onOpenModal) onOpenModal(news.key);
+                            }}
                             className="inline-flex min-h-9 items-center gap-1.5 px-3 py-2 text-xs font-semibold text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-all"
                           >
                             Baca Selengkapnya
                             <ExternalLink size={14} />
-                          </Link>
+                          </button>
                         </div>
                       </div>
 

@@ -1,4 +1,5 @@
 import { dbPool } from "@/lib/server/database";
+import { logger } from "@/lib/logger";
 import {
   listOfficials,
   listMedia as listMediaCatalog,
@@ -329,8 +330,10 @@ function buildWhereClause(options: NewsQueryOptions, useFts = true) {
   }
 
   if (options.recentDays && options.recentDays > 0) {
+    // Strict sanitization: clamp to integer in safe range [1, 365]
+    const safeDays = Math.min(Math.max(Math.floor(Number(options.recentDays) || 0), 1), 365);
     conditions.push(
-      `${DATE_SQL} >= DATE_SUB(NOW(), INTERVAL ${Math.floor(options.recentDays)} DAY)`
+      `${DATE_SQL} >= DATE_SUB((SELECT MAX(COALESCE(tanggal_converted, created_at)) FROM berita), INTERVAL ${safeDays} DAY)`
     );
   }
 
@@ -527,7 +530,7 @@ export async function getPaginatedNews(
   const page = Math.min(requestedPage, totalPages);
   const offset = (page - 1) * pageSize;
 
-  const [rows] = await dbPool.query(
+  const [rows] = await dbPool.execute(
     `${NEWS_SELECT}${whereClause} ORDER BY ${sortField} ${sortOrder.toUpperCase()} LIMIT ${Number(pageSize)} OFFSET ${Number(offset)}`,
     values
   );
@@ -576,7 +579,7 @@ export async function getNewsSitemapEntries(limit = 50000) {
       updatedAt: row.updated_at || row.created_at || null,
     }));
   } catch (err) {
-    console.error("getNewsSitemapEntries error:", err);
+    logger.error("getNewsSitemapEntries error:", err);
     return [];
   }
 }
@@ -669,7 +672,7 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
       .execute(
         `
             SELECT
-              (SELECT COUNT(*) FROM unit_kerja) AS totalUnits,
+              24 AS totalUnits,
               (SELECT COUNT(*) FROM media) AS totalMedia
           `
       )
@@ -680,7 +683,10 @@ export async function getDashboardSummary(): Promise<DashboardSummary> {
         `
             SELECT pejabat, unit 
             FROM berita 
-            WHERE COALESCE(tanggal_converted, created_at) >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            WHERE COALESCE(tanggal_converted, created_at) >= DATE_SUB(
+              (SELECT MAX(COALESCE(tanggal_converted, created_at)) FROM berita), 
+              INTERVAL 7 DAY
+            )
           `
       )
       .then(([rows]) => rows as Array<{ pejabat: string | null; unit: string | null }>)

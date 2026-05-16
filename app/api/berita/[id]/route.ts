@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { getNewsById } from "@/lib/news";
 
 interface RouteContext {
@@ -16,7 +17,7 @@ export async function GET(_req: Request, { params }: RouteContext) {
 
     return NextResponse.json(news);
   } catch (err) {
-    console.error("/api/berita/[id] GET error:", err);
+    logger.error("/api/berita/[id] GET error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

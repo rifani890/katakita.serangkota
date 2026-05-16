@@ -1,14 +1,81 @@
 "use client";
 
-import { TopEntityCount } from "@/types";
+import { useEffect, useState } from "react";
+import { TopEntityCount, OfficialMapping } from "@/types";
 import { User, ArrowRight } from "lucide-react";
+import { getOfficialMapping } from "@/lib/utils";
 
 interface GrafikMingguanProps {
-  topOfficials: TopEntityCount[];
   onOfficialClick?: (name: string) => void;
+  officialMapping?: OfficialMapping;
 }
 
-export default function GrafikMingguan({ topOfficials, onOfficialClick }: GrafikMingguanProps) {
+export default function GrafikMingguan({ onOfficialClick, officialMapping }: GrafikMingguanProps) {
+  const [topOfficials, setTopOfficials] = useState<TopEntityCount[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchWeeklyOfficials() {
+      try {
+        const res = await fetch("/api/berita?page=1&pageSize=100&sortField=date&sortOrder=desc");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.items && data.items.length > 0) {
+            const latestItem = data.items[0];
+            const latestDate = new Date(latestItem.tanggal_raw || Date.now());
+
+            const endOfWeek = new Date(latestDate);
+            endOfWeek.setHours(23, 59, 59, 999);
+
+            const startOfWeek = new Date(latestDate);
+            startOfWeek.setDate(latestDate.getDate() - 6); // 7 hari terakhir (termasuk hari ini)
+            startOfWeek.setHours(0, 0, 0, 0);
+
+            const weeklyItems = data.items.filter((item: any) => {
+              if (!item.tanggal_raw) return false;
+              const itemDate = new Date(item.tanggal_raw);
+              return itemDate >= startOfWeek && itemDate <= endOfWeek;
+            });
+
+            const counts = new Map<string, number>();
+            weeklyItems.forEach((item: any) => {
+              const pejabats = Array.isArray(item.pejabat)
+                ? item.pejabat
+                : item.pejabat
+                  ? [item.pejabat]
+                  : [];
+              pejabats.forEach((p: string) => {
+                const name = p.trim();
+                if (name && name !== "Pejabat Lainnya") {
+                  let label = name;
+                  if (officialMapping) {
+                    const info = getOfficialMapping(name, officialMapping);
+                    label = info?.jabatan || info?.role || name;
+                  }
+                  counts.set(label, (counts.get(label) || 0) + 1);
+                }
+              });
+            });
+
+            const officials = Array.from(counts.entries())
+              .map(([name, total]) => ({ name, total }))
+              .sort((a, b) => b.total - a.total)
+              .slice(0, 10);
+
+            setTopOfficials(officials);
+          } else {
+            setTopOfficials([]);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchWeeklyOfficials();
+  }, []);
+
   const maxOfficial = Math.max(...topOfficials.map((o) => o.total), 1);
 
   return (
@@ -21,18 +88,21 @@ export default function GrafikMingguan({ topOfficials, onOfficialClick }: Grafik
           </div>
           <div>
             <h3 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-tight">
-              Influencer Internal
+              Trending Pejabat Mingguan
             </h3>
             {onOfficialClick && (
               <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium mt-0.5">
-                Trending Pejabat Mingguan
+                Influencer Internal
               </p>
             )}
           </div>
         </div>
-
-        <div className="space-y-3 relative z-10">
-          {topOfficials.length === 0 ? (
+        <div className="space-y-3 relative z-10 max-h-[210px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 dark:[&::-webkit-scrollbar-track]:bg-slate-800/50 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 dark:[&::-webkit-scrollbar-thumb]:bg-slate-600">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-8 h-8 border-4 border-slate-200 border-l-blue-500 rounded-full animate-spin"></div>
+            </div>
+          ) : topOfficials.length === 0 ? (
             <p className="text-slate-500 dark:text-slate-400 text-sm text-center py-4">
               Data Tidak Ada ( Kosong )
             </p>

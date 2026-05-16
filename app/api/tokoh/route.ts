@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import { executeStatement, queryRows } from "@/lib/server/database";
 import { requireSessionUser } from "@/lib/server/route-auth";
 
@@ -9,7 +10,7 @@ export async function GET() {
     );
     return NextResponse.json(rows);
   } catch (err) {
-    console.error("/api/tokoh GET error:", err);
+    logger.error("/api/tokoh GET error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -26,6 +27,20 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nama tokoh harus diisi" }, { status: 400 });
     }
 
+    if (nama.length > 100) {
+      return NextResponse.json(
+        { error: "Nama tokoh terlalu panjang (maks 100 karakter)" },
+        { status: 400 }
+      );
+    }
+
+    if (jabatan && jabatan.length > 100) {
+      return NextResponse.json(
+        { error: "Jabatan terlalu panjang (maks 100 karakter)" },
+        { status: 400 }
+      );
+    }
+
     await executeStatement("INSERT INTO tokoh (nama, jenis_kelamin, jabatan) VALUES (?, ?, ?)", [
       nama.trim(),
       jenis_kelamin?.trim() || "",
@@ -34,7 +49,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Tokoh berhasil ditambahkan" });
   } catch (err) {
-    console.error("/api/tokoh POST error:", err);
+    logger.error("/api/tokoh POST error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -51,6 +66,20 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "ID dan Nama tokoh harus diisi" }, { status: 400 });
     }
 
+    if (nama.length > 100) {
+      return NextResponse.json(
+        { error: "Nama tokoh terlalu panjang (maks 100 karakter)" },
+        { status: 400 }
+      );
+    }
+
+    if (jabatan && jabatan.length > 100) {
+      return NextResponse.json(
+        { error: "Jabatan terlalu panjang (maks 100 karakter)" },
+        { status: 400 }
+      );
+    }
+
     await executeStatement(
       "UPDATE tokoh SET nama = ?, jenis_kelamin = ?, jabatan = ? WHERE id = ?",
       [nama.trim(), jenis_kelamin?.trim() || "", jabatan?.trim() || "", id]
@@ -58,7 +87,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json({ message: "Tokoh berhasil diperbarui" });
   } catch (err) {
-    console.error("/api/tokoh PUT error:", err);
+    logger.error("/api/tokoh PUT error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -79,7 +108,7 @@ export async function DELETE(req: Request) {
 
     return NextResponse.json({ message: "Tokoh berhasil dihapus" });
   } catch (err) {
-    console.error("/api/tokoh DELETE error:", err);
+    logger.error("/api/tokoh DELETE error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

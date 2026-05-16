@@ -9,12 +9,6 @@ interface MediaRow {
   color: string | null;
 }
 
-interface UnitRow {
-  id: number;
-  nama: string;
-  pimpinan: string | null;
-}
-
 interface OfficialRow {
   id: number;
   nama: string;
@@ -66,39 +60,6 @@ export async function updateMedia(input: {
 
 export async function deleteMedia(id: string | number) {
   return executeStatement("DELETE FROM media WHERE id = ?", [id]);
-}
-
-export async function listUnits(): Promise<UnitItem[]> {
-  const rows = await queryRows<UnitRow>(
-    "SELECT id, nama, pimpinan FROM unit_kerja ORDER BY nama ASC"
-  );
-
-  return rows.map((row) => ({
-    key: String(row.id),
-    id: row.id,
-    unit: row.nama,
-    nama: row.nama,
-    pimpinan: row.pimpinan ?? undefined,
-  }));
-}
-
-export async function createUnit(nama: string, pimpinan?: string | null) {
-  return executeStatement("INSERT INTO unit_kerja (nama, pimpinan) VALUES (?, ?)", [
-    nama.trim(),
-    pimpinan?.trim() || null,
-  ]);
-}
-
-export async function updateUnit(id: string | number, nama: string, pimpinan?: string | null) {
-  return executeStatement("UPDATE unit_kerja SET nama = ?, pimpinan = ? WHERE id = ?", [
-    nama.trim(),
-    pimpinan?.trim() || null,
-    id,
-  ]);
-}
-
-export async function deleteUnit(id: string | number) {
-  return executeStatement("DELETE FROM unit_kerja WHERE id = ?", [id]);
 }
 
 export async function listOfficials(): Promise<OfficialItem[]> {

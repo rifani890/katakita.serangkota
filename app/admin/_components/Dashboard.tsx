@@ -17,6 +17,7 @@ export default function Dashboard() {
     trend,
     mediaLegend,
     weeklyTopOfficials,
+    officialMapping,
     loading,
   } = useDashboardSummary();
 
@@ -29,13 +30,6 @@ export default function Dashboard() {
       href: "/admin/berita",
     },
     { label: "Pejabat", value: totalOfficials, icon: User, color: "amber", href: "/admin/pejabat" },
-    {
-      label: "Unit Kerja",
-      value: totalUnits,
-      icon: Building2,
-      color: "emerald",
-      href: "/admin/unit",
-    },
     { label: "Media", value: totalMedia, icon: TrendingUp, color: "indigo", href: "/admin/berita" },
   ];
 
@@ -79,7 +73,7 @@ export default function Dashboard() {
       </div>
 
       <div className="space-y-8">
-        <GrafikMingguan topOfficials={weeklyTopOfficials} />
+        <GrafikMingguan officialMapping={officialMapping as any} />
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <div className="bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-sm border border-slate-200 dark:border-slate-700 p-4 sm:p-6 transition-all duration-500 hover:shadow-xl backdrop-blur-xl">
@@ -105,7 +99,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link
           href="/admin/berita"
           className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 sm:p-6 flex items-center gap-4 hover:border-indigo-400 hover:shadow-md transition-all group"
@@ -132,20 +126,6 @@ export default function Dashboard() {
               Nama Pejabat
             </div>
             <div className="text-xs text-slate-400">Master data pejabat</div>
-          </div>
-        </Link>
-        <Link
-          href="/admin/unit"
-          className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 sm:p-6 flex items-center gap-4 hover:border-emerald-400 hover:shadow-md transition-all group"
-        >
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
-            <Building2 className="text-emerald-500" size={22} />
-          </div>
-          <div>
-            <div className="font-bold text-slate-800 dark:text-white group-hover:text-emerald-600 transition-colors">
-              Unit Kerja
-            </div>
-            <div className="text-xs text-slate-400">Kelola unit kerja</div>
           </div>
         </Link>
       </div>

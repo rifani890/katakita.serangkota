@@ -27,7 +27,7 @@ import { useState } from "react";
 const baseNavItems = [
   { href: "/admin", label: "Home", icon: Home },
   { href: "/admin/berita", label: "Kelola Berita", icon: Newspaper },
-  { href: "/admin/unit", label: "Unit Kerja", icon: Building2 },
+
   { href: "/admin/pejabat", label: "Nama Pejabat", icon: User },
   { href: "/admin/tokoh", label: "Nama Tokoh", icon: Users },
 ];

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import type { NewsItem } from "@/types";
-import { ChevronLeft, ChevronRight, TrendingDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 
 export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: string) => void }) {
   const [news, setNews] = useState<NewsItem[]>([]);
@@ -10,37 +10,27 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
   const [isHovered, setIsHovered] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Dragging state
-  const isDragging = useRef(false);
-  const dragStartX = useRef(0);
-  const dragDistance = useRef(0);
-
   useEffect(() => {
     async function fetchNews() {
       try {
-        // Ambil berita negatif terbaru untuk mengetahui tanggal data terakhir
         const res = await fetch(
-          "/api/berita?potensi=Negatif&pageSize=10&sortField=date&sortOrder=desc"
+          "/api/berita?potensi=Positif&pageSize=10&sortField=date&sortOrder=desc"
         );
         if (res.ok) {
           const data = await res.json();
           if (data.items && data.items.length > 0) {
-            // Ambil tanggal dari berita paling baru (misal: 13 April)
             const latestItem = data.items[0];
             const latestDate = new Date(latestItem.tanggal_raw || Date.now());
 
-            // Hitung hari Minggu dari minggu "berita terbaru" tersebut
-            const day = latestDate.getDay(); // 0 = Minggu
+            const day = latestDate.getDay();
             const startOfWeek = new Date(latestDate);
             startOfWeek.setDate(latestDate.getDate() - day);
             startOfWeek.setHours(0, 0, 0, 0);
 
-            // Hitung hari Sabtu (akhir minggu)
             const endOfWeek = new Date(startOfWeek);
             endOfWeek.setDate(startOfWeek.getDate() + 6);
             endOfWeek.setHours(23, 59, 59, 999);
 
-            // Filter hanya berita yang terbit di minggu yang sama dengan berita terbaru
             const weeklyItems = data.items.filter((item: NewsItem) => {
               if (!item.tanggal_raw) return false;
               const itemDate = new Date(item.tanggal_raw);
@@ -69,33 +59,9 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
     return () => clearInterval(interval);
   }, [news.length, isHovered]);
 
-  const handleDragStart = (clientPos: number) => {
-    isDragging.current = true;
-    dragStartX.current = clientPos;
-    dragDistance.current = 0;
-    setIsHovered(true);
-  };
-
-  const handleDragMove = (clientPos: number) => {
-    if (!isDragging.current) return;
-    dragDistance.current = dragStartX.current - clientPos;
-  };
-
-  const handleDragEnd = (clientPos: number) => {
-    if (!isDragging.current) return;
-    isDragging.current = false;
-    const diff = dragStartX.current - clientPos;
-    if (diff > 50) {
-      setActiveIndex((prev) => (prev + 1) % news.length);
-    } else if (diff < -50) {
-      setActiveIndex((prev) => (prev - 1 + news.length) % news.length);
-    }
-    setIsHovered(false);
-  };
-
   return (
     <section className="relative w-full rounded-3xl bg-white dark:bg-dark-card border border-slate-300 dark:border-slate-600 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-16 lg:py-24 flex flex-col lg:flex-row items-center gap-16">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-10 lg:py-14 flex flex-col lg:flex-row items-center gap-10">
         {/* Left Side: Typography */}
         <div className="flex-1 text-center lg:text-left space-y-8">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 dark:from-blue-200 dark:via-indigo-200 dark:to-purple-200 tracking-tight leading-tight">
@@ -107,21 +73,21 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
           </p>
         </div>
 
+        {/* Divider for Mobile Only */}
+        <div className="w-full h-px bg-slate-200 dark:bg-slate-700 block lg:hidden -my-4"></div>
+
         {/* Right Side: 3D Carousel */}
-        <div className="flex-1 w-full relative mt-8 lg:mt-0">
+        <div className="flex-1 w-full relative mt-0 lg:mt-0 flex flex-col">
+          <div className="text-center mb-3">
+            <h3 className="text-sm font-bold text-slate-500 dark:text-slate-200 tracking-widest flex items-center justify-center gap-2 mb-6">
+              <TrendingUp className="text-emerald-500" size={16} />
+              Trending Berita Mingguan
+            </h3>
+          </div>
           <div
-            className="relative h-[320px] md:h-[380px] w-full perspective-[1000px] flex items-center justify-center cursor-grab active:cursor-grabbing touch-pan-x"
+            className="relative h-[320px] md:h-[380px] w-full perspective-[1000px] flex items-center justify-center"
             onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={(e) => {
-              setIsHovered(false);
-              handleDragEnd(e.clientY);
-            }}
-            onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
-            onTouchMove={(e) => handleDragMove(e.touches[0].clientY)}
-            onTouchEnd={(e) => handleDragEnd(e.changedTouches[0].clientY)}
-            onMouseDown={(e) => handleDragStart(e.clientY)}
-            onMouseMove={(e) => handleDragMove(e.clientY)}
-            onMouseUp={(e) => handleDragEnd(e.clientY)}
+            onMouseLeave={() => setIsHovered(false)}
           >
             {loading ? (
               <div className="w-full h-full flex items-center justify-center">
@@ -129,7 +95,7 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
               </div>
             ) : news.length === 0 ? (
               <div className="text-slate-500 dark:text-slate-400 text-center text-sm font-medium">
-                Belum ada berita negatif.
+                Belum ada berita positif.
               </div>
             ) : (
               news.map((item, index) => {
@@ -151,14 +117,13 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
                   <div
                     key={item.key}
                     onClick={() => {
-                      if (Math.abs(dragDistance.current) > 10) return; // ignore clicks if user dragged
                       if (isActive) {
                         if (onOpenModal) onOpenModal(item.key);
                       } else {
                         setActiveIndex(index);
                       }
                     }}
-                    className={`absolute w-[280px] sm:w-[320px] p-6 rounded-3xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isActive ? "ring-2 ring-rose-500/30 dark:ring-white/20 shadow-xl shadow-slate-300 dark:shadow-rose-900/30 hover:scale-105" : "hover:scale-[1.02] shadow-md"} ${!isVisible ? "pointer-events-none" : ""}`}
+                    className={`absolute w-[280px] sm:w-[320px] p-6 rounded-3xl cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${isActive ? "ring-2 ring-emerald-500/30 dark:ring-white/20 shadow-xl shadow-slate-300 dark:shadow-emerald-900/30 hover:scale-105" : "hover:scale-[1.02] shadow-md"} ${!isVisible ? "pointer-events-none" : ""}`}
                     style={{
                       transform: `translateY(${translateY}%) translateZ(${translateZ}px) rotateX(${rotateX}deg) scale(${scale})`,
                       zIndex,
@@ -171,9 +136,9 @@ export default function HeroSection({ onOpenModal }: { onOpenModal?: (key: strin
 
                     {/* Card Content */}
                     <div className="relative z-10 flex items-center gap-2 mb-4">
-                      <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)] animate-pulse"></span>
-                      <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 tracking-widest uppercase">
-                        Negatif
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></span>
+                      <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 tracking-widest uppercase">
+                        Positif
                       </span>
                       <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 ml-auto">
                         {item.tanggal}

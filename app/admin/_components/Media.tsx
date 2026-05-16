@@ -19,7 +19,7 @@ export default function Media() {
   const [formColor, setFormColor] = useState("");
 
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmType, setConfirmType] = useState<"delete" | "info">("info");
+  const [confirmType, setConfirmType] = useState<"delete" | "info" | "confirm">("info");
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMsg, setConfirmMsg] = useState("");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
@@ -58,7 +58,12 @@ export default function Media() {
     setModalOpen(true);
   };
 
-  const askConfirm = (title: string, msg: string, type: "delete" | "info", action: () => void) => {
+  const askConfirm = (
+    title: string,
+    msg: string,
+    type: "delete" | "info" | "confirm",
+    action: () => void
+  ) => {
     setConfirmTitle(title);
     setConfirmMsg(msg);
     setConfirmType(type);
@@ -73,38 +78,43 @@ export default function Media() {
     }
     const action = activeKey ? "memperbarui" : "menambahkan";
 
-    askConfirm("Konfirmasi", `Apakah Anda yakin ingin ${action} media ini?`, "info", async () => {
-      setConfirmOpen(false);
-      setSavingText("Menyimpan...");
-      setSaving(true);
-      try {
-        const payload = {
-          nama: formNama.trim(),
-          shorthand: formShorthand.trim(),
-          color: formColor.trim(),
-        };
-        const res = await fetchWithAuth("/api/media", {
-          method: activeKey ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(activeKey ? { id: activeKey, ...payload } : payload),
-        });
+    askConfirm(
+      "Konfirmasi",
+      `Apakah Anda yakin ingin ${action} media ini?`,
+      "confirm",
+      async () => {
+        setConfirmOpen(false);
+        setSavingText("Menyimpan...");
+        setSaving(true);
+        try {
+          const payload = {
+            nama: formNama.trim(),
+            shorthand: formShorthand.trim(),
+            color: formColor.trim(),
+          };
+          const res = await fetchWithAuth("/api/media", {
+            method: activeKey ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(activeKey ? { id: activeKey, ...payload } : payload),
+          });
 
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Gagal menyimpan media.");
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || "Gagal menyimpan media.");
+          }
+
+          setModalOpen(false);
+          await loadData();
+          askConfirm("Data Tersimpan", "Media berhasil disimpan.", "info", () => {
+            setConfirmOpen(false);
+          });
+        } catch (err: unknown) {
+          alert((err as Error).message);
+        } finally {
+          setSaving(false);
         }
-
-        setModalOpen(false);
-        await loadData();
-        askConfirm("Data Tersimpan", "Media berhasil disimpan.", "info", () => {
-          setConfirmOpen(false);
-        });
-      } catch (err: unknown) {
-        alert((err as Error).message);
-      } finally {
-        setSaving(false);
       }
-    });
+    );
   };
 
   const handleDelete = (key: string, nama: string) => {
@@ -115,10 +125,13 @@ export default function Media() {
       try {
         await fetchWithAuth(`/api/media?id=${key}`, { method: "DELETE" });
         await loadData();
-      } catch (err: unknown) {
-        alert((err as Error).message);
-      } finally {
         setSaving(false);
+        askConfirm("Berhasil Dihapus", `Media "${nama}" telah berhasil dihapus.`, "info", () =>
+          setConfirmOpen(false)
+        );
+      } catch (err: unknown) {
+        setSaving(false);
+        askConfirm("Gagal Menghapus", (err as Error).message, "info", () => setConfirmOpen(false));
       }
     });
   };

@@ -2,27 +2,30 @@
 
 import { useDeferredValue, useEffect, useState } from "react";
 import Link from "next/link";
-import { Calendar, ExternalLink, Search } from "lucide-react";
-import type { NewsItem, PaginatedNewsResponse } from "@/types";
+import { Calendar, Search } from "lucide-react";
+import type { NewsItem, PaginatedNewsResponse, OfficialMapping } from "@/types";
 import {
   buildNewsPath,
   formatDate,
   getBorderAccent,
   getCardGradient,
   getSentimenClass,
+  getOfficialMapping,
+  getOfficialRolePriority,
 } from "@/lib/utils";
 
 interface NewsListProps {
   onOpenModal: (key: string) => void;
-  onOpenDetail: () => void;
+  officialMapping?: OfficialMapping;
 }
 
 interface NewsCardProps {
   news: NewsItem;
   onClick: () => void;
+  officialMapping?: OfficialMapping;
 }
 
-function NewsCard({ news, onClick }: NewsCardProps) {
+function NewsCard({ news, onClick, officialMapping }: NewsCardProps) {
   const border = getBorderAccent(news.potensi);
   const sentimenClass = getSentimenClass(news.potensi);
   const cardGradient = getCardGradient(news.potensi);
@@ -60,6 +63,44 @@ function NewsCard({ news, onClick }: NewsCardProps) {
       <div className="font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug text-base pl-3 relative z-10">
         {news.judul}
       </div>
+      {Array.isArray(news.pejabat) && news.pejabat.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600 dark:text-slate-300 pl-3 relative z-10 mt-1">
+          {(() => {
+            const pejabatArray = news.pejabat as string[];
+            const sorted = [...pejabatArray].sort((a, b) => {
+              const mA = getOfficialMapping(a, officialMapping || {});
+              const mB = getOfficialMapping(b, officialMapping || {});
+              const pA = getOfficialRolePriority(mA?.jabatan || mA?.role || a);
+              const pB = getOfficialRolePriority(mB?.jabatan || mB?.role || b);
+              return pA - pB;
+            });
+            const topName = sorted[0];
+            const topMapping = getOfficialMapping(topName, officialMapping || {});
+            const roleLabel = topMapping ? topMapping.role : "";
+            const extras = pejabatArray.length - 1;
+            return (
+              <>
+                <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 dark:bg-slate-800/60 px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-700">
+                  <i className="fas fa-user text-[10px] text-blue-500 shrink-0"></i>
+                  <span className="font-medium text-slate-700 dark:text-slate-300 break-words flex-1 min-w-[50px] leading-snug">
+                    {topName}
+                  </span>
+                  {roleLabel && (
+                    <span className="bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider">
+                      {roleLabel}
+                    </span>
+                  )}
+                </div>
+                {extras > 0 && (
+                  <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/60 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                    +{extras} lainnya
+                  </span>
+                )}
+              </>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 }
@@ -72,7 +113,7 @@ const EMPTY_PAGE: PaginatedNewsResponse = {
   totalPages: 1,
 };
 
-export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
+export default function NewsList({ onOpenModal, officialMapping }: NewsListProps) {
   const [searchInput, setSearchInput] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -154,7 +195,7 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
             type="text"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
-            placeholder="Cari berdasarkan judul, potensi, pejabat..."
+            placeholder="Telusuri Berita ..."
             className="w-full pl-10 pr-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium text-sm"
           />
         </div>
@@ -165,16 +206,6 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
           <div className="font-bold text-slate-500 dark:text-slate-500 tracking-[0.2em] text-[10px]">
             Informasi Berita
           </div>
-          <button
-            onClick={onOpenDetail}
-            className="text-xs font-bold text-blue-500 hover:text-blue-400 transition-colors flex items-center gap-1.5 group"
-          >
-            Buka Detail
-            <ExternalLink
-              size={14}
-              className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
-            />
-          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -192,7 +223,12 @@ export default function NewsList({ onOpenModal, onOpenDetail }: NewsListProps) {
             </div>
           ) : (
             response.items.map((news) => (
-              <NewsCard key={news.key} news={news} onClick={() => onOpenModal(news.key)} />
+              <NewsCard
+                key={news.key}
+                news={news}
+                onClick={() => onOpenModal(news.key)}
+                officialMapping={officialMapping}
+              />
             ))
           )}
         </div>

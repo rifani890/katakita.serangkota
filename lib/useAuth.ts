@@ -77,6 +77,9 @@ export function useAuth(): AuthState {
       try {
         await fetch("/api/auth/session", {
           method: "DELETE",
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+          },
           cache: "no-store",
           credentials: "include",
         });
@@ -171,8 +174,8 @@ export function useAuth(): AuthState {
       });
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({ error: "Login failed" }));
-        const error = new Error(errData.error || "Login failed");
+        const errData = await res.json().catch(() => ({ error: "Login gagal" }));
+        const error = new Error(errData.error || "Login gagal");
         (error as any).code = errData.code || "";
         throw error;
       }

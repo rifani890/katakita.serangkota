@@ -53,7 +53,7 @@ export const OFFICIAL_ROLE_COLORS: Record<string, string> = {
   "Pejabat Lainnya": "#64748b",
 };
 
-export const DEFAULT_SITE_URL = "http://localhost:3000";
+export const DEFAULT_SITE_URL = "https://katakita-serangkota.vercel.app";
 
 export function parseDate(dateVal: string | number | undefined): Date {
   if (!dateVal) return new Date(0);

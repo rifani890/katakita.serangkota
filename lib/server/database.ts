@@ -1,5 +1,6 @@
 import fs from "fs";
 import mysql, { type ResultSetHeader } from "mysql2/promise";
+import { logger } from "@/lib/logger";
 
 const SOCKET_CANDIDATES = [
   process.env.DB_SOCKET || "",
@@ -47,9 +48,9 @@ function createPoolConfig() {
 
   try {
     if (config.socketPath) {
-      console.info("DB: using socketPath ->", config.socketPath);
+      logger.info("DB: using socketPath ->", config.socketPath);
     } else {
-      console.info("DB: using TCP ->", `${config.host}:${config.port || 3306}`);
+      logger.info("DB: using TCP ->", `${config.host}:${config.port || 3306}`);
     }
   } catch {
     // Ignore logging errors.

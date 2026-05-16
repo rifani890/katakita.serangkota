@@ -27,7 +27,7 @@ export function LoadingOverlay({ show, text = "Sedang Memproses..." }: LoadingOv
 }
 
 // ---- Confirm Dialog ----
-export type ConfirmType = "delete" | "info" | "warn";
+export type ConfirmType = "delete" | "info" | "warn" | "confirm";
 
 interface ConfirmDialogProps {
   show: boolean;
@@ -59,6 +59,7 @@ export function ConfirmDialog({
   if (!show) return null;
 
   const isDelete = type === "delete";
+  const isConfirm = type === "confirm";
 
   return (
     <div
@@ -89,24 +90,44 @@ export function ConfirmDialog({
             <p className="text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">{message}</p>
           </div>
         </div>
-        <div className="flex gap-4">
-          <button
-            onClick={onCancel}
-            className="flex-1 px-4 py-4 rounded-xl font-bold text-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-all"
-          >
-            Batal
-          </button>
+        {isDelete ? (
+          <div className="flex gap-4">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-4 py-4 rounded-xl font-bold text-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-all"
+            >
+              Batal
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-4 rounded-xl font-bold text-lg text-white transition-all shadow-lg bg-rose-600 hover:bg-rose-700 shadow-rose-500/30"
+            >
+              Ya, Hapus
+            </button>
+          </div>
+        ) : isConfirm ? (
+          <div className="flex gap-4">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-4 py-4 rounded-xl font-bold text-lg bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-300 transition-all"
+            >
+              Batal
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-4 rounded-xl font-bold text-lg text-white transition-all shadow-lg bg-blue-600 hover:bg-blue-700 shadow-blue-500/30"
+            >
+              Simpan
+            </button>
+          </div>
+        ) : (
           <button
             onClick={onConfirm}
-            className={`flex-1 px-4 py-4 rounded-xl font-bold text-lg text-white transition-all shadow-lg ${
-              isDelete
-                ? "bg-rose-600 hover:bg-rose-700 shadow-rose-500/30"
-                : "bg-blue-600 hover:bg-blue-700 shadow-blue-500/30"
-            }`}
+            className="w-full px-4 py-4 rounded-xl font-bold text-lg text-white transition-all shadow-lg bg-blue-600 hover:bg-blue-700 shadow-blue-500/30"
           >
-            {isDelete ? "Ya, Hapus" : "Simpan"}
+            OK
           </button>
-        </div>
+        )}
       </div>
     </div>
   );

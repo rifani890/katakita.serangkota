@@ -49,7 +49,7 @@ export default function Berita() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMsg, setConfirmMsg] = useState("");
-  const [confirmType, setConfirmType] = useState<"info" | "delete">("info");
+  const [confirmType, setConfirmType] = useState<"info" | "delete" | "confirm">("info");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
 
   const queryString = useMemo(() => {
@@ -99,7 +99,7 @@ export default function Berita() {
   const askConfirm = (
     title: string,
     message: string,
-    type: "info" | "delete",
+    type: "info" | "delete" | "confirm",
     action: () => void
   ) => {
     setConfirmTitle(title);
@@ -125,18 +125,23 @@ export default function Berita() {
             const data = (await res.json()) as PaginatedNewsResponse;
             setResponse(data);
           }
+          setSaving(false);
+          askConfirm("Berhasil Dihapus", `Berita "${judul}" telah berhasil dihapus.`, "info", () =>
+            setConfirmOpen(false)
+          );
         } catch (err) {
           console.error("handleDelete error:", err);
-          alert("Gagal menghapus berita.");
-        } finally {
           setSaving(false);
+          askConfirm("Gagal Menghapus", "Terjadi kesalahan saat menghapus berita.", "info", () =>
+            setConfirmOpen(false)
+          );
         }
       }
     );
   };
 
   const handlePrint = (news: NewsItem) => {
-    askConfirm("Cetak Berita", "Apakah Anda ingin mencetak rincian berita ini?", "info", () => {
+    askConfirm("Cetak Berita", "Apakah Anda ingin mencetak rincian berita ini?", "confirm", () => {
       setConfirmOpen(false);
       printNews(news);
     });

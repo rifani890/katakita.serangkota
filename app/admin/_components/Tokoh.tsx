@@ -28,7 +28,7 @@ export default function TokohClient() {
 
   // Confirm state
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [confirmType, setConfirmType] = useState<"delete" | "info">("info");
+  const [confirmType, setConfirmType] = useState<"delete" | "info" | "confirm">("info");
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMsg, setConfirmMsg] = useState("");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
@@ -67,7 +67,12 @@ export default function TokohClient() {
     setModalOpen(true);
   };
 
-  const askConfirm = (title: string, msg: string, type: "delete" | "info", action: () => void) => {
+  const askConfirm = (
+    title: string,
+    msg: string,
+    type: "delete" | "info" | "confirm",
+    action: () => void
+  ) => {
     setConfirmTitle(title);
     setConfirmMsg(msg);
     setConfirmType(type);
@@ -84,7 +89,7 @@ export default function TokohClient() {
     askConfirm(
       "Konfirmasi Simpan",
       `Apakah Anda yakin ingin ${action} data tokoh ini?`,
-      "info",
+      "confirm",
       async () => {
         setConfirmOpen(false);
         setSavingText("Menyimpan...");
@@ -127,10 +132,13 @@ export default function TokohClient() {
       try {
         await fetchWithAuth(`/api/tokoh?id=${id}`, { method: "DELETE" });
         await loadData();
-      } catch (err: unknown) {
-        alert((err as Error).message);
-      } finally {
         setSaving(false);
+        askConfirm("Berhasil Dihapus", `Tokoh "${nama}" telah berhasil dihapus.`, "info", () =>
+          setConfirmOpen(false)
+        );
+      } catch (err: unknown) {
+        setSaving(false);
+        askConfirm("Gagal Menghapus", (err as Error).message, "info", () => setConfirmOpen(false));
       }
     });
   };

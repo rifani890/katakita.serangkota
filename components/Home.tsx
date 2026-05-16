@@ -5,7 +5,7 @@ import type { OfficialMapping } from "@/types";
 import { useDashboardSummary } from "@/lib/useDashboardSummary";
 import { printNews } from "@/lib/print";
 import Navbar from "@/components/Navbar";
-import StatCards from "@/components/StatCards";
+import GrafikMingguan from "@/components/GrafikMingguan";
 
 import NewsList from "@/components/NewsList";
 import DetailPage, { type DetailPageQuery } from "@/components/DetailPage";
@@ -20,8 +20,16 @@ interface FilterLabel {
 }
 
 export default function Home() {
-  const { stats, officialCounts, trend, officialMapping, mediaLegend, loading, error } =
-    useDashboardSummary();
+  const {
+    stats,
+    officialCounts,
+    trend,
+    officialMapping,
+    mediaLegend,
+    weeklyTopOfficials,
+    loading,
+    error,
+  } = useDashboardSummary();
 
   const [activePage, setActivePage] = useState<ActivePage>("dashboard");
   const [detailQuery, setDetailQuery] = useState<DetailPageQuery>({});
@@ -119,22 +127,17 @@ export default function Home() {
     return () => window.removeEventListener("popstate", onPopState);
   }, [handleBackToDashboard]);
 
-  const handleStatFilter = useCallback(
-    (type: "total" | "positive" | "neutral" | "negative") => {
-      if (type === "total") {
-        openDetailPage({}, "Semua Berita", "#3b82f6");
-        return;
-      }
+  const handleTopOfficialClick = useCallback(
+    (name: string) => {
+      // Resolve name → role via officialMapping; fall back to name itself
+      const mapped = (officialMapping as Record<string, { role?: string; color?: string }>)[name];
+      const role = mapped?.role || name;
+      const color = mapped?.color || "#f59e0b";
 
-      const config = {
-        positive: { label: "Positif", color: "#10b981", potensi: "Positif" },
-        neutral: { label: "Netral", color: "#94a3b8", potensi: "Netral" },
-        negative: { label: "Negatif", color: "#f43f5e", potensi: "Negatif" },
-      }[type];
-
-      openDetailPage({ potensi: config.potensi }, config.label, config.color);
+      // Use recentDays: 7 to match the exact same SQL as GrafikMingguan
+      openDetailPage({ role, recentDays: 7 }, `${name} • Minggu Ini`, color);
     },
-    [openDetailPage]
+    [officialMapping, openDetailPage]
   );
 
   const handleOfficialClick = useCallback(
@@ -169,10 +172,6 @@ export default function Home() {
     },
     [mediaLegend, openDetailPage]
   );
-
-  const handleOpenDetail = useCallback(() => {
-    openDetailPage({}, "Semua Berita", "#3b82f6");
-  }, [openDetailPage]);
 
   const handlePrintDirect = useCallback(async (key: string) => {
     if (!confirm("Apakah Anda ingin mencetak berita ini secara langsung?")) return;
@@ -229,9 +228,15 @@ export default function Home() {
           {activePage === "dashboard" && (
             <div className="space-y-2">
               <HeroSection onOpenModal={setModalKey} />
-              <StatCards stats={stats} loading={loading} onFilter={handleStatFilter} />
+              <GrafikMingguan
+                onOfficialClick={handleTopOfficialClick}
+                officialMapping={officialMapping as OfficialMapping}
+              />
 
-              <NewsList onOpenModal={setModalKey} onOpenDetail={handleOpenDetail} />
+              <NewsList
+                onOpenModal={setModalKey}
+                officialMapping={officialMapping as OfficialMapping}
+              />
             </div>
           )}
 

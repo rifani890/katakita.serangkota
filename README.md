@@ -2,8 +2,6 @@
 
 Dashboard pemantauan berita media cetak modern untuk Pemerintah Kota Serang, dibangun dengan **Next.js 14**, **Tailwind CSS**, dan **MySQL**. Dirancang untuk memberikan wawasan cepat mengenai tren media, sentimen publik, dan keterlibatan pejabat secara _real-time_.
 
-> **Status:** ✅ Lulus Pengujian Penuh (23/23) — Siap Produksi
-
 ---
 
 ## ✨ Fitur Utama
@@ -132,31 +130,43 @@ npm install
 Buat file `.env.local` di _root_ folder:
 
 ```env
-# Database (Railway atau lokal)
 DB_HOST=localhost
 DB_USER=root
 DB_PASS=password_anda
-DB_NAME=railway
+DB_NAME=katakita_db
 DB_PORT=3306
-
-# Atau gunakan URL lengkap
-MYSQL_URL=mysql://user:pass@host:port/database
-
-# Kunci enkripsi sesi — WAJIB diisi di produksi!
-# Generate dengan: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 AUTH_SECRET=isi_dengan_string_acak_minimal_32_karakter
+NEXT_PUBLIC_SITE_URL=https://domain-anda.com
 ```
 
-> [!IMPORTANT]
-> **`AUTH_SECRET` wajib diisi saat deploy ke server produksi.**
-> Jika tidak diisi, aplikasi akan menggunakan kunci default `dev-only-change-me` yang lemah dan tidak aman.
-> Gunakan perintah berikut untuk membuat kunci acak yang kuat:
->
-> ```bash
-> node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-> ```
+Generate `AUTH_SECRET`:
 
-### 3. Jalankan Server Pengembangan
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+### 3. File yang Harus Dikonfigurasi Saat Ganti Domain
+
+Jika mengganti domain produksi, update URL di file-file berikut:
+
+| No  | File                 | Yang Diubah                                               |
+| --- | -------------------- | --------------------------------------------------------- |
+| 1   | `.env.local`         | `NEXT_PUBLIC_SITE_URL=https://domain-baru.com`            |
+| 2   | `.env.production`    | `NEXT_PUBLIC_SITE_URL=https://domain-baru.com`            |
+| 3   | `lib/utils.ts`       | Baris 56: `DEFAULT_SITE_URL = "https://domain-baru.com"`  |
+| 4   | `next.config.mjs`    | Baris 48: `destination: "https://domain-baru.com/:path*"` |
+| 5   | `lib/server/cors.ts` | Baris 4: fallback URL di `ALLOWED_ORIGINS`                |
+
+File yang **tidak perlu diubah** (otomatis baca dari `NEXT_PUBLIC_SITE_URL`):
+`app/layout.tsx`, `app/robots.ts`, `app/sitemap.ts`, `lib/server/session.ts`, `lib/server/csrf.ts`
+
+Cari semua URL hardcode:
+
+```bash
+grep -rn "katakita-serangkota.vercel.app" --include="*.ts" --include="*.tsx" --include="*.mjs" --include="*.env*" .
+```
+
+### 4. Jalankan Server Pengembangan
 
 ```bash
 npm run dev
@@ -168,67 +178,55 @@ Buka `http://localhost:3000`
 
 ## 🌍 Deployment
 
-### Opsi A: cPanel (Setup Node.js App)
+> Panduan lengkap tersedia di file `DEPLOYMENT.md`
 
-> _Syarat: Paket hosting harus mendukung fitur "Setup Node.js App" atau "Phusion Passenger"_
-
-1. Build di lokal:
-   ```bash
-   npm run build
-   ```
-2. _Zip_ seluruh proyek (sertakan `.next/`, **kecuali** `node_modules/`, `.git/`, `.env.local`)
-3. Upload & ekstrak di folder baru di cPanel (bukan `public_html`)
-4. Buat file `.env.local` di server dan isi konfigurasi database
-5. Di cPanel → **Setup Node.js App** → Create Application:
-   - Node.js version: `18.x` atau `20.x`
-   - Application mode: `Production`
-   - Application root: nama folder yang dibuat
-   - Application startup file: `server.js`
-6. Klik **Run NPM Install** → **Start App**
-
-### Opsi B: VPS dengan PM2
+### VPS dengan PM2 + Nginx
 
 ```bash
-# 1. Clone & install
+# Clone, install, konfigurasi
 git clone https://github.com/username/katakita.serangkota.git
 cd katakita.serangkota
 npm install
+nano .env.production   # isi environment variables
 
-# 2. Buat .env.local dan konfigurasi
-nano .env.local
-
-# 3. Build
+# Build & jalankan
 npm run build
-
-# 4. Install PM2 dan jalankan
 npm install -g pm2
 pm2 start npm --name "katakita" -- run start
-pm2 startup   # Agar otomatis jalan saat server restart
-pm2 save
+pm2 startup && pm2 save
 ```
 
-**Konfigurasi Nginx (Reverse Proxy):**
+Konfigurasi Nginx:
 
 ```nginx
 server {
     listen 80;
-    server_name katakita.serangkota.go.id;
+    server_name domain-anda.com;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name domain-anda.com;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
     }
 }
 ```
 
-Pasang HTTPS dengan Certbot:
+SSL dengan Certbot:
 
 ```bash
-sudo certbot --nginx -d katakita.serangkota.go.id
+sudo certbot --nginx -d domain-anda.com
 ```
 
 ---
@@ -266,5 +264,3 @@ sudo certbot --nginx -d katakita.serangkota.go.id
 - ✅ **Ekspor Database**: File `data.sql`
 
 ---
-
-_Dikembangkan oleh Diskominfo Kota Serang © 2026 KataKita_

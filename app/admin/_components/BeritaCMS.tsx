@@ -23,7 +23,37 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/useAuth";
 import { LoadingOverlay, ConfirmDialog, Modal } from "./UI";
-import type { MediaItem, NewsItem, OfficialItem, UnitItem, TokohItem } from "@/types";
+import type { MediaItem, NewsItem, OfficialItem, TokohItem } from "@/types";
+
+const OPD_LIST = [
+  "*",
+  "Pemerintah Kota Serang (Pemkot Serang)",
+  "Sekretariat Daerah (Setda) Kota Serang",
+  "Sekretariat DPRD (Setwan) Kota Serang",
+  "Inspektorat Kota Serang",
+  "Badan Perencanaan Pembangunan, Riset, dan Inovasi Daerah (Bapperida)",
+  "Badan Pengelola Keuangan dan Aset Daerah (BPKAD)",
+  "Badan Pendapatan Daerah (Bapenda)",
+  "Badan Kepegawaian dan Pengembangan Sumber Daya Manusia (BKPSDM)",
+  "Badan Penanggulangan Bencana Daerah (BPBD)",
+  "Badan Kesatuan Bangsa dan Politik (Kesbangpol)",
+  "Dinas Kesehatan (Dinkes)",
+  "Dinas Kependudukan dan Pencatatan Sipil (Disdukcapil)",
+  "Dinas Pendidikan dan Kebudayaan (Dindikbud)",
+  "Dinas Komunikasi dan Informatika (Diskominfo)",
+  "Dinas Perhubungan (Dishub)",
+  "Dinas Sosial (Dinsos)",
+  "Dinas Pariwisata, Kepemudaan, dan Olahraga (Disparpora)",
+  "Dinas Pekerjaan Umum dan Penataan Ruang (DPUPR)",
+  "Dinas Perumahan dan Kawasan Permukiman (Disperkim)",
+  "Dinas Lingkungan Hidup (DLH)",
+  "Dinas Pertanian (Distan)",
+  "Dinas Koperasi, Usaha Kecil dan Menengah, Perindustrian dan Perdagangan (DinkopUKMPerindag)",
+  "Dinas Pemberdayaan Perempuan, Perlindungan Anak, dan Keluarga Berencana (DP3AKB)",
+  "Dinas Perpustakaan dan Kearsipan Daerah (Disperpusda)",
+  "Satuan Polisi Pamong Praja (Satpol PP)",
+  "Lainnya",
+];
 
 interface AdminBeritaCMSClientProps {
   beritaId?: string;
@@ -49,7 +79,6 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
   const { user } = useAuth();
   const isEdit = Boolean(beritaId);
 
-  const [allUnits, setAllUnits] = useState<UnitItem[]>([]);
   const [allOfficials, setAllOfficials] = useState<OfficialItem[]>([]);
   const [allTokoh, setAllTokoh] = useState<TokohItem[]>([]);
   const [allMedia, setAllMedia] = useState<MediaItem[]>([]);
@@ -60,13 +89,13 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState("");
   const [confirmMsg, setConfirmMsg] = useState("");
-  const [confirmType, setConfirmType] = useState<"info" | "delete">("info");
+  const [confirmType, setConfirmType] = useState<"info" | "delete" | "confirm">("info");
   const [confirmAction, setConfirmAction] = useState<() => void>(() => {});
 
   const askConfirm = (
     title: string,
     message: string,
-    type: "info" | "delete",
+    type: "info" | "delete" | "confirm",
     action: () => void
   ) => {
     setConfirmTitle(title);
@@ -100,9 +129,6 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
   const [showTokohModal, setShowTokohModal] = useState(false);
   const [newTokohName, setNewTokohName] = useState("");
   const [newTokohJabatan, setNewTokohJabatan] = useState("");
-  const [showUnitModal, setShowUnitModal] = useState(false);
-  const [newUnitName, setNewUnitName] = useState("");
-  const [newUnitPimpinan, setNewUnitPimpinan] = useState("");
   const [showMediaModal, setShowMediaModal] = useState(false);
 
   const pejabatDropRef = useRef<HTMLDivElement>(null);
@@ -143,14 +169,6 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
     setFormTokoh(normalizePejabat(news.tokoh));
   }, []);
 
-  const refreshUnits = useCallback(async () => {
-    const res = await fetchWithAuth("/api/unit", { cache: "no-store" });
-    if (res.ok) {
-      const units: UnitItem[] = await res.json();
-      setAllUnits(units);
-    }
-  }, []);
-
   const refreshOfficials = useCallback(async () => {
     const res = await fetchWithAuth("/api/pejabat", { cache: "no-store" });
     if (res.ok) {
@@ -170,20 +188,17 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [unitsRes, officialsRes, tokohRes, mediaRes, newsRes] = await Promise.all([
-        fetch("/api/unit", { cache: "no-store" }),
+      const [officialsRes, tokohRes, mediaRes, newsRes] = await Promise.all([
         fetch("/api/pejabat", { cache: "no-store" }),
         fetch("/api/tokoh", { cache: "no-store" }),
         fetch("/api/media", { cache: "no-store" }),
         beritaId ? fetch(`/api/berita/${beritaId}`, { cache: "no-store" }) : Promise.resolve(null),
       ]);
 
-      const units: UnitItem[] = unitsRes.ok ? await unitsRes.json() : [];
       const officials: OfficialItem[] = officialsRes.ok ? await officialsRes.json() : [];
       const tokohList: TokohItem[] = tokohRes.ok ? await tokohRes.json() : [];
       const media: MediaItem[] = mediaRes.ok ? await mediaRes.json() : [];
 
-      setAllUnits(units);
       setAllOfficials(officials);
       setAllTokoh(tokohList);
       setAllMedia(media);
@@ -229,10 +244,9 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
     return name.toLowerCase().includes(tokohSearch.toLowerCase());
   });
 
-  const filteredUnits = allUnits.filter((u) => {
-    const name = u.unit || u.nama || "";
-    return name.toLowerCase().includes(unitSearch.toLowerCase());
-  });
+  const filteredUnits = OPD_LIST.filter((name) =>
+    name.toLowerCase().includes(unitSearch.toLowerCase())
+  );
 
   const togglePejabat = (nama: string) => {
     setFormPejabat((prev) =>
@@ -249,7 +263,7 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
   const handleQuickAddMedia = () => {
     const name = newMediaName.trim();
     if (!name) return;
-    askConfirm("Tambah Media", `Yakin ingin menambahkan media "${name}"?`, "info", async () => {
+    askConfirm("Tambah Media", `Yakin ingin menambahkan media "${name}"?`, "confirm", async () => {
       setConfirmOpen(false);
       setSavingText("Menambahkan Media...");
       setSaving(true);
@@ -279,76 +293,45 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
     const name = newPejabatName.trim();
     if (!name) return;
     const finalJabatan = newPejabatJabatan.trim();
-    askConfirm("Tambah Pejabat", `Yakin ingin menambahkan pejabat "${name}"?`, "info", async () => {
-      setConfirmOpen(false);
-      setSavingText("Menambahkan Pejabat...");
-      setSaving(true);
-      try {
-        const res = await fetchWithAuth("/api/pejabat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nama: name, jabatan: finalJabatan }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Gagal menambahkan pejabat");
+    askConfirm(
+      "Tambah Pejabat",
+      `Yakin ingin menambahkan pejabat "${name}"?`,
+      "confirm",
+      async () => {
+        setConfirmOpen(false);
+        setSavingText("Menambahkan Pejabat...");
+        setSaving(true);
+        try {
+          const res = await fetchWithAuth("/api/pejabat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nama: name, jabatan: finalJabatan }),
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || "Gagal menambahkan pejabat");
+          }
+          setNewPejabatName("");
+          setNewPejabatJabatan("");
+          setShowJabatanDrop(false);
+          setShowPejabatModal(false);
+          await refreshOfficials();
+          // auto select
+          setFormPejabat((prev) => (prev.includes(name) ? prev : [...prev, name]));
+        } catch (err) {
+          alert((err as Error).message);
+        } finally {
+          setSaving(false);
         }
-        setNewPejabatName("");
-        setNewPejabatJabatan("");
-        setShowJabatanDrop(false);
-        setShowPejabatModal(false);
-        await refreshOfficials();
-        // auto select
-        setFormPejabat((prev) => (prev.includes(name) ? prev : [...prev, name]));
-      } catch (err) {
-        alert((err as Error).message);
-      } finally {
-        setSaving(false);
       }
-    });
-  };
-
-  const handleQuickAddUnit = () => {
-    let fullName = newUnitName.trim();
-    if (newUnitPimpinan.trim()) {
-      if (fullName) fullName += " - ";
-      fullName += newUnitPimpinan.trim();
-    }
-
-    if (!fullName) return;
-
-    askConfirm("Tambah Unit", `Yakin ingin menambahkan unit "${fullName}"?`, "info", async () => {
-      setConfirmOpen(false);
-      setSavingText("Menambahkan Unit...");
-      setSaving(true);
-      try {
-        const res = await fetchWithAuth("/api/unit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nama: fullName }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error || "Gagal menambahkan unit");
-        }
-        setNewUnitName("");
-        setNewUnitPimpinan("");
-        setShowUnitModal(false);
-        await refreshUnits();
-        setFormUnit(fullName);
-      } catch (err) {
-        alert((err as Error).message);
-      } finally {
-        setSaving(false);
-      }
-    });
+    );
   };
 
   const handleQuickAddTokoh = () => {
     const name = newTokohName.trim();
     if (!name) return;
     const finalJabatan = newTokohJabatan.trim();
-    askConfirm("Tambah Tokoh", `Yakin ingin menambahkan tokoh "${name}"?`, "info", async () => {
+    askConfirm("Tambah Tokoh", `Yakin ingin menambahkan tokoh "${name}"?`, "confirm", async () => {
       setConfirmOpen(false);
       setSavingText("Menambahkan Tokoh...");
       setSaving(true);
@@ -396,7 +379,7 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
     askConfirm(
       "Konfirmasi Simpan",
       "Apakah Anda yakin ingin menyimpan berita ini?",
-      "info",
+      "confirm",
       async () => {
         setConfirmOpen(false);
         setSavingText("Menyimpan Berita...");
@@ -642,48 +625,6 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
       </Modal>
 
       <Modal
-        show={showUnitModal}
-        onClose={() => setShowUnitModal(false)}
-        title="Tambah Unit Kerja Manual"
-        titleIcon={<Building2 size={20} className="text-emerald-500" />}
-        maxWidth="max-w-md"
-      >
-        <div className="p-6 space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
-              Nama Unit Kerja
-            </label>
-            <input
-              type="text"
-              value={newUnitName}
-              onChange={(e) => setNewUnitName(e.target.value)}
-              placeholder="Dinas / Instansi / Unit..."
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 ring-indigo-500 text-slate-800 dark:text-white"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">
-              Pimpinan / Staff
-            </label>
-            <input
-              type="text"
-              value={newUnitPimpinan}
-              onChange={(e) => setNewUnitPimpinan(e.target.value)}
-              placeholder="Nama pimpinan unit..."
-              className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 outline-none focus:ring-2 ring-indigo-500 text-slate-800 dark:text-white"
-            />
-          </div>
-          <button
-            onClick={handleQuickAddUnit}
-            disabled={!newUnitName.trim()}
-            className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all shadow-lg shadow-indigo-500/30 disabled:opacity-50"
-          >
-            Tambah & Pilih Unit
-          </button>
-        </div>
-      </Modal>
-
-      <Modal
         show={showMediaModal}
         onClose={() => setShowMediaModal(false)}
         title="Tambah Media Manual"
@@ -904,7 +845,7 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
                       )}
                       <ChevronDown size={16} className="text-slate-400 flex-shrink-0 ml-2" />
                     </div>
-                    {showPejabatDrop && (
+                    {showPejabatDrop && pejabatSearch.trim().length > 0 && (
                       <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                         <div className="max-h-60 overflow-y-auto p-2 space-y-1">
                           {filteredOfficials.length === 0 ? (
@@ -1004,7 +945,7 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
                       )}
                       <ChevronDown size={16} className="text-slate-400 flex-shrink-0 ml-2" />
                     </div>
-                    {showTokohDrop && (
+                    {showTokohDrop && tokohSearch.trim().length > 0 && (
                       <div className="absolute z-50 left-0 right-0 top-full mt-1 bg-white dark:bg-slate-900 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                         <div className="max-h-60 overflow-y-auto p-2 space-y-1">
                           {filteredTokoh.length === 0 ? (
@@ -1063,13 +1004,12 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
 
                 <div ref={unitDropRef}>
                   <label className="flex items-center gap-2 text-xs font-black text-slate-500 dark:text-slate-400 tracking-widest mb-2">
-                    <Building2 size={14} /> Unit Kerja
+                    <Building2 size={14} /> Unit Kerja <span className="text-rose-500">*</span>
                   </label>
                   <div className="relative">
                     <div
                       onClick={() => {
                         if (!showUnitDrop) {
-                          void refreshUnits();
                           setUnitSearch("");
                         }
                         setShowUnitDrop(!showUnitDrop);
@@ -1112,18 +1052,22 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
                           >
                             -- Kosongkan Pilihan --
                           </button>
-                          {filteredUnits.length === 0 ? (
+                          {(unitSearch.trim().length === 0
+                            ? OPD_LIST.filter((n) => n === "*" || n === "Lainnya")
+                            : filteredUnits
+                          ).length === 0 ? (
                             <div className="p-4 text-center text-slate-400 text-xs italic">
                               Unit tidak ditemukan
                             </div>
                           ) : (
-                            filteredUnits.map((u) => {
-                              const name = u.unit || u.nama || "";
-                              if (!name) return null;
+                            (unitSearch.trim().length === 0
+                              ? OPD_LIST.filter((n) => n === "Lainnya")
+                              : filteredUnits
+                            ).map((name) => {
                               const isSelected = formUnit === name;
                               return (
                                 <button
-                                  key={u.key}
+                                  key={name}
                                   type="button"
                                   onClick={() => {
                                     setFormUnit(name);
@@ -1136,18 +1080,6 @@ export default function BeritaCMS({ beritaId }: AdminBeritaCMSClientProps) {
                               );
                             })
                           )}
-                        </div>
-                        <div className="p-2 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowUnitModal(true);
-                              setShowUnitDrop(false);
-                            }}
-                            className="w-full flex items-center justify-center gap-2 py-2 text-xs font-bold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all"
-                          >
-                            <Plus size={14} /> Tambah Unit Manual
-                          </button>
                         </div>
                       </div>
                     )}

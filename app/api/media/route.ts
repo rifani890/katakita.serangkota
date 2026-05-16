@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 import {
   createMedia,
   deleteMedia,
@@ -12,7 +13,7 @@ export async function GET() {
     const medias = await listMedia();
     return NextResponse.json(medias);
   } catch (err) {
-    console.error("/api/media GET error:", err);
+    logger.error("/api/media GET error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
@@ -29,10 +30,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Nama media tidak boleh kosong" }, { status: 400 });
     }
 
+    if (nama.length > 100) {
+      return NextResponse.json(
+        { error: "Nama media terlalu panjang (maks 100 karakter)" },
+        { status: 400 }
+      );
+    }
+
+    if (shorthand && shorthand.length > 50) {
+      return NextResponse.json(
+        { error: "Singkatan terlalu panjang (maks 50 karakter)" },
+        { status: 400 }
+      );
+    }
+
+    const COLOR_REGEX = /^#[0-9a-fA-F]{3,8}$|^hsl\(\d{1,3},\s?\d{1,3}%?,\s?\d{1,3}%?\)$/;
+    if (color && !COLOR_REGEX.test(color)) {
+      return NextResponse.json({ error: "Format warna tidak valid" }, { status: 400 });
+    }
+
     await createMedia({ nama, shorthand, color });
     return NextResponse.json({ message: "Media berhasil ditambahkan" });
   } catch (err: any) {
-    console.error("/api/media POST error:", err);
+    logger.error("/api/media POST error:", err);
     if (err.code === "ER_DUP_ENTRY") {
       return NextResponse.json({ message: "Media sudah tersedia" });
     }
@@ -52,10 +72,29 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "ID dan nama harus diisi" }, { status: 400 });
     }
 
+    if (nama.length > 100) {
+      return NextResponse.json(
+        { error: "Nama media terlalu panjang (maks 100 karakter)" },
+        { status: 400 }
+      );
+    }
+
+    if (shorthand && shorthand.length > 50) {
+      return NextResponse.json(
+        { error: "Singkatan terlalu panjang (maks 50 karakter)" },
+        { status: 400 }
+      );
+    }
+
+    const COLOR_REGEX = /^#[0-9a-fA-F]{3,8}$|^hsl\(\d{1,3},\s?\d{1,3}%?,\s?\d{1,3}%?\)$/;
+    if (color && !COLOR_REGEX.test(color)) {
+      return NextResponse.json({ error: "Format warna tidak valid" }, { status: 400 });
+    }
+
     await updateMedia({ id, nama, shorthand, color });
     return NextResponse.json({ message: "Media berhasil diupdate" });
   } catch (err: any) {
-    console.error("/api/media PUT error:", err);
+    logger.error("/api/media PUT error:", err);
     if (err.code === "ER_DUP_ENTRY") {
       return NextResponse.json({ error: "Media sudah ada" }, { status: 400 });
     }
@@ -78,7 +117,7 @@ export async function DELETE(req: Request) {
     await deleteMedia(id);
     return NextResponse.json({ message: "Media berhasil dihapus" });
   } catch (err) {
-    console.error("/api/media DELETE error:", err);
+    logger.error("/api/media DELETE error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

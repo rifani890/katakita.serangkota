@@ -107,9 +107,11 @@ export async function verifyUserPassword(
       dbPassword.startsWith("$2b$") ||
       dbPassword.startsWith("$2y$"));
 
-  const passwordMatches = looksHashed
-    ? await bcrypt.compare(password, dbPassword)
-    : password === dbPassword;
+  if (!looksHashed) {
+    // Reject login for unhashed passwords — force password reset via admin
+    return null;
+  }
 
+  const passwordMatches = await bcrypt.compare(password, dbPassword);
   return passwordMatches ? user : null;
 }

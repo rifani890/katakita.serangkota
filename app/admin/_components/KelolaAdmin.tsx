@@ -49,11 +49,16 @@ export default function KelolaAdmin() {
     open: false,
     title: "",
     msg: "",
-    type: "info" as "info" | "delete",
+    type: "info" as "info" | "delete" | "confirm",
     action: () => {},
   });
 
-  const askConfirm = (title: string, msg: string, type: "info" | "delete", action: () => void) => {
+  const askConfirm = (
+    title: string,
+    msg: string,
+    type: "info" | "delete" | "confirm",
+    action: () => void
+  ) => {
     setConfirmState({ open: true, title, msg, type, action });
   };
 
@@ -177,42 +182,47 @@ export default function KelolaAdmin() {
     const actionLabel = editTarget
       ? "menyimpan perubahan pengguna ini"
       : "menambahkan pengguna ini";
-    askConfirm("Konfirmasi Simpan", `Apakah Anda yakin ingin ${actionLabel}?`, "info", async () => {
-      setConfirmState((prev) => ({ ...prev, open: false }));
-      setProcessing(true);
-      try {
-        const res = await fetchWithAuth("/api/auth/users", {
-          method: editTarget ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id: editTarget?.id,
-            email: newEmail.trim(),
-            password: newPassword,
-            nama: newName.trim(),
-            role: newRole,
-          }),
-        });
+    askConfirm(
+      "Konfirmasi Simpan",
+      `Apakah Anda yakin ingin ${actionLabel}?`,
+      "confirm",
+      async () => {
+        setConfirmState((prev) => ({ ...prev, open: false }));
+        setProcessing(true);
+        try {
+          const res = await fetchWithAuth("/api/auth/users", {
+            method: editTarget ? "PUT" : "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              id: editTarget?.id,
+              email: newEmail.trim(),
+              password: newPassword,
+              nama: newName.trim(),
+              role: newRole,
+            }),
+          });
 
-        if (!res.ok) {
-          const errData = await res.json();
-          throw new Error(errData.error || "Failed to save user");
+          if (!res.ok) {
+            const errData = await res.json();
+            throw new Error(errData.error || "Failed to save user");
+          }
+
+          showToast(
+            editTarget
+              ? `Pengguna ${newEmail} berhasil diperbarui`
+              : `Pengguna ${newEmail} berhasil ditambahkan sebagai ${newRole}`,
+            "success"
+          );
+          resetUserForm();
+          fetchUsers();
+        } catch (err: any) {
+          console.error("Error saving user:", err);
+          showToast(err.message || "Gagal menyimpan pengguna", "error");
+        } finally {
+          setProcessing(false);
         }
-
-        showToast(
-          editTarget
-            ? `Pengguna ${newEmail} berhasil diperbarui`
-            : `Pengguna ${newEmail} berhasil ditambahkan sebagai ${newRole}`,
-          "success"
-        );
-        resetUserForm();
-        fetchUsers();
-      } catch (err: any) {
-        console.error("Error saving user:", err);
-        showToast(err.message || "Gagal menyimpan pengguna", "error");
-      } finally {
-        setProcessing(false);
       }
-    });
+    );
   }
 
   function handleDeleteClick(userData: UserData) {
@@ -630,7 +640,7 @@ export default function KelolaAdmin() {
                   type="text"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="John Doe"
+                  placeholder="Masukkan Nama Lengkap"
                   className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
                 />
               </div>
@@ -642,7 +652,7 @@ export default function KelolaAdmin() {
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="contoh@email.com"
+                  placeholder="Masukkan Email"
                   className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
                 />
               </div>

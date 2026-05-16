@@ -12,9 +12,13 @@ interface LoginProps {
 }
 
 function normalizeRedirect(value?: string): string {
-  if (!value || !value.startsWith("/")) return "/admin";
-  if (value.startsWith("//")) return "/admin";
-  return value;
+  if (!value || typeof value !== "string") return "/admin";
+  const trimmed = value.trim();
+  // Ensure it starts with / but not // or /\ to prevent protocol-relative redirects
+  if (!trimmed.startsWith("/") || trimmed.startsWith("//") || trimmed.startsWith("/\\")) {
+    return "/admin";
+  }
+  return trimmed;
 }
 
 export default function Login({ isOpen, onClose, redirectTo }: LoginProps) {
@@ -57,6 +61,10 @@ export default function Login({ isOpen, onClose, redirectTo }: LoginProps) {
         setError("Koneksi internet terputus. Silakan coba lagi.");
       } else if (code === "auth/too-many-requests") {
         setError("Terlalu banyak percobaan. Harap tunggu beberapa saat lalu coba lagi.");
+      } else if (code === "ACCOUNT_LOCKED") {
+        setError((err as Error).message);
+      } else if ((err as Error).message && (err as Error).message !== "Login gagal") {
+        setError((err as Error).message);
       } else {
         setError("Email atau password yang Anda masukkan salah.");
       }
@@ -106,7 +114,7 @@ export default function Login({ isOpen, onClose, redirectTo }: LoginProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="admin@example.com"
+                  placeholder="Masukkan Email"
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg pl-10 pr-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
                 />
               </div>
@@ -122,7 +130,7 @@ export default function Login({ isOpen, onClose, redirectTo }: LoginProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  placeholder="••••••••"
+                  placeholder="Masukkan Password"
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg pl-10 pr-10 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
                 />
                 <button
