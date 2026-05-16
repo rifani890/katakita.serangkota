@@ -41,7 +41,7 @@ function getAuthSecret(): string {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
         "FATAL: AUTH_SECRET environment variable is not set or is using the default dev value. " +
-        "Set a strong, random AUTH_SECRET in your hosting provider's environment variables."
+          "Set a strong, random AUTH_SECRET in your hosting provider's environment variables."
       );
     }
     return "dev-only-change-me";
