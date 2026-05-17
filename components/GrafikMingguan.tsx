@@ -50,13 +50,7 @@ export default function GrafikMingguan({ onOfficialClick, officialMapping }: Gra
                   let label = name;
                   if (officialMapping) {
                     const info = getOfficialMapping(name, officialMapping);
-                    const jabatan = info?.jabatan;
-                    // Tampilkan jabatan, kecuali jika kosong atau "-" maka tampilkan nama
-                    if (jabatan && jabatan.trim() !== "" && jabatan.trim() !== "-") {
-                      label = jabatan;
-                    } else {
-                      label = name;
-                    }
+                    label = info?.jabatan || info?.role || name;
                   }
                   counts.set(label, (counts.get(label) || 0) + 1);
                 }
